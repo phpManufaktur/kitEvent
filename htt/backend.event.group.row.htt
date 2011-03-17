@@ -1,0 +1,4 @@
+<tr>
+  <td class="label_{$css}">{$label}</td>
+  <td class="value_{$css}">{$value}</td>
+</tr>

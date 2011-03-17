@@ -1,0 +1,24 @@
+<!-- $Id$ -->
+<form name="{$form_name}" action="{$form_action}" method="post">
+  <input type="hidden" name="{$action_name}" value="{$action_value}" />
+  <h2>{$header}</h2>
+  {$intro}
+  <table width="100%">
+    <colgroup>
+      <col width="30%" />
+      <col width="70%" />
+    </colgroup>
+    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr>
+      <td class="label_{$css}">{$label}</td>
+      <td class="value_{$css}">{$value}</td>
+    </tr>
+    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr>
+      <td colspan="2">
+        <input type="submit" value="{$btn_ok}" />&nbsp;
+        <input type="button" value="{$btn_abort}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
+      </td>
+    </tr>
+  </table>
+</form>

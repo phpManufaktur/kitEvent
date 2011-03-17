@@ -1,0 +1,8 @@
+<!-- $Id$ -->
+<script type="text/javascript">
+  var WB_URL = '{$WB_URL}';
+</script>
+<div class="event_backend">
+  {$navigation}
+  <div {$class|default: ''}>{$content}</div>
+</div>

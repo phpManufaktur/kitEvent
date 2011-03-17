@@ -1,0 +1,24 @@
+<!-- $Id$ -->
+<form name="{$form_name}" action="{$form_action}" method="post">
+  <input type="hidden" name="{$action_name}" value="{$action_value}" />
+  <input type="hidden" name="{$event_name}" value="{$event_value}" />
+  <input type="hidden" name="{$item_name}" value="{$item_value}" />
+  <input type="hidden" name="{$suggestion_name}" value="{$suggestion_value}" />
+  <input type="hidden" id="language" name="language" value="{$language}" />
+  <h2>{$header}</h2>
+  {$intro}
+  <table width="100%">
+    <colgroup>
+      <col width="30%" />
+      <col width="70%" />
+    </colgroup>
+    {$items}
+    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr>
+      <td colspan="2">
+        <input type="submit" value="{$btn_ok}" />&nbsp;
+        <input type="button" value="{$btn_abort}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
+      </td>
+    </tr>
+  </table>
+</form>

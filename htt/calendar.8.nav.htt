@@ -1,0 +1,6 @@
+<tr class="cms_navigation">
+  <td class="cms_week">&nbsp;</td>
+  <td class="cms_month_prev">{$link_month_prev|default:''}</td>
+  <td class="cms_month_name" colspan="5">{$month_name|default:''}</td>
+  <td class="cms_month_next">{$link_month_next|default:''}</td>
+</tr>

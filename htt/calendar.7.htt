@@ -1,0 +1,15 @@
+<!-- $Id$ -->
+<div class="cms_container">
+  <table width="100%">
+    <colgroup>
+      <col width="14%" />
+      <col width="14%" />
+      <col width="14%" />
+      <col width="14%" />
+      <col width="14%" />
+      <col width="15%" />
+      <col width="15%" />
+    </colgroup>
+    {$items}
+  </table>
+</div>

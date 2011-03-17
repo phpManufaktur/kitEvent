@@ -1,0 +1,10 @@
+<tr>
+  <th class="head_{$id_name}">{$id}</th>
+  <th class="head_{$date_from_name}">{$date_from}</th>
+  <th class="head_{$date_to_name}">{$date_to}</th>
+  <th class="head_{$group_name}">{$group}</th>
+  <th class="head_{$part_max_name}">{$part_max}</th>
+  <th class="head_{$part_total_name}">{$part_total}</th>
+  <th class="head_{$deadline_name}">{$deadline}</th>
+  <th class="head_{$title_name}">{$title}</th>
+</tr>

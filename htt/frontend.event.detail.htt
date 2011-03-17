@@ -1,0 +1,27 @@
+<!-- $Id$ -->
+<div class="evt_detail">
+  <h2>{$evt_headline}</h2>
+  <div>ID: {$evt_id}</div>
+  <div>Gruppenbezeichner: {$evt_group_name}</div>
+  <div>Gruppenbeschreibung: {$evt_group_desc}</div>
+  <div>Beginn, Datum: {$evt_start_date}</div>
+  <div>Beginn, Datum und Uhrzeit: {$evt_start_datetime}</div>
+  <div>Beginn, Uhrzeit: {$evt_start_time}</div>
+  <div>Beginn, Tag: {$evt_start_day}</div>
+  <div>Beginn, Wochentag: {$evt_start_day_of_week}</div>
+  <div>Beginn, Monat: {$evt_start_month}</div>
+  <div>Ende, Datum: {$evt_end_date}</div>
+  <div>Ende, Datum und Uhrzeit: {$evt_end_datetime}</div>
+  <div>Ende, Uhrzeit: {$evt_end_time}</div>
+  <div>Veröffentlichung, Beginn: {$evt_publish_start}</div>
+  <div>Veröffentlichung, Ende: {$evt_publish_end}</div>
+  <div>Max. Teilnehmer: {$evt_participants_max}</div>
+  <div>Gemeldete Teilnehmer: {$evt_participants_total}</div>
+  <div>Anmeldeschluß: {$evt_deadline}</div>
+  <div>Kurzbeschreibung:</ br>{$evt_desc_short}</div>
+  <div>Langbeschreibung:</ br>{$evt_desc_long}</div>
+  <div><a href="{$evt_desc_link}">Ergänzender Link...</a></div>
+  <div>Veranstaltungsort: {$evt_location}</div>
+  <div>Kosten: {$evt_costs}</div>
+  <div><a href="{$evt_order_link}">Anmelde Link</a></div>
+</div>

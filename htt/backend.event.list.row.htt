@@ -1,0 +1,10 @@
+<tr class="{$flipflop}">
+  <td class="data_{$id_name}">{$id}</td>
+  <td class="data_{$date_from_name}">{$date_from}</td>
+  <td class="data_{$date_to_name}">{$date_to}</td>
+  <td class="data_{$group_name}">{$group}</td>
+  <td class="data_{$part_max_name}">{$part_max}</td>
+  <td class="data_{$part_total_name}">{$part_total}</td>
+  <td class="data_{$deadline_name}">{$deadline}</td>
+  <td class="data_{$title_name}">{$title}</td>
+</tr>
