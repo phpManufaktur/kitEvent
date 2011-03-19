@@ -545,6 +545,15 @@ class eventBackend {
   													$event[dbEvent::field_participants_max])
   	);
   	
+  	// participants total
+  	$data[] = array(
+  		'css'			=> dbEvent::field_participants_total,
+  		'label'		=> event_label_participants_total,
+  		'value'		=> sprintf( '<input type="text" name="%s" value="%s" />',
+  													dbEvent::field_participants_total,
+  													$event[dbEvent::field_participants_total])
+  	);
+  	
   	// set deadline
   	$date = (false !== ($x = strtotime($event[dbEvent::field_deadline]))) ? date(event_cfg_date_str, $x) : '';
   	$data[] = array(
@@ -834,6 +843,11 @@ class eventBackend {
   					if ($x < 1) $x = -1;
   					$_REQUEST[$request] = $x;
   					break;
+  				case dbEvent::field_participants_total:
+  					$x = (int) $_REQUEST[$request];
+  					if ($x < 1) $x = 0;
+  					$_REQUEST[$request] = $x;
+  					break;
   				case dbEventItem::field_costs:
   					$x = (float) $_REQUEST[$request];
   					if ($x < 1) $x = -1;
@@ -882,6 +896,7 @@ class eventBackend {
   			dbEvent::field_event_date_to			=> $_REQUEST[dbEvent::field_event_date_to],
   			dbEvent::field_event_group				=> $_REQUEST[dbEvent::field_event_group],
   			dbEvent::field_participants_max		=> $_REQUEST[dbEvent::field_participants_max],
+  			dbEvent::field_participants_total	=> $_REQUEST[dbEvent::field_participants_total],
   			dbEvent::field_publish_date_from	=> $_REQUEST[dbEvent::field_publish_date_from],
   			dbEvent::field_publish_date_to		=> $_REQUEST[dbEvent::field_publish_date_to],
   			dbEvent::field_status							=> $_REQUEST[dbEvent::field_status]

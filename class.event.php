@@ -155,6 +155,62 @@ class dbEventGroup extends dbConnectLE {
 	
 } // class dbEventGroup
 
+class dbEventOrder extends dbConnectLE {
+	
+	const field_id						= 'ord_id';
+	const field_event_id			= 'evt_id';
+	const field_order_date		= 'ord_date';
+	const field_title					= 'ord_title';
+	const field_first_name		= 'ord_first_name';
+	const field_last_name			= 'ord_last_name';
+	const field_company				= 'ord_company';
+	const field_street				= 'ord_street';
+	const field_zip						= 'ord_zip';
+	const field_city					= 'ord_city';
+	const field_email					= 'ord_email';
+	const field_phone					= 'ord_phone';
+	const field_best_time			= 'ord_best_time';
+	const field_message				= 'ord_message';
+	const field_confirm_order	= 'ord_confirm';
+	const field_send_mail			= 'ord_send_mail';
+	const field_timestamp			= 'ord_timestamp';
+	
+	private $createTables 		= false;
+  
+  public function __construct($createTables = false) {
+  	$this->createTables = $createTables;
+  	parent::__construct();
+  	$this->setTableName('mod_kit_event_order');
+  	$this->addFieldDefinition(self::field_id, "INT(11) NOT NULL AUTO_INCREMENT", true);
+		$this->addFieldDefinition(self::field_event_id, "INT(11) NOT NULL DEFAULT '-1'");
+		$this->addFieldDefinition(self::field_order_date, "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
+		$this->addFieldDefinition(self::field_first_name, "VARCHAR(80) NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_last_name, "VARCHAR(80) NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_title, "VARCHAR(40) NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_company, "VARCHAR(80) NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_street, "VARCHAR(80) NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_zip, "VARCHAR(10) NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_city, "VARCHAR(80) NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_email, "VARCHAR(255) NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_phone, "VARCHAR(80) NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_best_time, "VARCHAR(255) NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_message, "TEXT NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_confirm_order, "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
+		$this->addFieldDefinition(self::field_send_mail, "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
+		$this->addFieldDefinition(self::field_timestamp, "TIMESTAMP");
+  	$this->checkFieldDefinitions();
+  	// Tabelle erstellen
+  	if ($this->createTables) {
+  		if (!$this->sqlTableExists()) {
+  			if (!$this->sqlCreateTable()) {
+  				$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->getError()));
+  			}
+  		}
+  	}
+  } // __construct()
+	
+} // class dbEventOrder
+
 class dbEventCfg extends dbConnectLE {
 	
 	const field_id						= 'cfg_id';

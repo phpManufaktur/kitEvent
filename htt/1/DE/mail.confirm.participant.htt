@@ -1,0 +1,22 @@
+Sehr geehrter Kunde,
+
+vielen Dank für Ihr Interesse an unserer Veranstaltung {$evt_headline} am {$evt_start_date} um {$evt_start_time} Uhr.
+
+Sie haben uns folgende Informationen übermittelt:
+
+{$order_title|default:''}
+{$order_first_name|default:''} {$order_last_name|default:''}
+{$order_street|default:''}
+{$order_zip|default:''} {$order_city|default:''}
+
+E-Mail: {$order_email}
+Ihr Telefon: {$order_phone|default:''}
+Erreichbarkeit: {$order_best_time|default:''}
+
+Zusätzliche Mitteilung:
+{$order_message|default:''}
+
+Wir werden uns in Kürze mit Ihnen in Verbindung setzen.
+
+Mit freundlichen Grüßen
+Ihr Veranstalter

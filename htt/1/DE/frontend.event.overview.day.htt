@@ -1,0 +1,12 @@
+<!-- $Id$ -->
+<div id="evt_overview_day">
+  <h2>Übersicht über die Veranstaltungen am {$evt_overview_day_date}</h2>
+  <div>Tag: {$evt_overview_day_day}</div>
+  <div>Wochentag: {$evt_overview_day_day_of_week}</div>
+  <div>Monat: {$evt_overview_day_month}</div>
+  <div>Jahr: {$evt_overview_day_year}</div>
+  <div>
+    <p>Termine:</p>
+    {$events}
+  </div>
+</div>

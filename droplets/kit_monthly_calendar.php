@@ -13,7 +13,6 @@
 
 if (file_exists(WB_PATH.'/modules/kit_event/class.calendar.php')) {
 	require_once(WB_PATH.'/modules/kit_event/class.calendar.php');
-	
 	$calendar = new monthlyCalendar();
 	$params = $calendar->getParams();
 	$params[monthlyCalendar::param_inactive_days] = (isset($inactive_days) && strtolower($inactive_days) == 'true') ? true : false;

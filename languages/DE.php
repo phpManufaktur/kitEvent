@@ -10,18 +10,20 @@
  * @version $Id$
  */
 
-define('event_cfg_date_str',											'd.m.Y');
-define('event_cfg_datetime_str',									'd.m.Y H:i');
-define('event_cfg_time_long_str',									'H:i:s');
-define('event_cfg_time_str',											'H:i');
-define('event_cfg_currency',											'%s €');
-define('event_cfg_thousand_separator',						'.');
-define('event_cfg_date_separator',								'.');
-define('event_cfg_decimal_separator',             ',');
-define('event_cfg_month_names',										"Januar,Februar,März,April,Mai,Juni,Juli,August,September,Oktober,November,Dezember");
-define('event_cfg_day_names',											"Sonntag, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag");
 define('event_cfg_cal_prev_month',								'&laquo;');
 define('event_cfg_cal_next_month',								'&raquo;');
+define('event_cfg_currency',											'%s €');
+define('event_cfg_date_separator',								'.');
+define('event_cfg_date_str',											'd.m.Y');
+define('event_cfg_datetime_str',									'd.m.Y H:i');
+define('event_cfg_day_names',											"Sonntag, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag");
+define('event_cfg_decimal_separator',             ',');
+define('event_cfg_month_names',										"Januar,Februar,März,April,Mai,Juni,Juli,August,September,Oktober,November,Dezember");
+define('event_cfg_thousand_separator',						'.');
+define('event_cfg_time_long_str',									'H:i:s');
+define('event_cfg_time_str',											'H:i');
+define('event_cfg_time_zone',											'Europe/Berlin');
+define('event_cfg_title',													'Herr,Frau');
 
 define('event_btn_abort',													'Abbruch');
 define('event_btn_ok',														'Übernehmen');
@@ -36,6 +38,10 @@ define('event_error_evt_invalid',									'<p>Es wurde ein ungültiges Event ang
 define('event_error_evt_params_missing',					'<p>Es wurden nicht alle erforderlichen Parameter übergeben!</p>');
 define('event_error_evt_unspecified',							'<p>Das Event <b>%s</b> ist nicht spezifiert und kann deshalb nicht angezeigt werden!</p>');
 define('event_error_id_invalid',									'<p>Der Datensatz mit der <b>ID %03d</b> wurde nicht gefunden!</p>');
+define('event_error_must_fields_missing',					'<p>Fataler Fehler: die Pflichtfelder für das Formular sind nicht definiert!</p>');
+define('event_error_preset_not_exists',						'<p>Das Presetverzeichnis <b>%s</b> existiert nicht! Die erforderlichen Templates können nicht geladen werden.</p>');
+define('event_error_send_email',									'<p>Die E-Mail an <b>%s</b> konnte nicht versendet werden!</p>');
+define('event_error_template_error',							'<p>Fehler bei der Ausführung des Template <b>%s</b>:</p><p>%s</p>');
 
 define('event_header_edit_event',									'Event bearbeiten oder erstellen');
 define('event_header_edit_group',									'Gruppe bearbeiten oder erstellen');
@@ -67,12 +73,14 @@ define('event_label_group_name',									'Bezeichner für die Gruppe');
 define('event_label_group_select',								'Gruppe auswählen');
 define('event_label_long_description',						'Langbeschreibung (Optional)');
 define('event_label_participants_max',						'Anzahl Teilnehmer (<i>-1 = unbegrenzt</i>)');
+define('event_label_participants_total',					'Gemeldete Teilnehmer');
 define('event_label_publish_from',								'Event veröffentlichen ab');
 define('event_label_publish_to',									'Event veröffentlichen bis');
 define('event_label_select_event',								'Event auswählen');
 define('event_label_short_description',						'Kurzbeschreibung (Pflicht)');
 define('event_label_status',											'Status');
 
+define('event_msg_captcha_invalid',								'<p>Der übermittelte Wert stimmt nicht mit dem Captcha überein.</p>');
 define('event_msg_date_from_to_invalid',					'<p>Prüfen Sie die Datumsangaben, das Enddatum für das Event liegt vor dem Beginn des Events!</p>');
 define('event_msg_date_from_in_past',							'<p>Der Beginn des Events liegt in der Vergangenheit, prüfen Sie das Datum!</p>');
 define('event_msg_date_invalid',									'<p>Die Datumsangabe <b>%s</b> für das Feld <b>%s</b> ist ungültig und konnte nicht gelesen werden! Geben Sie das Datum in der Form <i>dd.mm.YYYY</i> an!</p>');
@@ -86,6 +94,13 @@ define('event_msg_group_created',									'<p>Die Gruppe mit der <b>ID %03d</b> 
 define('event_msg_group_name_empty',							'<p>Der Gruppen Bezeichner darf nicht leer sein!</p>');
 define('event_msg_group_updated',									'<p>Die Gruppe mit der <b>ID %03d</b> wurde aktualisiert!');
 define('event_msg_invalid_email',									'<p>Die E-Mail Adresse <b>%s</b> ist nicht gültig, bitte prüfen Sie Ihre Eingabe.</p>');
+define('event_msg_must_city',											'<p>Bitte geben Sie die <b>Stadt</b> an.</p>');
+define('event_msg_must_first_name',								'<p>Bitte geben Sie Ihren <b>Vornamen</b> an.</p>');
+define('event_msg_must_last_name',								'<p>Bitte geben Sie Ihren <b>Nachnamen</b> an.</p>');
+define('event_msg_must_phone',										'<p>Bitte geben Sie eine <b>Telefonnummer</b> an.</p>');
+define('event_msg_must_street',										'<p>Bitte geben Sie <b>Straße und Hausnummer</b> an.</p>');
+define('event_msg_must_terms_and_conditions',			'<p>Bitte bestätigen Sie, dass Sie unsere <b>Geschäftsbedingungen</b> akzeptieren.</p>');
+define('event_msg_must_zip',											'<p>Bitte geben Sie die <b>Postleitzahl</b> an.</p>');
 define('event_msg_no_event_at_date',							'<p>Für den <b>%s</b> sind leider keine Veranstaltungen eingetragen!</p>');
 define('event_msg_publish_from_check',						'<p>Bitte prüfen Sie das Startdatum der Veröffentlichung!</p>');
 define('event_msg_publish_from_invalid',					'<p>Das Veröffentlichungsdatum liegt nach dem Event! Prüfen Sie die Datumsangaben!</p>');
@@ -106,8 +121,12 @@ define('event_tab_list',													'Aktuelle Events');
 define('event_text_create_new_group',							'- neue Gruppe erstellen -');
 define('event_text_no_group',											'- keine Gruppe -');
 define('event_text_none',													'- keine -');
+define('event_text_fully_booked',									'<b>- ausgebucht -</b>');
+define('event_text_participants_free',						'- noch Plätze frei -');
 define('event_text_participants_unlimited',				'- offen -');
 define('event_text_select_no_event',							'- keine Daten übernehmen -');
+define('event_text_confirmed',										'Bestätigt');
+define('event_text_not_confirmed',								'Nicht bestätigt');
 
 define('event_th_id',															'ID');
 define('event_th_date_from',											'Datum von');

@@ -17,6 +17,7 @@
   <div>Veröffentlichung, Ende: {$evt_publish_end}</div>
   <div>Max. Teilnehmer: {$evt_participants_max}</div>
   <div>Gemeldete Teilnehmer: {$evt_participants_total}</div>
+  <div>Freie Plätze: {$evt_participants_free}</div>
   <div>Anmeldeschluß: {$evt_deadline}</div>
   <div>Kurzbeschreibung:</ br>{$evt_desc_short}</div>
   <div>Langbeschreibung:</ br>{$evt_desc_long}</div>

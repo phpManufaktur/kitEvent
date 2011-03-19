@@ -15,6 +15,7 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.frontend.php')) {
 	$event = new eventFrontend();
 	$params = $event->getParams();
 	$params[eventFrontend::param_view] = (isset($view)) ? strtolower(trim($view)) : eventFrontend::view_all;
+	$params[eventFrontend::param_preset] = (isset($preset)) ? (int) $preset : 1;
 	$event->setParams($params);
 	return $event->action();
 }

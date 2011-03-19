@@ -51,6 +51,7 @@ class monthlyCalendar {
 		global $eventTools;
 		$this->template_path = WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/htt/';
 		$eventTools->getUrlByPageID(PAGE_ID, $this->page_link);
+		date_default_timezone_set(event_cfg_time_zone);
 	} // __construct()
 	
 	public function getParams() {
@@ -105,6 +106,17 @@ class monthlyCalendar {
 	  return $request;
   } // xssPrevent()
 	
+  public function getTemplate($template, $template_data) {
+  	global $parser;
+  	try {
+  		$result = $parser->get($this->template_path.$template, $template_data); 
+  	} catch (Exception $e) {
+  		$this->setError(sprintf(event_error_template_error, $template, $e->getMessage()));
+  		return false;
+  	}
+  	return $result;
+  } // getTemplate()
+  
 	public function action() {
 		$html_allowed = array();
   	foreach ($_REQUEST as $key => $value) {
@@ -151,8 +163,8 @@ class monthlyCalendar {
 	} // getEvents()
 	
 	public function showCalendar() {
-		global $parser;
 		global $eventTools;
+		global $parser;
 		
 		$month = isset($_REQUEST[self::request_month]) ? $_REQUEST[self::request_month] : date('n');
 		$year = isset($_REQUEST[self::request_year]) ? $_REQUEST[self::request_year] : date('Y');
@@ -216,10 +228,10 @@ class monthlyCalendar {
 				'link_month_next'		=> ''
 			);
 		}
-		$template = ($this->params[self::param_show_weeks]) ? 'calendar.8.nav.htt' : 'calendar.7.nav.htt';
-		$items = $parser->get($this->template_path.$template, $data);
+		$template = ($this->params[self::param_show_weeks]) ? 'calendar.week.nav.htt' : 'calendar.nav.htt';
+		if (false == ($items = $this->getTemplate($template, $data))) return false;
 		
-		$template = ($this->params[self::param_show_weeks]) ? 'calendar.8.row.htt' : 'calendar.7.row.htt';
+		$template = ($this->params[self::param_show_weeks]) ? 'calendar.week.row.htt' : 'calendar.row.htt';
 		$row = new Dwoo_Template_File($this->template_path.$template);
 		
 		// header with weekdays
@@ -315,8 +327,8 @@ class monthlyCalendar {
 		
 		// show complete calendar sheet
 		$data = array('items' => $items);
-		$template = ($this->params[self::param_show_weeks]) ? 'calendar.8.htt' : 'calendar.7.htt';
-		return $parser->get($this->template_path.$template, $data); 	
+		$template = ($this->params[self::param_show_weeks]) ? 'calendar.week.htt' : 'calendar.htt';
+		return $this->getTemplate($template, $data); 	
 	} // showCalendar()
 	
 	private function getMonthName($month, $length=-1, $uppercase=false) {

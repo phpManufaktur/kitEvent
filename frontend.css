@@ -36,6 +36,8 @@ CALENDAR
 }
 .cms_container td {
   font-size: 7pt;
+  padding: 3px 2px;
+  vertical-align: middle;
 }
 td.cms_month_prev {
   text-align: left;
@@ -49,6 +51,8 @@ td.cms_month_prev a {
   text-decoration: none;
   font-size: 9pt;
   font-weight: bold;
+  color: #cd0a0a;
+  background-color: transparent;
 }
 td.cms_month_name {
   text-align: center;
@@ -95,8 +99,12 @@ td.cms_day_today
 {
   border: 1px solid red;
 }
+td.cms_day_event {
+  padding: 0;
+}
 td.cms_day_event a {
   display: block;
+  padding: 3px 2px;
   text-decoration: none;
 }
 td.cms_day_event a:link,

@@ -1,0 +1,60 @@
+<!-- $Id$ -->
+<!-- im Kopfbereich des Formulars nichts aendern! -->
+<div id="evt_order">
+  <form name="{$form_name}" action="{$form_action}" method="post">
+    <input type="hidden" name="{$action_name}" value="{$action_value}" />
+    <input type="hidden" name="{$event_name}" value="{$event_value}" />
+<!--
+  Im Feld {$must_fields_name} legen Sie unter "value" die Pflichtfelder fest.
+  Trennen Sie die Felder durch ein Komma, moegliche Eingaben sind:
+  email,captcha,first_name,last_name,street,zip,city,phone,terms_and_conditions
+  "email" wird hier nur zur Vollstaendigkeit eingetragen, die E-Mail Adresse wird
+  grundsaetzlich eingefordert! "captcha" dient dem Schutz vor unerwuenschten Zusendungen.
+-->
+    <input type="hidden" name="{$must_fields_name}" value="captcha,email,terms_and_conditions" />
+<!-- ab hier koennen Aenderungen vorgenommen werden, entfernen Sie Felder die Sie nicht benoetigen -->
+    <div>Ttiel der Veranstaltung: {$evt_headline}</div>
+    <div>ID: {$evt_id}</div>
+    <div>Gruppenbezeichner: {$evt_group_name}</div>
+    <div>Gruppenbeschreibung: {$evt_group_desc}</div>
+    <div>Beginn, Datum: {$evt_start_date}</div>
+    <div>Beginn, Datum und Uhrzeit: {$evt_start_datetime}</div>
+    <div>Beginn, Uhrzeit: {$evt_start_time}</div>
+    <div>Beginn, Tag: {$evt_start_day}</div>
+    <div>Beginn, Wochentag: {$evt_start_day_of_week}</div>
+    <div>Beginn, Monat: {$evt_start_month}</div>
+    <div>Ende, Datum: {$evt_end_date}</div>
+    <div>Ende, Datum und Uhrzeit: {$evt_end_datetime}</div>
+    <div>Ende, Uhrzeit: {$evt_end_time}</div>
+    <div>Veröffentlichung, Beginn: {$evt_publish_start}</div>
+    <div>Veröffentlichung, Ende: {$evt_publish_end}</div>
+    <div>Max. Teilnehmer: {$evt_participants_max}</div>
+    <div>Gemeldete Teilnehmer: {$evt_participants_total}</div>
+    <div>Freie Plätze: {$evt_participants_free}</div>
+    <div>Anmeldeschluß: {$evt_deadline}</div>
+    <div>Kurzbeschreibung:</ br>{$evt_desc_short}</div>
+    <div>Langbeschreibung:</ br>{$evt_desc_long}</div>
+    <div><a href="{$evt_desc_link}">Ergänzender Link...</a></div>
+    <div>Veranstaltungsort: {$evt_location}</div>
+    <div>Kosten: {$evt_costs}</div>
+    <div><a href="{$evt_order_link}">Anmelde Link</a></div>
+<!-- Formularfelder -->
+    <div>Fehlermeldungen durch das Programm: {$request_response}</div><!-- NICHT ENTFERNEN! -->
+    <div>Anrede: {$request_select_title}</div>
+    <div>Vorname: {$request_input_first_name}</div>
+    <div>Nachname: {$request_input_last_name}</div>
+    <div>Firma/Institution: {$request_input_company}</div>
+    <div>Straße/Hausnummer: {$request_input_street}</div>
+    <div>Postleitzahl: {$request_input_zip}</div>
+    <div>Stadt: {$request_input_city}</div>
+    <div>E-Mail: {$request_input_email}</div><!-- PFLICHTFELD! -->
+    <div>Telefon: {$request_input_phone}</div>
+    <div>Beste Zeit für Rückruf/Kontakt: {$request_input_best_time}</div>
+    <div>Mitteilung/Anmerkung: {$request_text_message}</div>
+    <div>Hiermit melde ich mich an: {$request_checkbox_order_confirm}</div>
+    <div>AGB/Datenschutz gelesen: {$request_checkbox_terms_and_conditions}</div>
+    <div>{$request_captcha}</div>
+<!-- ab hier nichts mehr aendern! -->
+    <div>{$request_submit} {$request_abort}</div>
+  </form>
+</div>

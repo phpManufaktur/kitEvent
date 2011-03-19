@@ -181,6 +181,7 @@ input[name=ete],
 input[name=evt_publish_date_from],
 input[name=evt_publish_date_to],
 input[name=evt_participants_max],
+input[name=evt_participants_total],
 input[name=evt_deadline],
 input[name=item_costs]
 {
