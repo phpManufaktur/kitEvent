@@ -1,0 +1,5 @@
+<!-- $Id$ -->
+<div class="evt_view_id">
+  {$event}<!-- Anzeige von frontend.event.detail.htt oder frontend.event.teaser.htt -->
+  <div><a href="{$evt_start_link}">Zur Übersicht...</a></div>
+</div>

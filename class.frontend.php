@@ -19,12 +19,13 @@ require_once(WB_PATH.'/framework/class.wb.php');
 
 
 class eventFrontend {
-	const request_action			= 'act';
-	const request_event				= 'evt';
-	const request_year				= 'y';
-	const request_month				= 'm';
-	const request_day					= 'd';
-	const request_event_id		= 'id';
+	const request_action				= 'act';
+	const request_event					= 'evt';
+	const request_year					= 'y';
+	const request_month					= 'm';
+	const request_day						= 'd';
+	const request_event_id			= 'id';
+	const request_event_detail	= 'det';
 	
 	const request_must_fields	= 'mf';
 	
@@ -58,18 +59,17 @@ class eventFrontend {
 	const action_order				= 'ord';
 	const action_order_check	= 'chk';
 	
-	const event_day						= 'day';
-		
 	const param_view					= 'view';
 	const param_preset				= 'preset';
 	
+	const view_id							= 'id';
+	const view_day						= 'day';
 	const view_week						= 'week';
 	const view_month					= 'month';
-	const view_quarter				= 'quarter';
-	const view_all						= 'all';
+	const view_active					= 'active';
 	
 	private $params = array(
-		self::param_view				=> self::view_all,
+		self::param_view				=> self::view_active,
 		self::param_preset			=> 1 
 	);
 	
@@ -217,7 +217,7 @@ class eventFrontend {
    * Diese Funktion wird generell von aussen aufgerufen und steuert die Klasse.
    * @return STR result dialog
    */
-  public function action() {
+  public function action() { 
   	if ($this->isError()) return $this->getError();
   	$html_allowed = array();
   	foreach ($_REQUEST as $key => $value) {
@@ -238,7 +238,7 @@ class eventFrontend {
   		$result = $this->showEvent();
   		break;
   	default:
-  		$result = $this->showOverview();
+  		$result = $this->showEvent($this->params[self::param_view]);
   		break;
   	endswitch;
   	
@@ -246,6 +246,13 @@ class eventFrontend {
 		return $result;
   } // action
 	
+  public function getMondayOfWeekDate($date) {
+  	$dow = date('w', $date);
+  	if ($dow == 0) $dow = 7;
+  	$sub = $dow-1;
+  	return mktime(0,0,0,date('n', $date),date('j', $date)-$sub,date('Y',$date));
+  }
+  
   /**
    * Daten fuer die angegebene Event ID auslesen und zusaetzlich ein Array mit Informationen
    * fuer die Ausgabe ueber beliebige Templates erzeugen
@@ -328,6 +335,8 @@ class eventFrontend {
  			'evt_location'						=> $event_data[dbEventItem::field_location],
  			'evt_costs'								=> sprintf(event_cfg_currency, number_format($event_data[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator)),
  			'evt_order_link'					=> sprintf('%s?%s=%s&%s=%s', $this->page_link, self::request_action, self::action_order, self::request_event_id, $event_id),
+  		'evt_detail_link'					=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_event, self::request_event_id, $event_id, self::request_event, self::view_id, self::request_event_detail, 1),
+  		'evt_start_link'					=> $this->page_link
  		);
  		return true;
   } // getEventFields()
@@ -471,7 +480,6 @@ class eventFrontend {
   		'order_best_time'					=> $orderData[dbEventOrder::field_best_time],
   		'order_message'						=> $orderData[dbEventOrder::field_message],
   		'order_confirm'						=> (!strtotime($orderData[dbEventOrder::field_confirm_order])) ? strtoupper(event_text_not_confirmed) : strtoupper(event_text_confirmed),
-  		'back'										=> $this->page_link 
  		);
 
  		if (!$this->getEventData($event_id, $event, $event_parser)) return false;
@@ -498,7 +506,7 @@ class eventFrontend {
 			return false;
 	  }
 	  
-  	return $this->getTemplate('frontend.event.confirm.htt', $data);
+  	return $this->getTemplate('frontend.event.order.confirm.htt', $data);
   } // checkOrder()
   
   /**
@@ -595,38 +603,67 @@ class eventFrontend {
   	return $this->getTemplate('frontend.event.order.htt', $data);
   } // orderEvent()
   
- 	public function showOverview() {
- 		return __METHOD__;
- 	} // showOverview()
- 	
- 	public function showEvent() {
- 		if (!isset($_REQUEST[self::request_event])) {
+ 	public function showEvent($show_view=-1) {
+ 		if (!isset($_REQUEST[self::request_event]) && ($show_view == -1)) {
  			$this->setError(event_error_evt_invalid);
  			return false;
  		}
- 		$event = strtolower(trim($_REQUEST[self::request_event]));
- 		switch ($event):
- 		case self::event_day:
- 			$result = $this->getEventDay();
+ 		$event_view = (isset($_REQUEST[self::request_event])) ? strtolower(trim($_REQUEST[self::request_event])) : $show_view;
+ 		
+ 		switch ($event_view):
+ 		case self::view_id:
+ 			$result = $this->viewEventID();
+ 			break;
+ 		case self::view_day:
+ 			$result = $this->viewEventDay();
+ 			break;
+ 		case self::view_month:
+ 			$result = $this->viewEventMonth();
+ 			break;
+ 		case self::view_week:
+ 			$result = $this->viewEventWeek();
+ 			break;
+ 		case self::view_active:
+ 			$result = $this->viewEventActive();
  			break;
  		default:
  			// nicht spezifiziertes Event
- 			$this->setError(sprintf(event_error_evt_unspecified, $action));
+ 			$this->setError(sprintf(event_error_evt_unspecified, $event));
  			return false;
  		endswitch;
  		return $result;
  	}
  	
- 	public function getEventDay() {
+ 	public function viewEventID($event_id=-1, $show_details=true) {
+ 		$show_details = (isset($_REQUEST[self::request_event_detail])) ? (bool) $_REQUEST[self::request_event_detail] : $show_details;
+ 		$event_id = (isset($_REQUEST[self::request_event_id])) ? (int) $_REQUEST[self::request_event_id] : $event_id;
+ 		
+ 		$template = ($show_details) ? 'frontend.event.detail.htt' : 'frontend.event.teaser.htt';
+ 		if (!$this->getEventData($event_id, $event_data, $parser_data)) return false;
+ 		if (false == ($event = $this->getTemplate($template, $parser_data))) return false;
+ 		$data = array('event' => $event);
+ 		$data = array_merge($data, $parser_data);
+ 		return $this->getTemplate('frontend.view.id.htt', $data);
+ 	} // viewEventID()
+ 	
+ 	/**
+ 	 * 
+ 	 * Enter description here ...
+ 	 */
+ 	public function viewEventDay($show_details=false) {
  		global $dbEvent;
  		if (!isset($_REQUEST[self::request_day]) || !isset($_REQUEST[self::request_month]) || !isset($_REQUEST[self::request_year])) {
- 			$this->setError(event_error_evt_params_missing);
- 			return false;
+ 			// keine Parameter gesetzt - aktuelles Datum verwenden!
+ 			$month = date('n');
+ 			$day = date('j');
+ 			$year = date('Y');
  		}
- 		$month = (int) $_REQUEST[self::request_month];
- 		$day = (int) $_REQUEST[self::request_day];
- 		$year = (int) $_REQUEST[self::request_year];
- 		$search_date_from = date('Y-m-d', mktime(23,59,59,$month,$day-1,$year));
+ 		else {
+	 		$month = (int) $_REQUEST[self::request_month];
+	 		$day = (int) $_REQUEST[self::request_day];
+	 		$year = (int) $_REQUEST[self::request_year];
+ 		}
+ 		$search_date_from = date('Y-m-d H:i:s', mktime(23,59,59,$month,$day-1,$year));
  		$search_date_to = date('Y-m-d H:i:s', mktime(0,0,0,$month,$day+1,$year));
  		$dt = mktime(0,0,0,$month,$day,$year);
  		$SQL = sprintf( "SELECT %s FROM %s WHERE (%s BETWEEN '%s' AND '%s') AND %s='%s'",
@@ -647,104 +684,247 @@ class eventFrontend {
  			return $this->getMessage();
  		}
  		$result = '';
+ 		$template = ($show_details) ? 'frontend.event.detail.htt' : 'frontend.event.teaser.htt';
  		foreach ($events as $event) {
- 			$result .= $this->getEventID($event[dbEvent::field_id]);
+ 			if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data)) return false;
+ 			$result .= $this->getTemplate($template, $parser_data); 
  		}
  		
  		$weekdays = explode(',', event_cfg_day_names);
  		$months = explode(',', event_cfg_month_names);
- 		
+		
  		$data = array(
- 			'evt_overview_day_date'					=> date(event_cfg_date_str, $dt),
- 			'evt_overview_day_day'					=> date('j', $dt),
- 			'evt_overview_day_day_of_week'	=> trim($weekdays[date('w', $dt)]),
- 			'evt_overview_day_month'				=> trim($months[date('n', $dt)-1]),
- 			'evt_overview_day_year'					=> date('Y'),
- 			'events'												=> $result
+ 			'evt_view_day_date'					=> date(event_cfg_date_str, $dt),
+ 			'evt_view_day_day'					=> date('j', $dt),
+ 			'evt_view_day_day_zero'			=> date('d', $dt),
+ 			'evt_view_day_day_name'			=> trim($weekdays[date('w', $dt)]),
+ 			'evt_view_day_month_name'		=> trim($months[date('n', $dt)-1]),
+ 			'evt_view_day_month'				=> date('n', $dt),
+ 			'evt_view_day_month_zero'		=> date('m', $dt),
+ 			'evt_view_day_year'					=> date('Y'),
+ 			'events'												=> $result,
  		);
+ 		$data = array_merge($data, $parser_data); 		
  		
- 		return $this->getTemplate('frontend.event.overview.day.htt', $data);
- 	} // getEventDay()
+ 		return $this->getTemplate('frontend.view.day.htt', $data);
+ 	} // viewEventDay()
   
- 	public function getEventID($event_id) {
+ 	public function viewEventMonth($show_details=false) {
  		global $dbEvent;
- 		global $dbEventItem;
- 		global $dbEventGroup;
- 		
- 		$SQL = sprintf( 'SELECT * FROM %1$s, %2$s WHERE %1$s.%3$s = %2$s.%4$s AND %1$s.%5$s=\'%6$s\'',
- 										$dbEvent->getTableName(),
- 										$dbEventItem->getTableName(),
- 										dbEvent::field_event_item,
- 										dbEventItem::field_id,
+ 		if (!isset($_REQUEST[self::request_month]) || !isset($_REQUEST[self::request_year])) {
+ 			// keine Parameter gesetzt - aktuelles Datum verwenden!
+ 			$month = date('n');
+ 			$year = date('Y');
+ 		}
+ 		else {
+	 		$month = (int) $_REQUEST[self::request_month];
+	 		$year = (int) $_REQUEST[self::request_year];
+ 		}
+ 		$search_date_from = date('Y-m-d H:i:s', mktime(23,59,59,$month,0,$year));
+ 		$search_date_to = date('Y-m-d H:i:s', mktime(0,0,0,$month+1,1,$year));
+ 		$dt = mktime(0,0,0,$month,1,$year);
+ 		$months = explode(',', event_cfg_month_names);
+		
+ 		$SQL = sprintf( "SELECT %s FROM %s WHERE (%s BETWEEN '%s' AND '%s') AND %s='%s' ORDER BY %s ASC",
  										dbEvent::field_id,
- 										$event_id);
- 		$event = array();
- 		if (!$dbEvent->sqlExec($SQL, $event)) {
+ 										$dbEvent->getTableName(),
+ 										dbEvent::field_event_date_from, 
+ 										$search_date_from,
+ 										$search_date_to,
+ 										dbEvent::field_status,
+ 										dbEvent::status_active,
+ 										dbEvent::field_event_date_from);
+ 		$events = array();
+ 		if (!$dbEvent->sqlExec($SQL, $events)) {
  			$this->setError($dbEvent->getError());
  			return false;
  		}
- 		if (count($event) < 1) {
- 			$this->setError(sprintf(event_error_id_invalid, $event_id));
- 			return false;
- 		}
- 		$event = $event[0];
- 		
- 		$where = array(dbEventGroup::field_id => $event[dbEvent::field_event_group]);
- 		$group = array();
- 		if (!$dbEventGroup->sqlSelectRecord($where, $group)) {
- 			$this->setError($dbEventGroup->getError());
- 			return false;
- 		}
- 		if (count($group) > 0) {
- 			$group_name = $group[0][dbEventGroup::field_name];
- 			$group_desc = $group[0][dbEventGroup::field_desc];
- 		}
- 		else {
- 			$group_name = '';
- 			$group_desc = '';
- 		}
- 		if ($event[dbEvent::field_participants_max] > 0) {
- 			$participants_max = $event[dbEvent::field_participants_max];
- 			$participants_free = (($x = $event[dbEvent::field_participants_max]-$event[dbEvent::field_participants_total]) > 0) ? $x : event_text_fully_booked; 	
- 		}
- 		else {
- 			$participants_max = event_text_participants_unlimited;
- 			$participants_free = event_text_participants_free;
+ 		if (count($events) < 1) {
+ 			$this->setMessage(sprintf(event_msg_no_event_at_date, $months[$month-1]));
+ 			return $this->getMessage();
  		}
  		
- 		$weekdays = explode(',', event_cfg_day_names);
- 		$months = explode(',', event_cfg_month_names);
- 		 
+ 		$result = '';
+ 		$template = ($show_details) ? 'frontend.event.detail.htt' : 'frontend.event.teaser.htt';
+ 		foreach ($events as $event) {
+ 			if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data)) return false;
+ 			$result .= $this->getTemplate($template, $parser_data); 
+ 		}
+ 		
+ 		if ($month == 1) {
+ 			$prev_month = 11;
+ 			$prev_year = $year-1; 
+ 		}
+ 		else {
+ 			$prev_month = $month-2;
+ 			$prev_year = $year;
+ 		}
+ 		if ($month == 12) {
+ 			$next_month = 0;
+ 			$next_year = $year+1;
+ 		}
+ 		else {
+ 			$next_month = $month;
+ 			$next_year = $year;
+ 		}
+ 		
  		$data = array(
- 		  'evt_headline'						=> $event[dbEventItem::field_title],
- 			'evt_id'									=> sprintf('%03d', $event[dbEvent::field_id]),
- 			'evt_group_name'					=> $group_name,
- 			'evt_group_desc'					=> $group_desc,					
- 			'evt_start_date'					=> date(event_cfg_date_str, strtotime($event[dbEvent::field_event_date_from])),
- 			'evt_start_datetime'			=> date(event_cfg_datetime_str, strtotime($event[dbEvent::field_event_date_from])),
- 			'evt_start_time'					=> date(event_cfg_time_str, strtotime($event[dbEvent::field_event_date_from])),
- 			'evt_start_day'						=> date('j', strtotime($event[dbEvent::field_event_date_from])),
- 			'evt_start_day_of_week'		=> trim($weekdays[date('w', strtotime($event[dbEvent::field_event_date_from]))]),
- 			'evt_start_month'					=> trim($months[date('n', strtotime($event[dbEvent::field_event_date_from]))-1]), 
- 			'evt_end_date'						=> date(event_cfg_date_str, strtotime($event[dbEvent::field_event_date_to])),
- 			'evt_end_datetime'				=> date(event_cfg_datetime_str, strtotime($event[dbEvent::field_event_date_to])),
- 			'evt_end_time'						=> date(event_cfg_time_str, strtotime($event[dbEvent::field_event_date_to])),
- 			'evt_publish_start'				=> date(event_cfg_date_str, strtotime($event[dbEvent::field_publish_date_from])),
- 			'evt_publish_end'					=> date(event_cfg_date_str, strtotime($event[dbEvent::field_publish_date_to])),
- 			'evt_participants_max'		=> $participants_max,
- 			'evt_participants_total'	=> $event[dbEvent::field_participants_total],
- 			'evt_participants_free'		=> $participants_free,
- 			'evt_deadline'						=> date(event_cfg_date_str, strtotime($event[dbEvent::field_deadline])),
- 			'evt_desc_short'					=> $event[dbEventItem::field_desc_short],
- 			'evt_desc_long'						=> $event[dbEventItem::field_desc_long],
- 			'evt_desc_link'						=> $event[dbEventItem::field_desc_link],
- 			'evt_location'						=> $event[dbEventItem::field_location],
- 			'evt_costs'								=> sprintf(event_cfg_currency, number_format($event[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator)),
- 			'evt_order_link'					=> sprintf('%s?%s=%s&%s=%s', $this->page_link, self::request_action, self::action_order, self::request_event_id, $event_id)
+ 			'events'														=> $result,
+ 			'evt_view_month_month'							=> $month,
+ 			'evt_view_month_month_zero'					=> date('m', $dt),
+ 			'evt_view_month_month_name'					=> $months[$month-1],
+ 			'evt_view_month_year'								=> $year,
+ 			'evt_view_month_prev_month_name'		=> $months[$prev_month],
+ 			'evt_view_month_next_month_name'		=> $months[$next_month],
+ 			'evt_view_month_prev_month_link'		=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s', 
+ 																											$this->page_link,
+ 																											self::request_action,
+ 																											self::action_event,
+ 																											self::request_event,
+ 																											self::view_month,
+ 																											self::request_month,
+ 																											$prev_month+1,
+ 																											self::request_year,
+ 																											$prev_year),
+ 			 'evt_view_month_next_month_link'		=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s', 
+ 																											$this->page_link,
+ 																											self::request_action,
+ 																											self::action_event,
+ 																											self::request_event,
+ 																											self::view_month,
+ 																											self::request_month,
+ 																											$next_month+1,
+ 																											self::request_year,
+ 																											$next_year)																		
  		);
+ 		$data = array_merge($data, $parser_data);
+		return $this->getTemplate('frontend.view.month.htt', $data); 		
+ 	} // viewEventMonth()
+ 	
+ 	public function viewEventWeek($show_details=false) {
+ 		global $dbEvent;
+ 		if (!isset($_REQUEST[self::request_day]) || !isset($_REQUEST[self::request_month]) || !isset($_REQUEST[self::request_year])) {
+ 			// keine Parameter gesetzt - aktuelles Datum verwenden!
+ 			$month = date('n');
+ 			$day = date('j');
+ 			$year = date('Y');
+ 		}
+ 		else {
+	 		$month = (int) $_REQUEST[self::request_month];
+	 		$day = (int) $_REQUEST[self::request_day];
+	 		$year = (int) $_REQUEST[self::request_year];
+ 		}
+ 		$start = $this->getMondayOfWeekDate(mktime(0,0,0,$month,$day,$year));
+ 		$monday = date('j', $start);
+ 		$day = date('j', $start);
+ 		$month = date('n', $start);
+ 		$year = date('Y', $start);
  		
-		return $this->getTemplate('frontend.event.detail.htt', $data); 		
- 	} // getEventID()
+ 		$search_date_from = date('Y-m-d H:i:s', mktime(23,59,59,$month,$monday-1,$year));
+ 		$search_date_to = date('Y-m-d H:i:s', mktime(0,0,0,$month,$monday+7,$year));
+ 		$dt = mktime(0,0,0,$month,$monday,$year);
+ 		$months = explode(',', event_cfg_month_names);
+		
+ 		$SQL = sprintf( "SELECT %s FROM %s WHERE (%s BETWEEN '%s' AND '%s') AND %s='%s' ORDER BY %s ASC",
+ 										dbEvent::field_id,
+ 										$dbEvent->getTableName(),
+ 										dbEvent::field_event_date_from, 
+ 										$search_date_from,
+ 										$search_date_to,
+ 										dbEvent::field_status,
+ 										dbEvent::status_active,
+ 										dbEvent::field_event_date_from);
+ 		$events = array();
+ 		if (!$dbEvent->sqlExec($SQL, $events)) {
+ 			$this->setError($dbEvent->getError());
+ 			return false;
+ 		}
+ 		if (count($events) < 1) {
+ 			$this->setMessage(sprintf(event_msg_no_event_at_date, $months[$month-1]));
+ 			return $this->getMessage();
+ 		}
+ 		
+ 		$result = '';
+ 		$template = ($show_details) ? 'frontend.event.detail.htt' : 'frontend.event.teaser.htt';
+ 		foreach ($events as $event) {
+ 			if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data)) return false;
+ 			$result .= $this->getTemplate($template, $parser_data); 
+ 		}
+ 		
+ 		$prev_date = mktime(0,0,0,$month,$monday-7,$year);
+ 		$next_date = mktime(0,0,0,$month,$monday+7,$year);
+ 		
+ 		$data = array(
+ 			'events'												=> $result,
+ 			'evt_view_week_monday'					=> date('j', $dt),
+ 			'evt_view_week_monday_zero'			=> date('d', $dt),
+ 			'evt_view_week_sunday'					=> date('j', mktime(0,0,0,$month,$monday+6,$year)),
+ 			'evt_view_week_sunday_zero'			=> date('d', mktime(0,0,0,$month,$monday+6,$year)),
+ 			'evt_view_week_week'						=> (int) date('W', $dt),
+ 			'evt_view_week_week_zero'				=> date('W', $dt),
+ 			'evt_view_week_year'						=> date('Y', $dt),
+ 			'evt_view_week_month'						=> date('n', $dt),
+ 			'evt_view_week_month_zero'			=> date('m', $dt),
+ 			'evt_view_week_month_name'			=> $months[date('n')-1],
+ 			'evt_view_week_prev_week_link'	=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s',
+ 																									$this->page_link,
+ 																									self::request_action,
+ 																									self::action_event,
+ 																									self::request_event,
+ 																									self::view_week,
+ 																									self::request_month,
+ 																									date('n', $prev_date),
+ 																									self::request_day,
+ 																									date('j', $prev_date),
+ 																									self::request_year,
+ 																									date('Y', $prev_date)),
+ 			'evt_view_week_next_week_link'	=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s',
+ 																									$this->page_link,
+ 																									self::request_action,
+ 																									self::action_event,
+ 																									self::request_event,
+ 																									self::view_week,
+ 																									self::request_month,
+ 																									date('n', $next_date),
+ 																									self::request_day,
+ 																									date('j', $next_date),
+ 																									self::request_year,
+ 																									date('Y', $next_date))
+ 																									
+ 		);
+ 		$data = array_merge($data, $parser_data);
+ 		return $this->getTemplate('frontend.view.week.htt', $data);
+ 	} // viewEventWeek()
+ 	
+ 	public function viewEventActive($show_detail=false) {
+ 		global $dbEvent;
+ 		
+ 		$search_date_from = date('Y-m-d H:i:s', mktime(23,59,59,date('n'),date('j')-1,date('Y')));
+ 		$search_date_to = date('Y-m-d H:i:s', mktime(23,59,59,date('n'),date('j'),date('Y')));
+ 		$months = explode(',', event_cfg_month_names);
+		
+ 		$SQL = sprintf( "SELECT %s FROM %s WHERE (%s <= '%s' AND %s >= '%s') AND %s='%s' ORDER BY %s ASC",
+ 										dbEvent::field_id,
+ 										$dbEvent->getTableName(),
+ 										dbEvent::field_publish_date_from, 
+ 										$search_date_from,
+ 										dbEvent::field_publish_date_to,
+ 										$search_date_to,
+ 										dbEvent::field_status,
+ 										dbEvent::status_active,
+ 										dbEvent::field_event_date_from);
+ 		$events = array();
+ 		if (!$dbEvent->sqlExec($SQL, $events)) {
+ 			$this->setError($dbEvent->getError());
+ 			return false;
+ 		}
+ 		if (count($events) < 1) {
+ 			$this->setMessage(sprintf(event_msg_no_event_at_date, $months[$month-1]));
+ 			return $this->getMessage();
+ 		}
+ 		print_r($events);
+ 		return 'hi!';
+ 	} // viewEventActive
  	
 } // class eventFrontend
 

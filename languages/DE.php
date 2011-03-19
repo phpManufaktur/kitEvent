@@ -36,10 +36,10 @@ define('event_error_cfg_id',											'<p>Der Konfigurationsdatensatz mit der <
 define('event_error_cfg_name',										'<p>Zu dem Bezeichner <b>%s</b> wurde kein Konfigurationsdatensatz gefunden!</p>');
 define('event_error_evt_invalid',									'<p>Es wurde ein ungültiges Event angefordert.</p>');
 define('event_error_evt_params_missing',					'<p>Es wurden nicht alle erforderlichen Parameter übergeben!</p>');
-define('event_error_evt_unspecified',							'<p>Das Event <b>%s</b> ist nicht spezifiert und kann deshalb nicht angezeigt werden!</p>');
+define('event_error_evt_unspecified',							'<p>Die Ansicht <b>%s</b> ist nicht spezifiert und kann deshalb nicht angezeigt werden!</p>');
 define('event_error_id_invalid',									'<p>Der Datensatz mit der <b>ID %03d</b> wurde nicht gefunden!</p>');
 define('event_error_must_fields_missing',					'<p>Fataler Fehler: die Pflichtfelder für das Formular sind nicht definiert!</p>');
-define('event_error_preset_not_exists',						'<p>Das Presetverzeichnis <b>%s</b> existiert nicht! Die erforderlichen Templates können nicht geladen werden.</p>');
+define('event_error_preset_not_exists',						'<p>Das Presetverzeichnis <b>%s</b> existiert nicht, die erforderlichen Templates können nicht geladen werden!</p>');
 define('event_error_send_email',									'<p>Die E-Mail an <b>%s</b> konnte nicht versendet werden!</p>');
 define('event_error_template_error',							'<p>Fehler bei der Ausführung des Template <b>%s</b>:</p><p>%s</p>');
 

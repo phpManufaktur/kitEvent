@@ -48,6 +48,7 @@ class eventBackend {
 		$this->page_link = ADMIN_URL.'/admintools/tool.php?tool=kit_event';
 		$this->template_path = WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/htt/' ;
 		$this->img_url = WB_URL. '/modules/'.basename(dirname(__FILE__)).'/images/';
+		date_default_timezone_set(event_cfg_time_zone);
 	} // __construct()
 	
 	/**
@@ -381,7 +382,6 @@ class eventBackend {
   	global $parser;
   	
   	$event_id = (isset($_REQUEST[dbEvent::field_id]) && ($_REQUEST[dbEvent::field_id] > 0)) ? $_REQUEST[dbEvent::field_id] : -1;
-  	
   	if ($event_id !== -1) {
   		$SQL = sprintf(	"SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s.%s='%s' AND %s.%s!='%s'",
   										$dbEvent->getTableName(),
@@ -424,7 +424,7 @@ class eventBackend {
   		// erster Aufruf - Datenuebernahme von bestehenden Events anbieten
   		return $this->dlgSuggestEvent();
   	}
-  	elseif (isset($_REQUEST[self::request_suggestion]) && ($_REQUEST[self::request_suggestion] !== -1)) {
+  	elseif (isset($_REQUEST[self::request_suggestion]) && ($_REQUEST[self::request_suggestion] != -1)) { 
   		$item_id = -1;
   		$event = $dbEvent->getFields();
   		$event[dbEvent::field_status] = dbEvent::status_active;
@@ -808,7 +808,7 @@ class eventBackend {
   							$checked = false;
   							break;
   						}
-  						$_REQUEST[$request] = date('Y-m-d H:i:s', $x);
+  						$_REQUEST[$request] = date('Y-m-d H:i:s', mktime(0, 0, 0, date('m', $x), date('d', $x)-14, date('Y', $x)));
   					}
   					elseif ($start_date_ok) {
   						$y = strtotime($_REQUEST[dbEvent::field_event_date_from]);
@@ -827,7 +827,7 @@ class eventBackend {
   							$checked = false;
   							break;
   						}
-  						$_REQUEST[$request] = date('Y-m-d H:i:s', $x);
+  						$_REQUEST[$request] = date('Y-m-d H:i:s', mktime(23,59,59,date('n', $x), date('j', $x), date('Y', $x)));
   					}
   					elseif ($end_date_ok) {
   						$y = strtotime($_REQUEST[dbEvent::field_event_date_to]);

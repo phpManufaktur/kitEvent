@@ -1,0 +1,16 @@
+<!-- $Id$ -->
+<div id="evt_view_day">
+  <h2>Übersicht über die Veranstaltungen am {$evt_view_day_date}</h2>
+  <div>Tag: {$evt_view_day_day}</div>
+  <div>Tag: {$evt_view_day_day_zero}</div>
+  <div>Wochentag: {$evt_view_day_day_name}</div>
+  <div>Monat: {$evt_view_day_month}</div>
+  <div>Monat: {$evt_view_day_month_zero}</div>
+  <div>Monat: {$evt_view_day_month_name}</div>
+  <div>Jahr: {$evt_view_day_year}</div>
+  <div>
+    <p>Termine:</p>
+    {$events}
+  </div>
+  <div><a href="{$evt_start_link}">Zur Übersicht...</a></div>
+</div>
