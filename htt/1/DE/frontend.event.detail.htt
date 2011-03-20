@@ -1,6 +1,7 @@
 <!-- $Id$ -->
 <div class="evt_detail">
   <h2>{$evt_headline}</h2>
+  <div><b>Detailierte Ansicht</b></div>
   <div>ID: {$evt_id}</div>
   <div>Gruppenbezeichner: {$evt_group_name}</div>
   <div>Gruppenbeschreibung: {$evt_group_desc}</div>

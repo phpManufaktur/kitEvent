@@ -1,0 +1,9 @@
+<tr class="{$flipflop}">
+  <td class="data_{$order_date_name}">{$order_date}</td>
+  <td class="data_{$email_name}">{$email}</td>
+  <td class="data_{$name_name}">{$name}</td>
+  <td class="data_{$event_name}">{$event}</td>
+  <td class="data_{$event_date_name}">{$event_date}</td>
+  <td class="data_{$declared_name}">{$declared}</td>
+  <td class="data_{$message_name}">{$message}</td>
+</tr>

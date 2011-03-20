@@ -1,0 +1,6 @@
+<!-- $Id$ -->
+<div id="evt_view_active">
+  <h2>Aktuelle Events dieses Anbieters</h2>
+  <div>Hier sehen Sie unsere aktuellen Veranstaltungen...</div>
+  {$events}
+</div>

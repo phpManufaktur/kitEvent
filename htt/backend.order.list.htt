@@ -1,0 +1,17 @@
+<!-- $Id$ -->
+<div class="evt_list">
+  <h2>{$header}</h2>
+  {$intro}
+  <table width="100%">
+    <colgroup>
+      <col width="15%" />
+      <col width="15%" />
+      <col width="15%" />
+      <col width="15%" />
+      <col width="5%" />
+      <col width="5%" />
+      <col width="30%" />
+    </colgroup>
+    {$items}
+  </table>
+</div>

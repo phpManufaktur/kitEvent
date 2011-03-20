@@ -1,0 +1,17 @@
+<!-- $Id$ -->
+<div class="order_detail">
+  <p>{$title}<br />
+  {$first_name} {$last_name}<br />
+  {$company}<br />
+  {$street}<br />
+  {$zip} {$city}</p>
+  <p>{$label_email} {$email}</p>
+  <p>{$label_phone} {$phone} <i>{$best_time}</i></p>
+  <p>&nbsp;</p>
+  <p>{$label_event}: {$event}</p>
+  <p>{$label_event_date}: {$event_date}</p>
+  <p>{$label_declared} {$declared}</p>
+  <p>{$label_message}:</p>
+  <p>{$message}</p>
+  <p>{$back}</p>
+</div>

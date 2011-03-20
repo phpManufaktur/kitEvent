@@ -2,6 +2,7 @@
 <div class="evt_list">
   <h2>{$header}</h2>
   {$intro}
+  {$additional}
   <table width="100%">
     <colgroup>
       <col width="5%" />

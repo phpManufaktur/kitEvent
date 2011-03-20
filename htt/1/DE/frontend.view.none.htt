@@ -1,0 +1,40 @@
+<!-- $Id$ -->
+<div id="evt_view_none">
+  <!--
+    Dieses Template wird angezeigt, wenn zu dem gesuchten Termin keine
+    Veranstaltung eingetragen ist.
+    Die Ausgabe der Meldung erfolg in Abhaengigkeit des Parameter VIEW,
+    den Sie beim Aufruf des Droplets KIT_EVENT angegeben haben. Sollten Sie
+    keinen Parameter angegeben haben ist die Voreinstellung ACTIVE
+  -->
+  {if $view == "day"}
+    <!-- ANFANG: VIEW == DAY -->
+    <h2>Veranstaltungen</h2>
+    <p>Sorry, für den {$evt_view_day_date} sind leider keine Veranstaltungen geplant.</p>
+    <p>Bitte besuchen Sie uns morgen wieder!</p>
+    <div><a href="{$evt_start_link}">Zur Übersicht...</a></div>
+    <!-- ENDE -->
+  {elseif $view == "week"}
+    <!-- ANFANG: VIEW == WEEK -->
+    <h2>Veranstaltungen</h2>
+    <p>Sorry, für die {$evt_view_week_week}. Kalenderwoche sind leider keine Veranstaltungen geplant.</p>
+    <p><a href="{$evt_view_week_prev_week_link}">Vorherige Woche</a></p>
+    <p><a href="{$evt_view_week_next_week_link}">Vorherige Woche</a></p>
+    <div><a href="{$evt_start_link}">Zur Übersicht...</a></div>
+    <!-- ENDE -->
+  {elseif $view == "month"}
+    <!-- ANFANG: VIEW == MONTH -->
+    <h2>Veranstaltungen</h2>
+    <p>Es tut uns sehr leid, aber für den {$evt_view_month_month_name} sind leider keine Veranstaltungen geplant.</p>
+    <p><a href="{$evt_view_month_prev_month_link}">{$evt_view_month_prev_month_name}</a></p>
+    <p><a href="{$evt_view_month_next_month_link}">{$evt_view_month_next_month_name}</a></p>
+    <div><a href="{$evt_start_link}">Zur Übersicht...</a></div>
+    <!-- ENDE -->
+  {else}
+    <!-- ANFANG: VIEW == ACTIVE -->
+    <h2>Veranstaltungen</h2>
+    <p>Es sind z.Zt. leider keine Veranstaltungen geplant.</p>
+    <p>Bitte besuchen Sie uns in ein paar Tagen wieder!</p>
+    <!-- ENDE -->
+  {/if}
+</div>
