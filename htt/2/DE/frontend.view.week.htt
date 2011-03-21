@@ -1,0 +1,17 @@
+<!-- $Id: frontend.view.week.htt 5 2011-03-19 16:42:19Z phpmanufaktur $ -->
+<div id="evt_view_week">
+  <h2>Übersicht über die Veranstaltungen in der {$evt_view_week_week}. Kalenderwoche</h2>
+  <p>Woche: {$evt_view_week_week_zero}</p>
+  <p>Jahr: {$evt_view_week_year}</p>
+  <p>Monat: {$evt_view_week_month}</p>
+  <p>Monat: {$evt_view_week_month_zero}</p>
+  <p>Monat: {$evt_view_week_month_name}</p>
+  <p>Montag: {$evt_view_week_monday}</p>
+  <p>Montag: {$evt_view_week_monday_zero}</p>
+  <p>Sonntag: {$evt_view_week_sunday}</p>
+  <p>Sonntag: {$evt_view_week_sunday_zero}</p>
+  <p><a href="{$evt_view_week_prev_week_link}">Vorherige Woche</a></p>
+  <p><a href="{$evt_view_week_next_week_link}">Nächste Woche</a></p>
+  {$events}
+  <p><a href="{$evt_start_link}">Zur Übersicht...</a></p>
+</div>

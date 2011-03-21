@@ -1,0 +1,17 @@
+Zu der Veranstaltung {$evt_headline} am {$evt_start_datetime} Uhr ist soeben folgende Mitteilung eingegangen:
+
+Die Anmeldung ist: {$order_confirm}
+
+{$order_title|default:''}
+{$order_first_name|default:''} {$order_last_name|default:''}
+{$order_street|default:''}
+{$order_zip|default:''} {$order_city|default:''}
+
+E-Mail: {$order_email}
+Ihr Telefon: {$order_phone|default:''}
+Erreichbarkeit: {$order_best_time|default:''}
+
+Zusätzliche Mitteilung:
+{$order_message|default:''}
+
+### AUTOMATISCHE BENACHRICHTIGUNG ###

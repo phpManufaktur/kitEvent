@@ -4,15 +4,17 @@
   <form name="{$form_name}" action="{$form_action}" method="post">
     <input type="hidden" name="{$action_name}" value="{$action_value}" />
     <input type="hidden" name="{$event_name}" value="{$event_value}" />
-<!--
-  Im Feld {$must_fields_name} legen Sie unter "value" die Pflichtfelder fest.
-  Trennen Sie die Felder durch ein Komma, moegliche Eingaben sind:
-  email,captcha,first_name,last_name,street,zip,city,phone,terms_and_conditions
-  "email" wird hier nur zur Vollstaendigkeit eingetragen, die E-Mail Adresse wird
-  grundsaetzlich eingefordert! "captcha" dient dem Schutz vor unerwuenschten Zusendungen.
--->
+{*
+ * Im Feld {$must_fields_name} legen Sie unter "value" die Pflichtfelder fest.
+ * Trennen Sie die Felder durch ein Komma, moegliche Eingaben sind:
+ * email,captcha,first_name,last_name,street,zip,city,phone,terms_and_conditions
+ * "email" wird hier nur zur Vollstaendigkeit eingetragen, die E-Mail Adresse wird
+ * grundsaetzlich eingefordert! "captcha" dient dem Schutz vor unerwuenschten Zusendungen.
+*}
     <input type="hidden" name="{$must_fields_name}" value="captcha,email,terms_and_conditions" />
-<!-- ab hier koennen Aenderungen vorgenommen werden, entfernen Sie Felder die Sie nicht benoetigen -->
+{*
+ * ab hier koennen Aenderungen vorgenommen werden, entfernen Sie Felder die Sie nicht benoetigen
+ *}
     <div>Ttiel der Veranstaltung: {$evt_headline}</div>
     <div>ID: {$evt_id}</div>
     <div>Gruppenbezeichner: {$evt_group_name}</div>
@@ -38,7 +40,9 @@
     <div>Veranstaltungsort: {$evt_location}</div>
     <div>Kosten: {$evt_costs}</div>
     <div><a href="{$evt_order_link}">Anmelde Link</a></div>
-<!-- Formularfelder -->
+{*
+ * Formularfelder
+ *}
     <div>Fehlermeldungen durch das Programm: {$request_response}</div><!-- NICHT ENTFERNEN! -->
     <div>Anrede: {$request_select_title}</div>
     <div>Vorname: {$request_input_first_name}</div>
@@ -54,7 +58,9 @@
     <div>Hiermit melde ich mich an: {$request_checkbox_order_confirm}</div>
     <div>AGB/Datenschutz gelesen: {$request_checkbox_terms_and_conditions}</div>
     <div>{$request_captcha}</div>
-<!-- ab hier nichts mehr aendern! -->
+{*
+ * ab hier nichts mehr aendern!
+ *}
     <div>{$request_submit} {$request_abort}</div>
   </form>
 </div>

@@ -1,0 +1,11 @@
+<!-- $Id: frontend.view.month.htt 5 2011-03-19 16:42:19Z phpmanufaktur $ -->
+<div id="evt_view_month">
+  <h2>Übersicht über die Veranstaltungen im {$evt_view_month_month_name}</h2>
+  <p>Jahr: {$evt_view_month_year}</p>
+  <p>Monat: {$evt_view_month_month}</p>
+  <p>Monat: {$evt_view_month_month_zero}</p>
+  <p><a href="{$evt_view_month_prev_month_link}">{$evt_view_month_prev_month_name}</a></p>
+  <p><a href="{$evt_view_month_next_month_link}">{$evt_view_month_next_month_name}</a></p>
+  {$events}
+  <p><a href="{$evt_start_link}">Zur Übersicht...</a></p>
+</div>

@@ -1,0 +1,191 @@
+.evt_order,
+.evt_detail {
+  margin: 10px 0 20px 0;
+}
+.evt_order table,
+.evt_detail table {
+  table-layout: fixed;
+  border-collapse: collapse;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+.evt_order td,
+.evt_detail td {
+  vertical-align: top;
+  font-size: 8pt;
+}
+.evt_order input[type=text] {
+  font-size: 8pt;
+  width: 90%;
+}
+.evt_order textarea {
+  font-size: 8pt;
+  width: 90%;
+}
+.evt_view_event {
+  margin: 0;
+  padding: 20px 0 0 0;
+  clear: both;
+}
+.evt_cal_sheet {
+  vertical-align: top;
+  min-height: 300px;
+}
+.evt_cal_sheet_img {
+  position: relative;
+  margin: 20px 20px 0 0;
+  padding: 0;
+  width: 100px;
+  height: 120px;
+  display: inline-block;
+  color: #000;
+  background-color: transparent;
+  background-image: url(img/calendar-sheet.png);
+  background-position: top left;
+  background-repeat: no-repeat;
+  font-family: cursive;
+  text-align: center;
+}
+.evt_cal_sheet_month {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  width: 100px;
+  text-align: center;
+  font-size: 8pt;
+  font-weight: bold;
+  /*margin: 20px 0 0 0;*/
+  margin: 0;
+  padding: 0;
+}
+.evt_cal_sheet_day_holiday,
+.evt_cal_sheet_day {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  width: 100px;
+  text-align: center;
+  font-size: 17pt;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+}
+.evt_cal_sheet_day_holiday {
+  color: #cd0a0a;
+  background-color: transparent;
+}
+.evt_cal_sheet_day_name
+{
+  position: absolute;
+  top: 77px;
+  left: 0;
+  width: 100px;
+  text-align: center;
+  font-size: 8pt;
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+}
+.evt_cal_sheet_group {
+  margin: 0;
+  padding: 0;
+  font-size: 8pt;
+  font-weight: bold;
+  /*color: #da251d; ROT */
+  color: #666;
+  background-color: transparent;
+}
+.evt_cal_group_phpmanufaktur,
+.evt_cal_group_extern,
+.evt_cal_group_none,
+.evt_cal_group_wbug {
+  width: 25px;
+  height: auto;
+  vertical-align: bottom;
+  color: #fff;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  padding: 0;
+  margin: 0;
+}
+.evt_cal_group_wbug {
+  background-color: #006699;
+  background-image: url(img/group-wbug.jpg);
+}
+.evt_cal_group_phpmanufaktur {
+  background-color: #da251d;
+  background-image: url(img/group-phpmanufaktur.jpg);
+}
+.evt_cal_group_extern {
+  background-color: #333333;
+  background-image: url(img/group-extern.jpg);
+}
+.evt_cal_group_none {
+  background-color: transparent;
+  background-image: none;
+}
+.evt_cal_group_desc {
+  margin: 0 0 10px 0;
+  padding: 0;
+  font-size: 7pt;
+  color: #363636;
+  background-color: transparent;
+}
+.evt_cal_headline {
+  margin: 0 0 15px 0;
+  padding: 0;
+  font-size: 13pt;
+  color: #000;
+  background-color: transparent;
+}
+.evt_cal_content {
+  font-size: 8pt;
+  min-height: 300px;
+  margin: 0;
+  padding: 0 10px 0 0;
+}
+.evt_cal_sheet_table_label,
+.evt_cal_sheet_table_value {
+  font-size: 8pt;
+}
+.evt_cal_sheet_table_label {
+  font-weight: bold;
+}
+.evt_back_overview {
+  margin: 20px 0 0 0;
+  text-align: left;
+  font-size: 8pt;
+}
+.evt_price_info {
+  margin: 30px 0 5px 0;
+  font-size: 7pt;
+  color: #666666;
+  background-color: transparent;
+}
+.evt_view_intro {
+  margin: 0 0 20px 0;
+  font-size: 9pt;
+}
+.evt_order_label,
+.evt_order_value,
+.evt_order_help {
+  font-size: 8pt;
+}
+td.evt_order_help {
+  font-size: 7pt;
+  font-style: italic;
+}
+.evt_order_event_desc {
+  border: 1px solid #666;
+  padding: 15px;
+  margin: 10px 0;
+  font-size: 8pt;
+  font-style: italic;
+}
+.evt_order_value input[name=zip] {
+  width: 20%;
+}
+.evt_order_value input[name=cty] {
+  width: 60%;
+}

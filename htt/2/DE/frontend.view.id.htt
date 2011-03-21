@@ -1,0 +1,6 @@
+<!-- $Id: frontend.view.id.htt 5 2011-03-19 16:42:19Z phpmanufaktur $ -->
+<div class="evt_view_id">
+  {$event}
+  <div class="evt_back_overview"><a href="{$evt_start_link}">Zurück zu Workshops und Termine...</a></div>
+  <div class="evt_price_info">Alle Preisangaben verstehen sich brutto, einschließlich der gesetzlichen Umsatzssteuer von z.Zt. 19%.</div>
+</div>

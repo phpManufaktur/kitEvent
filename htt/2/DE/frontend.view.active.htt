@@ -1,0 +1,16 @@
+<!-- $Id: frontend.view.active.htt 6 2011-03-20 08:11:21Z phpmanufaktur $ -->
+<div id="evt_view_active">
+  <h2>Aktuelle Workshops und Termine</h2>
+  <div class="evt_view_intro">
+    <img style="float:right;margin: 0 0 0 20px;" src="<?php echo WB_URL; ?>/modules/kit_event/htt/2/DE/img/workshops_termine.jpg" width="250" height="166" alt="Workshops und Termine" />
+    <p>Hier finden Sie aktuelle Workshops der <b>phpManufaktur</b> sowie der <b>WebsiteBaker Usergroup Berlin</b>.</p>
+    <p>Darüber hinaus finden Sie hier Hinweise auf interessante Veranstaltungen zu <b>Open Source</b> von <i>anderen Anbietern</i>.</p>
+    <p>Sollte Ihnen ein Angebot fehlen oder ein Termin nicht in Ihre Planung passen nehmen Sie bitte Kontakt mit mir auf, ich bin sicher, dass ich Ihnen entgegen kommen kann.</p>
+    <p>Sehr gerne führe ich Schulungen auch bei Ihnen vor Ort sowie auf ihren individuellen Bedarf zugeschnitten durch.</p>
+    <img src="<?php echo WB_URL; ?>/modules/kit_event/htt/2/DE/img/rh_schriftzug_small.png" width="250" height="40" alt="Ralf Hertsch" />
+  </div>
+  <div class="evt_view_event">
+    {$events}
+  </div>
+  <div class="evt_price_info">Alle Preisangaben verstehen sich brutto, einschließlich der gesetzlichen Umsatzssteuer von z.Zt. 19%.</div>
+</div>

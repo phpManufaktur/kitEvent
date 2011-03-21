@@ -285,6 +285,7 @@ class dbEventCfg extends dbConnectLE {
   	if ($this->sqlTableExists()) {
   		$this->checkConfig();
   	}
+  	date_default_timezone_set(event_cfg_time_zone);
   } // __construct()
   
   public function setMessage($message) {

@@ -313,6 +313,12 @@ class eventFrontend {
  		$weekdays = explode(',', event_cfg_day_names);
  		$months = explode(',', event_cfg_month_names);
   	
+ 		if ($event_data[dbEventItem::field_costs] > 0) {
+ 			$costs = sprintf(event_cfg_currency, number_format($event_data[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator));
+ 		}
+ 		else {
+ 			$costs = event_text_none;
+ 		}
   	$parser_data = array( 
   		'evt_headline'						=> $event_data[dbEventItem::field_title],
  			'evt_id'									=> sprintf('%03d', $event_data[dbEvent::field_id]),
@@ -333,11 +339,11 @@ class eventFrontend {
  			'evt_participants_total'	=> $event_data[dbEvent::field_participants_total],
  			'evt_participants_free'		=> $participants_free,
  			'evt_deadline'						=> date(event_cfg_date_str, strtotime($event_data[dbEvent::field_deadline])),
- 			'evt_desc_short'					=> $event_data[dbEventItem::field_desc_short],
- 			'evt_desc_long'						=> $event_data[dbEventItem::field_desc_long],
- 			'evt_desc_link'						=> $event_data[dbEventItem::field_desc_link],
+ 			'evt_desc_short'					=> stripslashes($event_data[dbEventItem::field_desc_short]),
+ 			'evt_desc_long'						=> stripslashes($event_data[dbEventItem::field_desc_long]),
+ 			'evt_desc_link'						=> stripslashes($event_data[dbEventItem::field_desc_link]),
  			'evt_location'						=> $event_data[dbEventItem::field_location],
- 			'evt_costs'								=> sprintf(event_cfg_currency, number_format($event_data[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator)),
+ 			'evt_costs'								=> $costs,
  			'evt_order_link'					=> sprintf('%s?%s=%s&%s=%s', $this->page_link, self::request_action, self::action_order, self::request_event_id, $event_id),
   		'evt_detail_link'					=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_event, self::request_event_id, $event_id, self::request_event, self::view_id, self::request_event_detail, 1),
   		'evt_start_link'					=> $this->page_link

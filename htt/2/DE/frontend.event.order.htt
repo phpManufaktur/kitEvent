@@ -1,0 +1,127 @@
+<!-- $Id: frontend.event.order.htt 4 2011-03-19 05:11:42Z phpmanufaktur $ -->
+<!-- im Kopfbereich des Formulars nichts aendern! -->
+<div class="evt_order">
+  <form name="{$form_name}" action="{$form_action}" method="post">
+    <input type="hidden" name="{$action_name}" value="{$action_value}" />
+    <input type="hidden" name="{$event_name}" value="{$event_value}" />
+    <input type="hidden" name="{$must_fields_name}" value="captcha,email,terms_and_conditions" />
+    <h2>Anmeldung: {$evt_headline}</h2>
+    {* $request_response ermöglicht es dem Programm bei Bedarf Meldungen einzublenden,
+     * z.B. über fehlende Angaben, Fehler bei der Eingabe des CAPTCHA Code etc. ...
+     *}
+    {$request_response}
+    <div class="evt_order_event_desc">
+      <p><b>Veranstaltung:</b></p>
+      {$evt_desc_short}
+    </div>
+    <table width="100%">
+      <colgroup>
+        <col width="120" />
+        <col width="*" />
+        <col width="150" />
+      </colgroup>
+      <tr>
+        <td class="evt_order_label">Beginn</td>
+        <td class="evt_order_value">{$evt_start_datetime} Uhr</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Ende</td>
+        <td class="evt_order_value">{$evt_end_datetime} Uhr</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Ort</td>
+        <td class="evt_order_value">{$evt_location}</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Anmeldeschluß</td>
+        <td class="evt_order_value">{$evt_deadline}</td>
+        <td class="evt_order_help"><i>Verspätete Anmeldungen werden nur unter Vorbehalt angenommen.</i></td>
+      </tr>
+      {if $evt_participants_free < 1}
+        <tr>
+          <td class="evt_order_label">Freie Plätze</td>
+          <td class="evt_order_value"><b>Diese Veranstaltung ist bereits ausgebucht, wir nehmen Ihre Anmeldung nur unter Vorbehalt an!</b></td>
+          <td class="evt_order_help"><i>Wir werden Ihnen zeitnah mitteilen, ob Ihre Anmeldung noch angenommen werden kann!.</i></td>
+        </tr>
+      {else}
+        <tr>
+          <td class="evt_order_label">Freie Plätze</td>
+          <td class="evt_order_value">{$evt_participants_free}</td>
+          <td class="evt_order_help"><i>Wir bestätigen Ihnen Ihre Anmeldung zeitnah.</i></td>
+        </tr>
+      {/if}
+      <tr>
+        <td class="evt_order_label">Kosten</td>
+        <td class="evt_order_value">{$evt_costs}</td>
+        <td class="evt_order_help">Alle Preisangaben verstehen sich <b>pro Teilnehmer</b> und brutto, einschließlich der gesetzlichen Umsatzsteuer von z.Zt. 19%.</td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Anrede</td>
+        <td class="evt_order_value">{$request_select_title}</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Vorname</td>
+        <td class="evt_order_value">{$request_input_first_name}</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Nachname</td>
+        <td class="evt_order_value">{$request_input_last_name}</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Firma/Institution</td>
+        <td class="evt_order_value">{$request_input_company}</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Straße/Hausnummer</td>
+        <td class="evt_order_value">{$request_input_street}</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">PLZ/Stadt</td>
+        <td class="evt_order_value">{$request_input_zip} {$request_input_city}</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">E-Mail</td>
+        <td class="evt_order_value">{$request_input_email}</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Telefon</td>
+        <td class="evt_order_value">{$request_input_phone}</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Günstige Zeiten</td>
+        <td class="evt_order_value">{$request_input_best_time}</td>
+        <td class="evt_order_help">Bitte nennen Sie uns Zeiten zu denen wir Sie telefonisch am Besten erreichen können.</td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Mitteilungen</td>
+        <td class="evt_order_value">{$request_text_message}</td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_value" colspan="2">{$request_checkbox_order_confirm} hiermit melde ich mich <b>verbindlich</b> an.</td>
+        <td class="evt_order_help">Mit dem Setzen des Häkchens melden Sie sich verbindlich für die Veranstaltung an.</td>
+      </tr>
+      <tr>
+        <td class="evt_order_value" colspan="2">{$request_checkbox_terms_and_conditions} Die Datenschutzerklärung habe ich zur Kenntnis genommen.</td>
+        <td class="evt_order_help">Mit dem Setzen des Häkchens bestätigen Sie, dass Sie die Datenschutzerklärung der phpManufaktur zur Kenntnis genommen haben.</td>
+      </tr>
+      <tr>
+        <td class="evt_order_value" colspan="3">{$request_captcha}</td>
+      </tr>
+      <tr>
+        <td class="evt_order_value" colspan="3">{$request_submit} {$request_abort}</td>
+      </tr>
+    </table>
+  </form>
+</div>

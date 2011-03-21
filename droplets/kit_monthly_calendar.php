@@ -1,4 +1,3 @@
-<?php
 //:Show a monthly calender and indicate events. On click the details of the event will be shown
 //:Please visit http://phpManufaktur.de for informations about kitEvent!
 /**
@@ -26,4 +25,3 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.calendar.php')) {
 else {
 	return "kitEvent is not installed!";
 }
-?>

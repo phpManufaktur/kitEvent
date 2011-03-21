@@ -1,0 +1,54 @@
+<!-- $Id: frontend.event.teaser.htt 6 2011-03-20 08:11:21Z phpmanufaktur $ -->
+<div class="evt_teaser">
+<div class="evt_detail">
+  <table width="100%">
+    <colgroup>
+      <col width="120" />
+      <col width="*" />
+      <col width="25" />
+    </colgroup>
+    <tr>
+      <td class="evt_cal_sheet">
+        {*
+         * Auf der linken Seite wird ein Kalenderblatt mit dem Wochentag, dem Datum sowie
+         * dem Monat angezeigt. Das Datum wird sn Sonntagen anders formatiert.
+        *}
+        <div class="evt_cal_sheet_img">
+          <div class="evt_cal_sheet_month">{$evt_start_month}</div>
+          {if $evt_start_day_of_week == "Sonntag"}
+            <div class="evt_cal_sheet_day_holiday">{$evt_start_day}</div>
+          {else}
+            <div class="evt_cal_sheet_day">{$evt_start_day}</div>
+          {/if}
+          <div class="evt_cal_sheet_day_name">{$evt_start_day_of_week}</div>
+        </div>
+      </td>
+      <td class="evt_cal_content">
+        {*
+         * Der eigentliche Inhalt der Veranstaltung.
+         * Es werden die Gruppenbeschreibung, die Schlagzeile, die vollständige
+         * Beschreibung der Veranstaltung sowie die zusätzlichen Angaben
+         * ausgegeben.
+         *}
+        <div class="evt_cal_group_desc">{$evt_group_desc}</div>
+        <div class="evt_cal_headline">{$evt_headline}</div>
+        {$evt_desc_short}
+        <div class="evt_cal_read_more"><a href="{$evt_detail_link}">mehr erfahren...</a></div>
+      </td>
+        {*
+         * Es wird der Gruppen Bezeichner genutzt um auf der rechten Seite einen
+         * farbigen Streifen sowie einen beschreibenden Schriftzug passend zu
+         * der jeweiligen Gruppe auszugeben.
+         *}
+      {if $evt_group_name == "WBUG"}
+        <td class="evt_cal_group_wbug"></td>
+      {elseif $evt_group_name == "phpManufaktur"}
+        <td class="evt_cal_group_phpmanufaktur"></td>
+      {elseif $evt_group_name == "Extern"}
+        <td class="evt_cal_group_extern"></td>
+      {else}
+        <td class="evt_cal_group_none"></td>
+      {/if}
+    </tr>
+  </table>
+</div>

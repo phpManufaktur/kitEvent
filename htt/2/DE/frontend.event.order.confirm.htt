@@ -1,0 +1,8 @@
+<!-- $Id: frontend.event.order.confirm.htt 5 2011-03-19 16:42:19Z phpmanufaktur $ -->
+<div id="evt_confirm">
+  <h2>Mitteilung erhalten</h2>
+  <p>Vielen Dank für Ihr Interesse an unseren Veranstaltungen.</p>
+  <p>Wir haben Ihnen eine Bestätigung an Ihre E-Mail Adresse {$order_email} gesendet und werden uns in Kürze mit Ihnen in Verbindung setzen.</p>
+  <p><i>Ihr Event-Team</i></p>
+  <p><a href="{$evt_start_link}">Zur Übersicht wechseln</a></p>
+</div> 

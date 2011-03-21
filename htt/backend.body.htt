@@ -1,8 +1,30 @@
-<!-- $Id$ -->
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+ * @link http://phpmanufaktur.de
+ * @copyright 2011
+ * @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+ * @version $Id$
+ *}
 <script type="text/javascript">
   var WB_URL = '{$WB_URL}';
 </script>
 <div class="event_backend">
-  {$navigation}
-  <div {$class|default: ''}>{$content}</div>
+  <ul class="nav_tab">
+  {foreach $navigation nav}
+    {if $nav.active == 1}
+      <li class="selected"><a href="{$nav.url}">{$nav.text}</a></li>
+    {else}
+      <li><a href="{$nav.url}">{$nav.text}</a></li>
+    {/if}
+  {/foreach}
+  </ul>
+{if $error == 1}
+  <div class="error">
+{else}
+  <div>
+{/if}
+    {$content}
+  </div>
 </div>

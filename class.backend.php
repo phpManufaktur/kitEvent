@@ -206,26 +206,6 @@ class eventBackend {
 	
   	
   /**
-   * Erstellt eine Navigationsleiste
-   * 
-   * @param $action - aktives Navigationselement
-   * @return STR Navigationsleiste
-   */
-  public function getNavigation($action) {
-  	$result = '';
-  	foreach ($this->tab_navigation_array as $key => $value) {
-   		($key == $action) ? $selected = ' class="selected"' : $selected = ''; 
-	 		$result .= sprintf(	'<li%s><a href="%s">%s</a></li>', 
-	 												$selected,
-	 												sprintf('%s&%s=%s', $this->page_link, self::request_action, $key),
-	 												$value
-	 												);
-  	}
-  	$result = sprintf('<ul class="nav_tab">%s</ul>', $result);
-  	return $result;
-  } // getNavigation()
-  
-  /**
    * Ausgabe des formatierten Ergebnis mit Navigationsleiste
    * 
    * @param $action - aktives Navigationselement
@@ -234,20 +214,21 @@ class eventBackend {
    * @return ECHO RESULT
    */
   public function show($action, $content) {
-  	if ($this->isError()) {
-  		$content = $this->getError();
-  		$class = ' class="error"';
-  	}
-  	else {
-  		$class = '';
+  	$navigation = array();
+  	foreach ($this->tab_navigation_array as $key => $value) {
+  		$navigation[] = array(
+  			'active' 	=> ($key == $action) ? 1 : 0,
+  			'url'			=> sprintf('%s&%s=%s', $this->page_link, self::request_action, $key),
+  			'text'		=> $value
+  		);
   	}
   	$data = array(
-  		'WB_URL'					=> WB_URL,
-  		'navigation'			=> $this->getNavigation($action),
-  		'class'						=> $class,
-  		'content'					=> $content
+  		'WB_URL'			=> WB_URL,
+  		'navigation'	=> $navigation,
+  		'error'				=> ($this->isError()) ? 1 : 0,
+  		'content'			=> ($this->isError()) ? $this->getError() : $content
   	);
-		echo $this->getTemplate('backend.body.htt', $data);
+  	echo $this->getTemplate('backend.body.htt', $data);
   } // show()
   
   public function dlgList() {
@@ -427,7 +408,7 @@ class eventBackend {
   	
   	$event_id = (isset($_REQUEST[dbEvent::field_id]) && ($_REQUEST[dbEvent::field_id] > 0)) ? $_REQUEST[dbEvent::field_id] : -1;
   	if ($event_id !== -1) {
-  		$SQL = sprintf(	"SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s.%s='%s' AND %s.%s!='%s'",
+  		$SQL = sprintf(	"SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s.%s='%s'",
   										$dbEvent->getTableName(),
   										$dbEventItem->getTableName(),
   										$dbEvent->getTableName(),
@@ -436,10 +417,7 @@ class eventBackend {
   										dbEventItem::field_id,
   										$dbEvent->getTableName(),
   										dbEvent::field_id,
-  										$event_id,
-  										$dbEvent->getTableName(),
-  										dbEvent::field_status,
-  										dbEvent::status_deleted);
+  										$event_id);
   		$event = array();
   		if (!$dbEvent->sqlExec($SQL, $event)) {
   			$this->setError($dbEvent->getError());
@@ -667,7 +645,7 @@ class eventBackend {
   	
   	// short description
   	ob_start();
-			show_wysiwyg_editor(dbEventItem::field_desc_short, dbEventItem::field_desc_short, $event[dbEventItem::field_desc_short], '99%', '200px');
+			show_wysiwyg_editor(dbEventItem::field_desc_short, dbEventItem::field_desc_short, stripslashes($event[dbEventItem::field_desc_short]), '99%', '200px');
 			$editor = ob_get_contents();
 		ob_end_clean();
 		$data[] = array(
@@ -678,7 +656,7 @@ class eventBackend {
 		
   	// long description
   	ob_start();
-			show_wysiwyg_editor(dbEventItem::field_desc_long, dbEventItem::field_desc_long, $event[dbEventItem::field_desc_long], '99%', '300px');
+			show_wysiwyg_editor(dbEventItem::field_desc_long, dbEventItem::field_desc_long, stripslashes($event[dbEventItem::field_desc_long]), '99%', '300px');
 			$editor = ob_get_contents();
 		ob_end_clean();
 		$data[] = array(
@@ -1006,12 +984,10 @@ class eventBackend {
   	
   	// get active event group
   	if ($group_id > 0) {
-  		$SQL = sprintf( "SELECT * FROM %s WHERE %s='%s' AND %s!='%s'",
+  		$SQL = sprintf( "SELECT * FROM %s WHERE %s='%s'",
   										$dbEventGroup->getTableName(),
   										dbEventGroup::field_id,
-  										$group_id,
-  										dbEventGroup::field_status,
-  										dbEventGroup::status_deleted);
+  										$group_id);
   		$active_group = array();
   		if (!$dbEventGroup->sqlExec($SQL, $active_group)) {
   			$this->setError($dbEventGroup->getError());
