@@ -1,7 +1,17 @@
-<!-- $Id$ -->
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+ * @link http://phpmanufaktur.de
+ * @copyright 2011
+ * @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+ * @version $Id$
+ *}
 <div class="evt_list">
   <h2>{$header}</h2>
-  {$intro}
+  {if (count_characters($intro) > 0)}
+  <div class="{if $is_intro == 1}intro{else}message{/if}">{$intro}</div>
+  {/if}
   <table width="100%">
     <colgroup>
       <col width="15%" />
@@ -12,6 +22,25 @@
       <col width="5%" />
       <col width="30%" />
     </colgroup>
-    {$items}
+    <tr>
+      <th class="head_{$order_date_name}">{$order_date_th}</th>
+      <th class="head_{$email_name}">{$email_th}</th>
+      <th class="head_{$name_name}">{$name_th}</th>
+      <th class="head_{$event_name}">{$event_th}</th>
+      <th class="head_{$event_date_name}">{$event_date_th}</th>
+      <th class="head_{$declared_name}">{$declared_th}</th>
+      <th class="head_{$message_name}">{$message_th}</th>
+    </tr>
+    {foreach $rows row}
+    <tr>
+      <td class="data_{$order_date_name}"><a href="{$row.order_date_link}">{$row.order_date}</a></td>
+      <td class="data_{$email_name}"><a href="mailto:{$row.email}">{$row.email}</a></td>
+      <td class="data_{$name_name}">{$row.name}</td>
+      <td class="data_{$event_name}">{$row.event}</td>
+      <td class="data_{$event_date_name}">{$row.event_date}</td>
+      <td class="data_{$declared_name}">{$row.declared}</td>
+      <td class="data_{$message_name}">{$row.message}</td>
+    </tr>
+    {/foreach}
   </table>
 </div>

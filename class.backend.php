@@ -271,29 +271,19 @@ class eventBackend {
   		return false;
   	}
   	
-  	
-  	$data = array(
-  		'id_name'						=> dbEvent::field_id,
-  		'id'								=> event_th_id,
-  		'date_from_name'		=> dbEvent::field_event_date_from,
-  		'date_from'					=> event_th_date_from,
-  		'date_to_name'			=> dbEvent::field_event_date_to,
-  		'date_to'						=> event_th_date_to,
-  		'group_name'				=> dbEvent::field_event_group,
-  		'group'							=> event_th_group,
-  		'part_max_name'			=> dbEvent::field_participants_max,
-  		'part_max'					=> event_th_participants_max,
-  		'part_total_name'		=> dbEvent::field_participants_total,
-  		'part_total'				=> event_th_participants_total,
-  		'deadline_name'			=> dbEvent::field_deadline,
-  		'deadline'					=> event_th_deadline,
-  		'title_name'				=> dbEventItem::field_title,
-  		'title'							=> event_th_title
+  	$th = array(
+  		array('class' => dbEvent::field_id, 'text' => event_th_id),
+  		array('class' => dbEvent::field_event_date_from, 'text' => event_th_date_from),
+  		array('class' => dbEvent::field_event_date_to, 'text' => event_th_date_to),
+  		array('class' => dbEvent::field_event_group, 'text' => event_th_group),
+  		array('class' => dbEvent::field_participants_max, 'text' => event_th_participants_max),
+  		array('class' => dbEvent::field_participants_total, 'text' => event_th_participants_total),
+  		array('class' => dbEvent::field_deadline, 'text' => event_th_deadline),
+  		array('class' => dbEventItem::field_title, 'text' => event_th_title)
   	);
   	
-  	$items = $parser->get($this->template_path.'backend.event.list.th.htt', $data);
-  	$row = new Dwoo_Template_File($this->template_path.'backend.event.list.row.htt');
-  	
+  	$items = '';
+  	$rows = array();
   	$flipflop = true;
   	foreach ($events as $event) {
   		($flipflop) ? $flipflop = false : $flipflop = true;
@@ -307,17 +297,17 @@ class eventBackend {
 			$grp = (count($group) > 0) ? $group[0][dbEventGroup::field_name] : '';
 			
 			$group = -1;
-  		$data = array(
+  		$rows[] = array(
   			'flipflop'					=> $class,
 	  		'id_name'						=> dbEvent::field_id,
-	  		'id'								=> sprintf(	'<a href="%s&%s=%s&%s=%s">%05d</a>',
+	  		'id_link'						=> sprintf(	'%s&%s=%s&%s=%s',
   																			$this->page_link,
   																			self::request_action,
   																			self::action_edit,
   																			dbEvent::field_id,
-  																			$event[dbEvent::field_id],  
   																			$event[dbEvent::field_id]),
-	  		'date_from_name'		=> dbEvent::field_event_date_from,
+  			'id'								=> sprintf('%04d', $event[dbEvent::field_id]),																
+  			'date_from_name'		=> dbEvent::field_event_date_from,
 	  		'date_from'					=> date(event_cfg_datetime_str, strtotime($event[dbEvent::field_event_date_from])),
 	  		'date_to_name'			=> dbEvent::field_event_date_to,
 	  		'date_to'						=> date(event_cfg_datetime_str, strtotime($event[dbEvent::field_event_date_to])),
@@ -332,21 +322,16 @@ class eventBackend {
 	  		'title_name'				=> dbEventItem::field_title,
 	  		'title'							=> $event[dbEventItem::field_title]
 	  	);
-	  	$items .= $parser->get($row, $data);
   	}
   	
-  	$additional = sprintf('<div class="additional"><a href="%s">%s</a></div>',
-  												sprintf('%s&%s=%s&%s=1',
-  																$this->page_link,
-  																self::request_action,
-  																self::action_list,
-  																self::request_show_all),
-  												event_label_show_all);
   	$data = array(
-  		'header'			=> event_header_event_list,
-  		'intro'				=> ($this->isMessage()) ? sprintf('<div class="message">%s</div>', $this->getMessage()) : sprintf('<div class="intro">%s</div>', event_intro_event_list),
-  		'items'				=> $items,
-  		'additional'	=> $additional
+  		'header'				=> event_header_event_list,
+  		'intro_class'		=> ($this->isMessage()) ? 'message' : 'intro',
+  		'intro'					=> ($this->isMessage()) ? $this->getMessage() : event_intro_event_list,
+  		'th'						=> $th,
+  		'rows'					=> $rows,
+  		'show_all_link'	=> sprintf('%s&%s=%s&%s=1',	$this->page_link,	self::request_action,	self::action_list, self::request_show_all),
+  		'show_all'			=> event_label_show_all,
   	);
   	return $this->getTemplate('backend.event.list.htt', $data);
   } // dlgList()
@@ -375,12 +360,16 @@ class eventBackend {
   		return false;
   	}
   	
-  	$option = sprintf('<option value="-1">%s</option>', event_text_select_no_event);
+  	$suggest_options = array();
+  	$suggest_options[] = array(
+  		'value'	=> -1,
+  		'text'	=> event_text_select_no_event
+  	);
   	foreach ($events as $event) {
-  		$option .= sprintf(	'<option value="%d">[ %s ] %s</option>', 
-  												$event[dbEventItem::field_id], 
-  												date(event_cfg_date_str, strtotime($event[dbEvent::field_event_date_from])), 
-  												$event[dbEventItem::field_title]);
+  		$suggest_options[] = array(
+  			'value'	=> $event[dbEventItem::field_id],
+  			'text'	=> sprintf('[ %s ] %s', date(event_cfg_date_str, strtotime($event[dbEvent::field_event_date_from])), $event[dbEventItem::field_title])
+  		);
   	}
   	
   	$data = array(
@@ -389,10 +378,10 @@ class eventBackend {
   		'action_name'			=> self::request_action,
   		'action_value'		=> self::action_edit,
   		'header'					=> event_header_suggest_event,
-  		'intro'						=> sprintf('<div class="intro">%s</div>', event_intro_suggest_event),
-  		'css'							=> self::request_suggestion,
-  		'label'						=> event_label_select_event,
-  		'value'						=> sprintf('<select name="%s">%s</select>', self::request_suggestion, $option),
+  		'intro'						=> event_intro_suggest_event,
+  		'suggest_request'	=> self::request_suggestion,
+  		'suggest_label'		=> event_label_select_event,
+  		'suggest_options'	=> $suggest_options,
   		'btn_ok'					=> event_btn_ok,
   		'btn_abort'				=> event_btn_abort,
   		'abort_location'	=> $this->page_link
@@ -493,206 +482,147 @@ class eventBackend {
   	}
   	if (isset($_REQUEST[self::request_time_start])) $time_start = $_REQUEST[self::request_time_start];
 		if (isset($_REQUEST[self::request_time_end])) $time_end = $_REQUEST[self::request_time_end];
-  	
-  	$data = array();
-  	
-  	// set event date from
-  	$date = (false !== ($x = strtotime($event[dbEvent::field_event_date_from]))) ? date(event_cfg_date_str, $x) : '';
-  	$data[] = array(
-  		'css'			=> dbEvent::field_event_date_from,
-  		'label'		=> event_label_event_date_from,
-  		'value'		=> sprintf(	'<input type="text" name="%s" value="%s" id="%s" />',
-  													dbEvent::field_event_date_from,
-  													$date,
-  													'datepicker_1')
-  	);
-  	
-  	// set event date to
-  	$date = (false !== ($x = strtotime($event[dbEvent::field_event_date_to]))) ? date(event_cfg_date_str, $x) : '';
-  	$data[] = array(
-  		'css'			=> dbEvent::field_event_date_to,
-  		'label'		=> event_label_event_date_to,
-  		'value'		=> sprintf(	'<input type="text" name="%s" value="%s" id="%s" />',
-  													dbEvent::field_event_date_to,
-  													$date,
-  													'datepicker_2')
-  	);
-  	
-  	// set event time start
-  	$data[] = array(
-  		'css'			=> self::request_time_start,
-  		'label'		=> event_label_event_time_start,
-  		'value'		=> sprintf( '<input type="text" name="%s" value="%s" />',
-  													self::request_time_start,
-  													$time_start)	
-  	);
-  	
-  	// set event time end
-  	$data[] = array(
-  		'css'			=> self::request_time_end,
-  		'label'		=> event_label_event_time_end,
-  		'value'		=> sprintf( '<input type="text" name="%s" value="%s" />',
-  													self::request_time_end,
-  													$time_end)	
-  	);
-  	
-  	// set publish date from
-  	$date = (false !== ($x = strtotime($event[dbEvent::field_publish_date_from]))) ? date(event_cfg_date_str, $x) : '';
-  	$data[] = array(
-  		'css'			=> dbEvent::field_publish_date_from,
-  		'label'		=> event_label_publish_from,
-  		'value'		=> sprintf(	'<input type="text" name="%s" value="%s" id="%s" />',
-  													dbEvent::field_publish_date_from,
-  													$date,
-  													'datepicker_3')
-  	);
-  	
-  	// set publish date to
-  	$date = (false !== ($x = strtotime($event[dbEvent::field_publish_date_to]))) ? date(event_cfg_date_str, $x) : '';
-  	$data[] = array(
-  		'css'			=> dbEvent::field_publish_date_to,
-  		'label'		=> event_label_publish_to,
-  		'value'		=> sprintf(	'<input type="text" name="%s" value="%s" id="%s" />',
-  													dbEvent::field_publish_date_to,
-  													$date,
-  													'datepicker_4')
-  	);
-  	
-  	// participants max
-  	$data[] = array(
-  		'css'			=> dbEvent::field_participants_max,
-  		'label'		=> event_label_participants_max,
-  		'value'		=> sprintf( '<input type="text" name="%s" value="%s" />',
-  													dbEvent::field_participants_max,
-  													$event[dbEvent::field_participants_max])
-  	);
-  	
-  	// participants total
-  	$data[] = array(
-  		'css'			=> dbEvent::field_participants_total,
-  		'label'		=> event_label_participants_total,
-  		'value'		=> sprintf( '<input type="text" name="%s" value="%s" />',
-  													dbEvent::field_participants_total,
-  													$event[dbEvent::field_participants_total])
-  	);
-  	
-  	// set deadline
-  	$date = (false !== ($x = strtotime($event[dbEvent::field_deadline]))) ? date(event_cfg_date_str, $x) : '';
-  	$data[] = array(
-  		'css'			=> dbEvent::field_deadline,
-  		'label'		=> event_label_deadline,
-  		'value'		=> sprintf(	'<input type="text" name="%s" value="%s" id="%s" />',
-  													dbEvent::field_deadline,
-  													$date,
-  													'datepicker_5')
-  	);
-  	
-  	// costs
-  	$data[] = array(
-  		'css'			=> dbEventItem::field_costs,
-  		'label'		=> event_label_event_costs,
-  		'value'		=> sprintf( '<input type="text" name="%s" value="%s" />',
-  													dbEventItem::field_costs,
-  													sprintf(event_cfg_currency, number_format($event[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator)))
-  	);
-  	
-  	// group
+		
+		// event group
   	$SQL = sprintf( "SELECT * FROM %s WHERE %s='%s'", 
   									$dbEventGroup->getTableName(),
   									dbEventGroup::field_status,
   									dbEventGroup::status_active);
-  	$groups = array();
-  	if (!$dbEventGroup->sqlExec($SQL, $groups)) {
+  	$grps = array();
+  	if (!$dbEventGroup->sqlExec($SQL, $grps)) {
   		$this->setError($dbEventGroup->getError());
   		return false;
   	}
-  	$option = sprintf('<option value="-1"%s>%s</option>', ($event[dbEvent::field_event_group] == -1) ? ' selected="selected"' : '', event_text_no_group);
-  	foreach ($groups as $group) {
-  		$selected = ($group[dbEventGroup::field_id] == $event[dbEvent::field_event_group]) ? ' selected="selected"' : '';
-  		$option .= sprintf('<option value="%d"%s>%s</option>', $group[dbEventGroup::field_id], $selected, $group[dbEventGroup::field_name]);
-  	}
-  	$data[] = array(
-  		'css'			=> dbEvent::field_event_group,
-  		'label'		=> event_label_event_group,
-  		'value'		=> sprintf( '<select name="%s">%s</select>',
-  													dbEvent::field_event_group,
-  													$option)
+  	$group = array();
+  	$group[] = array(
+  		'selected'	=> ($event[dbEvent::field_event_group] == -1) ? 1 : 0,
+  		'value'			=> -1,
+  		'text'			=> event_text_no_group
   	);
+  	foreach ($grps as $grp) {
+  		$group[] = array(
+  			'selected'	=> ($grp[dbEventGroup::field_id] == $event[dbEvent::field_event_group]) ? 1 : 0,
+  			'value'			=> $grp[dbEventGroup::field_id],
+  			'text'			=> $grp[dbEventGroup::field_name]
+  		);
+  	}
   	
   	// status
-  	$option = '';
-  	foreach ($dbEvent->status_array as $value => $status) {
-  		$selected = ($event[dbEvent::field_status] == $value) ? ' selected="selected"' : '';
-  		$option .= sprintf('<option value="%s"%s>%s</option>', $value, $selected, $status);
+  	$status = array();
+  	foreach ($dbEvent->status_array as $value => $text) {
+  		$status[] = array(
+  			'selected'	=> ($event[dbEvent::field_status] == $value) ? 1 : 0,
+  			'value'			=> $value,
+  			'text'			=> $text
+  		);
   	}
-  	$data[] = array(
-  		'css'			=> dbEvent::field_status,
-  		'label'		=> event_label_status,
-  		'value'		=> sprintf( '<select name="%s">%s</select>',
-  													dbEvent::field_status,
-  													$option)
-  	);
-  	
-  	
-  	// title
-  	$data[] = array(
-  		'css'			=> dbEventItem::field_title,
-  		'label'		=> event_label_event_title,
-  		'value'		=> sprintf( '<input type="text" name="%s" value="%s" />',
-  													dbEventItem::field_title,
-  													$event[dbEventItem::field_title])
-  	);
   	
   	// short description
   	ob_start();
 			show_wysiwyg_editor(dbEventItem::field_desc_short, dbEventItem::field_desc_short, stripslashes($event[dbEventItem::field_desc_short]), '99%', '200px');
-			$editor = ob_get_contents();
+			$editor_short = ob_get_contents();
 		ob_end_clean();
-		$data[] = array(
-			'css'			=> dbEventItem::field_desc_short,
-			'label'		=> event_label_short_description,
-			'value'		=> $editor
-		);
 		
   	// long description
   	ob_start();
 			show_wysiwyg_editor(dbEventItem::field_desc_long, dbEventItem::field_desc_long, stripslashes($event[dbEventItem::field_desc_long]), '99%', '300px');
-			$editor = ob_get_contents();
+			$editor_long = ob_get_contents();
 		ob_end_clean();
-		$data[] = array(
-			'css'			=> dbEventItem::field_desc_long,
-			'label'		=> event_label_long_description,
-			'value'		=> $editor
+  	
+  			
+		$fields = array(
+			'date_from' => array(
+				'name'		=> dbEvent::field_event_date_from,
+				'id'			=> 'datepicker_1',
+  			'label'		=> event_label_event_date_from,
+  			'value'		=> (false !== ($x = strtotime($event[dbEvent::field_event_date_from]))) ? date(event_cfg_date_str, $x) : ''	
+			),
+			'date_to'	=> array(
+				'name'		=> dbEvent::field_event_date_to,
+				'id'			=> 'datepicker_2',
+				'label'		=> event_label_event_date_to,
+				'value'		=> (false !== ($x = strtotime($event[dbEvent::field_event_date_to]))) ? date(event_cfg_date_str, $x) : ''
+			),
+			'time_start' => array(
+				'name'		=> self::request_time_start,
+  			'label'		=> event_label_event_time_start,
+  			'value'		=> $time_start
+			),
+			'time_end' => array(
+				'name'		=> self::request_time_end,
+  			'label'		=> event_label_event_time_end,
+  			'value'		=> $time_end
+			),
+			'publish_date_from' => array(
+				'name'		=> dbEvent::field_publish_date_from,
+  			'label'		=> event_label_publish_from,
+  			'value'		=> (false !== ($x = strtotime($event[dbEvent::field_publish_date_from]))) ? date(event_cfg_date_str, $x) : '',
+				'id'			=> 'datepicker_3'
+			),
+			'publish_date_to' => array(
+				'name'		=> dbEvent::field_publish_date_to,
+  			'label'		=> event_label_publish_to,
+  			'value'		=> (false !== ($x = strtotime($event[dbEvent::field_publish_date_to]))) ? date(event_cfg_date_str, $x) : '',
+				'id'			=> 'datepicker_4'
+			),
+			'participants_max' => array(
+				'name'		=> dbEvent::field_participants_max,
+				'label'		=> event_label_participants_max,
+				'value'		=> $event[dbEvent::field_participants_max]
+			),
+			'participants_total' => array(
+				'name'		=> dbEvent::field_participants_total,
+				'label'		=> event_label_participants_total,
+				'value'		=> $event[dbEvent::field_participants_total]
+			),
+			'deadline' => array(
+				'name'		=> dbEvent::field_deadline,
+				'label'		=> event_label_deadline,
+				'value'		=> (false !== ($x = strtotime($event[dbEvent::field_deadline]))) ? date(event_cfg_date_str, $x) : '',
+				'id'			=> 'datepicker_5'
+			),
+			'costs' => array(
+				'name'		=> dbEventItem::field_costs,
+				'label'		=> event_label_event_costs,
+				'value'		=> sprintf(event_cfg_currency, number_format($event[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator))
+			),	
+			'group' => array(
+				'name'		=> dbEvent::field_event_group,
+				'label'		=> event_label_event_group,
+				'value'		=> $group
+			),
+			'status' => array(
+				'name'		=> dbEvent::field_status,
+				'label'		=> event_label_status,
+				'value'		=> $status
+			),
+			'title' => array(
+				'name'		=> dbEventItem::field_title,
+				'label'		=> event_label_event_title,
+				'value'		=> $event[dbEventItem::field_title]
+			),
+			'short_description' => array(
+				'name'		=> dbEventItem::field_desc_short,
+				'label'		=> event_label_short_description,
+				'value'		=> $editor_short
+			),
+			'long_description' => array(
+				'name'		=> dbEventItem::field_desc_long,
+				'label'		=> event_label_long_description,
+				'value'		=> $editor_long
+			),
+			'location' => array(
+				'name'		=> dbEventItem::field_location,
+				'label'		=> event_label_event_location,
+				'value'		=> $event[dbEventItem::field_location]
+			),
+			'link' => array(
+				'name'		=> dbEventItem::field_desc_link,
+				'label'		=> event_label_event_link,
+				'value'		=> $event[dbEventItem::field_desc_link]
+			)				
 		);
 		
-		// location
-  	$data[] = array(
-  		'css'			=> dbEventItem::field_location,
-  		'label'		=> event_label_event_location,
-  		'value'		=> sprintf( '<input type="text" name="%s" value="%s" />',
-  													dbEventItem::field_location,
-  													$event[dbEventItem::field_location])
-  	);
-  	
-  	// link
-  	$data[] = array(
-  		'css'			=> dbEventItem::field_desc_link,
-  		'label'		=> event_label_event_link,
-  		'value'		=> sprintf( '<input type="text" name="%s" value="%s" />',
-  													dbEventItem::field_desc_link,
-  													$event[dbEventItem::field_desc_link])
-  	);
-  	
-  	
-  	
-  	$items = '';
-  	$row = new Dwoo_Template_File($this->template_path.'backend.event.edit.row.htt');
-  	foreach ($data as $item) {
-  		$items .= $parser->get($row, $item);	
-  	}
-  	
-  	$intro = ($this->isMessage()) ? sprintf('<div class="message">%s</div>', $this->getMessage()) : sprintf('<div class="intro">%s</div>', event_intro_edit_event);
-  	
   	$data = array(
   		'form_name'				=> 'event_edit',
   		'form_action'			=> $this->page_link,
@@ -706,11 +636,12 @@ class eventBackend {
   		'suggestion_name'	=> self::request_suggestion,
   		'suggestion_value'=> -1,
   		'header'					=> event_header_edit_event,
-  		'intro'						=> $intro, 
-  		'items'						=> $items,
+  		'is_intro'				=> ($this->isMessage()) ? 0 : 1,
+  		'intro'						=> ($this->isMessage()) ? $this->getMessage() : event_intro_edit_event, 
   		'btn_ok'					=> event_btn_ok,
   		'btn_abort'				=> event_btn_abort,
-  		'abort_location'	=> $this->page_link
+  		'abort_location'	=> $this->page_link,
+  		'event'						=> $fields
   	);
   	return $this->getTemplate('backend.event.edit.htt', $data);
   } // dlgEditEvent()
@@ -1019,61 +950,56 @@ class eventBackend {
   		return false;
   	}
   	
-  	$data = array();
-  	// select event group
-  	$option = sprintf('<option value="-1">%s</option>', event_text_create_new_group);
-  	foreach ($all_groups as $group) {
-  		$selected = ($group[dbEventGroup::field_id] == $group_id) ? ' selected="selected"' : '';
-  		$option .= sprintf('<option value="%s"%s>%s</option>', $group[dbEventGroup::field_id], $selected, $group[dbEventGroup::field_name]);
+  	// event groups
+  	$grps = array();
+  	$grps[] = array(
+  		'selected'	=> ($group_id == -1) ? 1 : 0,
+  		'value'			=> -1,
+  		'text'			=> event_text_create_new_group
+  	);
+  	foreach ($all_groups as $grp) {
+  		$grps[] = array(
+  			'selected' 	=> ($grp[dbEventGroup::field_id] == $group_id) ? 1 : 0,
+  			'value'			=> $grp[dbEventGroup::field_id],
+  			'text'			=> $grp[dbEventGroup::field_name]
+  		);
   	}
-  	$data[] = array(
-  		'css'			=> dbEventGroup::field_id,
-  		'label'		=> event_label_group_select,
-  		'value'		=> sprintf(	'<select name="%s" onchange="javascript: window.location=\'%s\'+this.value; return false;">%s</select>', 
-  													dbEventGroup::field_id,
-  													sprintf('%s&%s=%s&%s=',
-  																	$this->page_link,
-  																	self::request_action,
-  																	self::action_group,
-  																	dbEventGroup::field_id
-  																	), 
-  													$option)
-  	);
   	
-  	// name of the group
-  	$data[] = array(
-  		'css'			=> dbEventGroup::field_name,
-  		'label'		=> event_label_group_name,
-  		'value'		=> sprintf(	'<input type="text" name="%s" value="%s" />',	dbEventGroup::field_name,	$active_group[dbEventGroup::field_name])
-  	);
-  	
-  	// description of the group
-  	$data[] = array(
-  		'css'			=> dbEventGroup::field_desc,
-  		'label'		=> event_label_group_description,
-  		'value'		=> sprintf('<textarea name="%s">%s</textarea>', dbEventGroup::field_desc, $active_group[dbEventGroup::field_desc])
-  	);
-  	
-  	$option = '';
+  	// group status
+  	$status = array();
   	$status_array = $dbEventGroup->status_array;
   	if ($group_id == -1) unset($status_array[dbEventGroup::status_deleted]);
   	foreach ($status_array as $value => $name) {
-  		$selected = ($value == $active_group[dbEventGroup::field_status]) ? ' selected="selected"' : '';
-  		$option .= sprintf('<option value="%s"%s>%s</option>', $value, $selected, $name);
-  	}
-  	$data[] = array(
-  		'css'			=> dbEventGroup::field_status,
-  		'label'		=> event_label_status,
-  		'value'		=> sprintf('<select name="%s">%s</select>', dbEventGroup::field_status, $option)
+  		$status[] = array(
+  			'selected'	=> ($value == $active_group[dbEventGroup::field_status]) ? 1 : 0,
+  			'value'			=> $value,
+  			'text'			=> $name
+  		);
+  	}	
+  	
+  	$group = array(
+  		'group' => array(
+  			'name'			=> dbEventGroup::field_id,
+  			'label'			=> event_label_group_select,
+  			'value'			=> $grps,
+  			'location'	=> sprintf('%s&%s=%s&%s=', $this->page_link, self::request_action, self::action_group, dbEventGroup::field_id)
+  		), 
+  		'name'	=> array(
+  			'name'		=> dbEventGroup::field_name,
+  			'label'		=> event_label_group_name,
+  			'value'		=> $active_group[dbEventGroup::field_name]
+  		),
+  		'desc' => array(
+  			'name'		=> dbEventGroup::field_desc,
+  			'label'		=> event_label_group_description,
+  			'value'		=> $active_group[dbEventGroup::field_desc]
+  		),
+  		'status' => array(
+  			'name'		=> dbEventGroup::field_status,
+  			'label'		=> event_label_status,
+  			'value'		=> $status
+  		)
   	);
-  	
-  	$items = '';
-  	$row = new Dwoo_Template_File($this->template_path.'backend.event.group.row.htt');
-  	foreach ($data as $item) {
-  		$items .= $parser->get($row, $item);	
-  	}
-  	
-  	$intro = ($this->isMessage()) ? sprintf('<div class="message">%s</div>', $this->getMessage()) : sprintf('<div class="intro">%s</div>', event_intro_edit_group);
   	
   	$data = array(
   		'form_name'				=> 'event_group',
@@ -1081,8 +1007,9 @@ class eventBackend {
   		'action_name'			=> self::request_action,
   		'action_value'		=> self::action_group_check,
   		'header'					=> event_header_edit_group,
-  		'intro'						=> $intro, 
-  		'items'						=> $items,
+  		'is_intro'				=> ($this->isMessage()) ? 0 : 1,
+  		'intro'						=> ($this->isMessage()) ? $this->getMessage() : event_intro_edit_group,
+  		'group'						=> $group,
   		'btn_ok'					=> event_btn_ok,
   		'btn_abort'				=> event_btn_abort,
   		'abort_location'	=> $this->page_link
@@ -1179,64 +1106,49 @@ class eventBackend {
   		return false;
   	}
   	
-  	$data = array(
-  		'order_date_name'		=> dbEventOrder::field_order_date,
-  		'order_date'				=> event_th_date_time,
-  		'email_name'				=> dbEventOrder::field_email,
-  		'email'							=> event_th_email,
-  		'name_name'					=> dbEventOrder::field_last_name,
-  		'name'							=> event_th_name,
-  		'event_name'				=> dbEventOrder::field_event_id,
-  		'event'							=> event_th_event,
-  		'event_date_name'		=> dbEvent::field_event_date_from,
-  		'event_date'				=> event_th_date,
-  		'declared_name'			=> dbEventOrder::field_confirm_order,			'declared'					=> event_th_declared,
-  		'message_name'			=> dbEventOrder::field_message,
-  		'message'						=> event_th_message
-  	);
-  	
-  	$items = $this->getTemplate('backend.order.list.th.htt', $data);
   	$row = new Dwoo_Template_File($this->template_path.'backend.order.list.row.htt');
   	
+  	$items = '';
   	$flipflop = true;
+  	$rows = array();
   	foreach ($messages as $message) {
   		($flipflop) ? $flipflop = false : $flipflop = true;
-			($flipflop) ? $class = 'flip' : $class = 'flop';
 			$dt = strtotime($message[dbEventOrder::field_confirm_order]);
 			$declared = (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? event_text_yes : '';
 			$name = sprintf('%s, %s', $message[dbEventOrder::field_last_name], $message[dbEventOrder::field_first_name]);
 			if (strlen($name) < 3) $name = '';
-			$date = sprintf('<a href="%s&%s=%s&%s=%s">%s</a>',
-											$this->page_link,
-											self::request_action,
-											self::action_messages_detail,
-											dbEventOrder::field_id,
-											$message[dbEventOrder::field_id],
-											date(event_cfg_datetime_str, strtotime($message[dbEventOrder::field_order_date])));
-	  	$data = array(
-	  		'flipflop'					=> $class,
-	  		'order_date_name'		=> dbEventOrder::field_order_date,
-	  		'order_date'				=> $date,
-	  		'email_name'				=> dbEventOrder::field_email,
-	  		'email'							=> sprintf('<a href="mailto:%s">%s</a>', $message[dbEventOrder::field_email], $message[dbEventOrder::field_email]),
-	  		'name_name'					=> dbEventOrder::field_last_name,
-	  		'name'							=> $name,
-	  		'event_name'				=> dbEventOrder::field_event_id,
+			$rows[] = array(
+				'flipflop'					=> ($flipflop) ? 1 : 0,
+				'order_date_link'		=> sprintf('%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_messages_detail, dbEventOrder::field_id, $message[dbEventOrder::field_id]),
+				'order_date'				=> date(event_cfg_datetime_str, strtotime($message[dbEventOrder::field_order_date])),
+				'email'							=> $message[dbEventOrder::field_email],
+				'name'							=> $name,
 	  		'event'							=> $message[dbEventItem::field_title],
-	  		'event_date_name'		=> dbEvent::field_event_date_from,
 	  		'event_date'				=> date(event_cfg_date_str, strtotime($message[dbEvent::field_event_date_from])),
-	  		'declared_name'			=> dbEventOrder::field_confirm_order,
-				'declared'					=> $declared,
-	  		'message_name'			=> dbEventOrder::field_message,
+	  		'declared'					=> $declared,
 	  		'message'						=> $message[dbEventOrder::field_message]
-	  	);
-	  	$items .= $parser->get($row, $data);
+			);
 	  }
   	
   	$data = array(
-  		'header'			=> event_header_messages_list,
-  		'intro'				=> '',
-  		'items'				=> $items
+  		'header'						=> event_header_messages_list,
+  		'intro'							=> ($this->isMessage()) ? $this->getMessage() : '',
+  		'is_intro'					=> ($this->isMessage()) ? 0 : 1,
+  		'rows'							=> $rows,
+  		'order_date_name'		=> dbEventOrder::field_order_date,
+  		'order_date_th'			=> event_th_date_time,
+  		'email_name'				=> dbEventOrder::field_email,
+  		'email_th'					=> event_th_email,
+  		'name_name'					=> dbEventOrder::field_last_name,
+  		'name_th'						=> event_th_name,
+  		'event_name'				=> dbEventOrder::field_event_id,
+  		'event_th'					=> event_th_event,
+  		'event_date_name'		=> dbEvent::field_event_date_from,
+  		'event_date_th'			=> event_th_date,
+  		'declared_name'			=> dbEventOrder::field_confirm_order,
+			'declared_th'				=> event_th_declared,
+  		'message_name'			=> dbEventOrder::field_message,
+  		'message_th'				=> event_th_message,
   	);
   	return $this->getTemplate('backend.order.list.htt', $data);
   } // dlgMessages()
@@ -1285,7 +1197,7 @@ class eventBackend {
   		'street'					=> $detail[dbEventOrder::field_street],
   		'zip'							=> $detail[dbEventOrder::field_zip],
   		'city'						=> $detail[dbEventOrder::field_city],
-  		'email'						=> sprintf('<a href="mailto:%s">%s</a>', $detail[dbEventOrder::field_email], $detail[dbEventOrder::field_email]),
+  		'email'						=> $detail[dbEventOrder::field_email],
   		'label_email'			=> event_label_email,
   		'label_phone'			=> event_label_phone,
   		'phone'						=> $detail[dbEventOrder::field_phone],
@@ -1298,7 +1210,8 @@ class eventBackend {
   		'declared'				=> $declared,
   		'label_message'		=> event_label_message,
   		'message'					=> $detail[dbEventOrder::field_message],
-  		'back'						=> sprintf('<a href="%s&%s=%s">%s</a>', $this->page_link, self::request_action, self::action_messages, event_text_back) 
+  		'back_link'				=> sprintf('%s&%s=%s', $this->page_link, self::request_action, self::action_messages),
+  		'back_text'				=> event_text_back 
   	);
   	return $this->getTemplate('backend.order.detail.htt', $data);
   } // dlgMessageDetail()

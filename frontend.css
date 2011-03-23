@@ -97,7 +97,9 @@ td.cms_day_holiday {
 }
 td.cms_day_today
 {
-  border: 1px solid red;
+  /*border: 1px solid red;*/
+  background-color: #fcefa1;
+  color: #000;
 }
 td.cms_day_event {
   padding: 0;

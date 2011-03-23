@@ -1,9 +1,0 @@
-<tr>
-  <th class="head_{$order_date_name}">{$order_date}</th>
-  <th class="head_{$email_name}">{$email}</th>
-  <th class="head_{$name_name}">{$name}</th>
-  <th class="head_{$event_name}">{$event}</th>
-  <th class="head_{$event_date_name}">{$event_date}</th>
-  <th class="head_{$declared_name}">{$declared}</th>
-  <th class="head_{$message_name}">{$message}</th>
-</tr>

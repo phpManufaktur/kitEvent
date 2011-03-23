@@ -1,14 +1,51 @@
-<!-- $Id$ -->
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+ * @link http://phpmanufaktur.de
+ * @copyright 2011
+ * @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+ * @version $Id$
+ *}
 <form name="{$form_name}" action="{$form_action}" method="post">
   <input type="hidden" name="{$action_name}" value="{$action_value}" />
   <h2>{$header}</h2>
-  {$intro}
+  <div class="{if $is_intro == 1}intro{else}message{/if}">{$intro}</div>
   <table width="100%">
     <colgroup>
       <col width="30%" />
       <col width="70%" />
     </colgroup>
-    {$items}
+    <tr>
+      <td class="label_{$group.group.name}">{$group.group.label}</td>
+      <td class="value_{$group.group.name}">
+        <select name="{$group.group.name}" onchange="javascript: window.location='{$group.group.location}'+this.value; return false;">
+          {foreach $group.group.value grp}
+          <option value="{$grp.value}"{if $grp.selected == 1} selected="selected"{/if}>{$grp.text}</option>
+          {/foreach}
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="label_{$group.name.name}">{$group.name.label}</td>
+      <td class="value_{$group.name.name}"><input type="text" name="{$group.name.name}" value="{$group.name.value}" /></td>
+    </tr>
+    <tr>
+      <td class="label_{$group.desc.name}">{$group.desc.label}</td>
+      <td class="value_{$group.desc.name}">
+        <textarea name="{$group.desc.name}">{$group.desc.value}</textarea>
+      </td>
+    </tr>
+    <tr>
+      <td class="label_{$group.status.name}">{$group.status.label}</td>
+      <td class="value_{$group.status.name}">
+        <select name="{$group.status.name}">
+          {foreach $group.status.value status}
+          <option value="{$status.value}"{if $status.selected == 1} selected="selected"{/if}>{$status.text}</option>
+          {/foreach}
+        </select>
+      </td>
+    </tr>
     <tr><td colspan="2">&nbsp;</td></tr>
     <tr>
       <td colspan="2">

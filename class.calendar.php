@@ -195,66 +195,27 @@ class monthlyCalendar {
 		else {
 			$next_month = $month+1;	$next_year = $year;
 		}
-		// month navigation
-		if ($this->params[self::param_navigation]) {
-			$data = array(
-				'link_month_prev'		=> sprintf(	'<a href="%s?%s=%s&%s=%s&%s=%s" title="%s">%s</a>',
-																				$this->page_link,
-																				self::request_action,
-																				self::action_show_month,
-																				self::request_month,
-																				$prev_month,
-																				self::request_year,
-																				$prev_year,
-																				event_hint_previous_month,
-																				event_cfg_cal_prev_month),
-				'month_name'				=> sprintf('%s %d', $month_name, $year),
-				'link_month_next'		=> sprintf(	'<a href="%s?%s=%s&%s=%s&%s=%s" title="%s">%s</a>',
-																				$this->page_link,
-																				self::request_action,
-																				self::action_show_month,
-																				self::request_month,
-																				$next_month,
-																				self::request_year,
-																				$next_year,
-																				event_hint_next_month,
-																				event_cfg_cal_next_month)
-			);
-		}
-		else {
-			$data = array(
-				'link_month_prev'		=> '',
-				'month_name'				=> sprintf('%s %d', $month_name, $year),
-				'link_month_next'		=> ''
-			);
-		}
-		$template = ($this->params[self::param_show_weeks]) ? 'calendar.week.nav.htt' : 'calendar.nav.htt';
-		if (false == ($items = $this->getTemplate($template, $data))) return false;
-		
-		$template = ($this->params[self::param_show_weeks]) ? 'calendar.week.row.htt' : 'calendar.row.htt';
-		$row = new Dwoo_Template_File($this->template_path.$template);
-		
-		// header with weekdays
-		$data = array(
-			'row_class'		=> 'cms_head',
-			'week'				=> '',
-			'day_0'				=> $this->getDayOfWeekName(0, 2, true),
-			'day_type_0'	=> 'cms_head_sunday',
-			'day_1'				=> $this->getDayOfWeekName(1, 2, true),
-			'day_type_1'	=> 'cms_head_day',
-			'day_2'				=> $this->getDayOfWeekName(2, 2, true),
-			'day_type_2'	=> 'cms_head_day',
-			'day_3'				=> $this->getDayOfWeekName(3, 2, true),
-			'day_type_3'	=> 'cms_head_day',
-			'day_4'				=> $this->getDayOfWeekName(4, 2, true),
-			'day_type_4'	=> 'cms_head_day',
-			'day_5'				=> $this->getDayOfWeekName(5, 2, true),
-			'day_type_5'	=> 'cms_head_day',
-			'day_6'				=> $this->getDayOfWeekName(6, 2, true),
-			'day_type_6'	=> 'cms_head_saturday'			
+		// navigation
+		$navigation = array(
+			'prev_link'					=> sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_show_month,	self::request_month, $prev_month,	self::request_year,	$prev_year),
+			'prev_hint'					=> event_hint_previous_month,
+			'prev_text'					=> event_cfg_cal_prev_month,
+			'month_year'				=> sprintf('%s %d', $month_name, $year),
+			'next_link'					=> sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_show_month,	self::request_month,	$next_month,	self::request_year,	$next_year),
+			'next_hint'					=> event_hint_next_month,
+			'next_text'					=> event_cfg_cal_next_month
 		);
-		$items .= $parser->get($row, $data);
 		
+		$head = array(
+			'0'	=> $this->getDayOfWeekName(0, 2, true),
+			'1'	=> $this->getDayOfWeekName(1, 2, true),
+			'2'	=> $this->getDayOfWeekName(2, 2, true),
+			'3'	=> $this->getDayOfWeekName(3, 2, true),
+			'4'	=> $this->getDayOfWeekName(4, 2, true),
+			'5'	=> $this->getDayOfWeekName(5, 2, true),
+			'6'	=> $this->getDayOfWeekName(6, 2, true),
+		);
+			
 		// step through the month...
 		$start_day_of_week = date('w', mktime(0,0,0, $month, 1, $year));
 		$start = true;
@@ -266,11 +227,12 @@ class monthlyCalendar {
 		
 		// should indicate the actual day?
 		$check_today = ($this->params[self::param_show_today] && (mktime(0,0,0,$month,1,$year) == mktime(0,0,0,date('n'),1,date('Y')))) ? true : false;
-
+		
+		$mon = array();
 		while ($i < 50) {
 			// Woche schreiben
 			if (!$start && ($dow == 1)) {
-				$items .= $parser->get($row, $week);
+				$mon[] = $week;
 				if ($complete) break;
 				$week = array();
 				$week['week'] = date('W', mktime(0,0,0,$month,$i, $year));
@@ -283,8 +245,12 @@ class monthlyCalendar {
 				else {
 					if ($this->params[self::param_inactive_days]) {
 						$x = $dow - ($start_day_of_week -1);
-						$week['day_'.$dow] = date('j', mktime(0,0,0,$month,$x,$year));
-						$week['day_type_'.$dow] = 'cms_day_inactive';
+						$week[$dow]['date'] = date('j', mktime(0,0,0,$month,$x,$year));
+						$week[$dow]['type'] = 'cms_day_inactive';
+					}
+					else {
+						$week[$dow]['date'] = '';
+						$week[$dow]['type'] = 'cms_day_hidden';
 					}
 					$dow++;
 					if ($dow > 6) $dow = 0;
@@ -293,31 +259,25 @@ class monthlyCalendar {
 			} 
 			// job is done, add the remaining cells to the row
 			if (!$complete) {
-				if ($check_today && ($i == date('j')))	$week['day_type_'.$dow] = 'cms_day_today';
 				if (in_array($i, $events)) {
 					// es gibt eine oder mehrere Veranstaltungen
-					$week['day_'.$dow] = sprintf(	'<a href="%s?%s=%s&%s=%s&%s=%s&%s=%s" title="%s">%s</a>',
-																				$this->response_link,
-																				self::request_event,
-																				self::event_day,
-																				self::request_month,
-																				$month,
-																				self::request_day,
-																				$i,
-																				self::request_year,
-																				$year,
-																				event_hint_click_for_detail,
-																				$i);
-					$week['day_type_'.$dow] = 'cms_day_event';
+					$week[$dow]['date'] = $i;
+					$week[$dow]['link'] = sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->response_link,	self::request_event, self::event_day,	self::request_month, $month, self::request_day,	$i,	self::request_year,	$year);
+					$week[$dow]['hint'] = event_hint_click_for_detail;
+					$week[$dow]['type'] = 'cms_day_event';
 				}
 				else {
 					// normaler Tag
-					$week['day_'.$dow] = $i;
+					$week[$dow]['date'] = $i;
+					$week[$dow]['type'] = ($check_today && ($i == date('j')))	? 'cms_day_today' : '';
 				}				
 			}
 			elseif ($this->params[self::param_inactive_days]) {
-				$week['day_'.$dow] = date('j', mktime(0,0,0, $month, $i, $year));
-				$week['day_type_'.$dow] = 'cms_day_inactive';
+				$week[$dow]['date'] = date('j', mktime(0,0,0, $month, $i, $year));
+				$week[$dow]['type'] = 'cms_day_inactive';
+			}
+			else {
+				$week[$dow]['date'] = '';
 			}
 			$i++;
 			if ($i > $last_day_of_month) $complete = true;
@@ -326,9 +286,14 @@ class monthlyCalendar {
 		}
 		
 		// show complete calendar sheet
-		$data = array('items' => $items);
-		$template = ($this->params[self::param_show_weeks]) ? 'calendar.week.htt' : 'calendar.htt';
-		return $this->getTemplate($template, $data); 	
+		$data = array(
+			'show_weeks'				=> ($this->params[self::param_show_weeks]) ? 1 : 0,
+			'show_navigation'		=> ($this->params[self::param_navigation]) ? 1 : 0,
+			'navigation'				=> $navigation,
+			'head'							=> $head,
+			'month'							=> $mon
+		);
+		return $this->getTemplate('calendar.htt', $data); 	
 	} // showCalendar()
 	
 	private function getMonthName($month, $length=-1, $uppercase=false) {

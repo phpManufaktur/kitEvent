@@ -1,9 +1,0 @@
-<tr class="{$row_class|default:'cms_row'}">
-  <td class="{$day_type_1|default:'cms_day'}">{$day_1|default:''}</td>
-  <td class="{$day_type_2|default:'cms_day'}">{$day_2|default:''}</td>
-  <td class="{$day_type_3|default:'cms_day'}">{$day_3|default:''}</td>
-  <td class="{$day_type_4|default:'cms_day'}">{$day_4|default:''}</td>
-  <td class="{$day_type_5|default:'cms_day'}">{$day_5|default:''}</td>
-  <td class="{$day_type_6|default:'cms_day_saturday'}">{$day_6|default:''}</td>
-  <td class="{$day_type_0|default:'cms_day_sunday'}">{$day_0|default:''}</td>
-</tr>
