@@ -9,6 +9,6 @@
  *}
  <div class="cms_list_container">
    {foreach $dates date}
-   <div class="cms_list_date"><a href="{$date.link}">{$date.date}</a></div>
+   <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_zero}.{$date.start_month_zero}/{$date.end_day_zero}.{$date.end_month_zero}.{$date.end_year}</a></div>
    {/foreach}
  </div>

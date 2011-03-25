@@ -18,7 +18,7 @@ if (!defined('WB_PATH')) die('invalid call of '.$_SERVER['SCRIPT_NAME']);
 $module_directory     = 'kit_event';
 $module_name          = 'kitEventCalendar';
 $module_function      = 'tool';
-$module_version       = '0.13';
+$module_version       = '0.14';
 $module_status        = 'Beta';
 $module_platform      = '2.8'; 
 $module_author        = 'Ralf Hertsch, Berlin (Germany)';

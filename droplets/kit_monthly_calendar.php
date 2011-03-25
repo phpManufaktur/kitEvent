@@ -23,6 +23,7 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.calendar.php')) {
   $params[monthlyCalendar::param_select_year] = (isset($year)) ? (int) $year : 0;
   $params[monthlyCalendar::param_group] = (isset($group)) ? $group : '';
   $params[monthlyCalendar::param_action] = (isset($action)) ? $action : monthlyCalendar::action_show_month;
+  $params[monthlyCalendar::param_preset] = (isset($preset)) ? $preset : 1;
   $calendar->setParams($params);
   return $calendar->action();
 }

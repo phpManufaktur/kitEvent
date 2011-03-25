@@ -21,7 +21,7 @@
       <col width="70%" />
     </colgroup>
     <tr>
-      <td class="label_{$event.date_from.name}">{$event.date_from.label}</td>
+      <td class="label_{$event.date_from.name}"><label for="{$event.date_from.id}">{$event.date_from.label}</label></td>
       <td class="value_{$event.date_from.name}"><input type="text" name="{$event.date_from.name}" id="{$event.date_from.id}" value="{$event.date_from.value}" /></td>
     </tr>
     <tr>

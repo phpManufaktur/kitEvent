@@ -45,6 +45,7 @@ class monthlyCalendar {
 	const param_select_year		= 'year';
 	const param_group					= 'group';
 	const param_action				= 'action';
+	const param_preset				= 'preset';
 	
 	private $params = array(
 		self::param_show_weeks		=> true,
@@ -55,7 +56,8 @@ class monthlyCalendar {
 		self::param_select_month	=> 0,
 		self::param_select_year		=> 0,
 		self::param_group					=> '',
-		self::param_action				=> self::action_show_month
+		self::param_action				=> self::action_show_month,
+		self::param_preset				=> 1
 	);
 	
 	public function __construct() {
@@ -71,6 +73,11 @@ class monthlyCalendar {
 	
 	public function setParams($params = array()) {
 		$this->params = $params;
+		$this->template_path = WB_PATH.'/modules/kit_event/htt/'.$this->params[self::param_preset].'/'.KIT_EVT_LANGUAGE.'/';
+		if (!file_exists($this->template_path)) {
+			$this->setError(sprintf(event_error_preset_not_exists, '/modules/kit_event/htt/'.$this->params[self::param_preset].'/'.KIT_EVT_LANGUAGE.'/'));
+			return false;
+		}
 	} // setParams()
 	
 	/**
@@ -397,6 +404,9 @@ class monthlyCalendar {
 	
 	public function showList() {
 		global $eventTools;
+		global $dbEvent;
+		global $dbEventItem;
+		global $dbEventGroup;
 		
 		if (($this->params[self::param_select_month] > 0) && ($this->params[self::param_select_month] < 12)) {
 			$month = $this->params[self::param_select_month];
@@ -438,23 +448,75 @@ class monthlyCalendar {
 		
 		$items = array();
 		foreach ($events as $event) {
-			if (date('j', strtotime($event[dbEvent::field_event_date_from])) !== date('j', strtotime($event[dbEvent::field_event_date_to]))) {
-				$date = sprintf(event_cfg_list_data_double, 
-												date('j', strtotime($event[dbEvent::field_event_date_from])),
-												date('n', strtotime($event[dbEvent::field_event_date_from])),
-												date('j', strtotime($event[dbEvent::field_event_date_to])),
-												date('n', strtotime($event[dbEvent::field_event_date_to])),
-												date('Y', strtotime($event[dbEvent::field_event_date_to])));
+			$SQL = sprintf( "SELECT * FROM %s WHERE %s='%s'", $dbEventItem->getTableName(), dbEventItem::field_id, $event[dbEvent::field_event_item]);
+			$eventItem = array();
+			if (!$dbEventItem->sqlExec($SQL, $eventItem)) {
+				$this->setError($dbEventItem->getError());
+				return false;
 			}
-			else {
-				$date = sprintf(event_cfg_list_date_simple,
-												date('j', strtotime($event[dbEvent::field_event_date_from])),
-												date('n', strtotime($event[dbEvent::field_event_date_from])),
-												date('Y', strtotime($event[dbEvent::field_event_date_from])));
+			if (count($eventItem) < 0) {
+				$this->setError(sprintf(event_error_id_invalid, $event[dbEvent::field_event_item]));
+				return false;
 			}
+			$eventItem = $eventItem[0];
+			
+			$SQL = sprintf("SELECT * FROM %s WHERE %s='%s'", $dbEventGroup->getTableName(), dbEventGroup::field_id, $event[dbEvent::field_event_group]);
+			$eventGroup = array();
+			if (!$dbEventGroup->sqlExec($SQL, $eventGroup)) {
+				$this->setError($dbEventGroup->getError());
+				return false;
+			}
+			$eventGroup = (count($eventGroup) > 0) ? $eventGroup[0] : $dbEventGroup->getFields();
+			
+			$eItem = array(
+				'headline'			=> $eventItem[dbEventItem::field_title],
+				'desc_short'		=> $eventItem[dbEventItem::field_desc_short],
+				'desc_long'			=> $eventItem[dbEventItem::field_desc_long],
+				'desc_link'			=> $eventItem[dbEventItem::field_desc_link],
+				'location'			=> $eventItem[dbEventItem::field_location],
+				'costs'					=> number_format($eventItem[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator)
+			);
+			
+			$start_date = strtotime($event[dbEvent::field_event_date_from]);
+			$end_date = strtotime($event[dbEvent::field_event_date_to]);
+			$day_names = explode(',', event_cfg_day_names);
+			$month_names = explode(',', event_cfg_month_names);
 			$items[] = array(
-				'date'		=> $date,
-				'link'		=> sprintf('%s?%s=%s&%s=%s', $this->response_link, self::request_action, self::action_order, self::request_event_id, $event[dbEvent::field_id])
+				//'date'		=> $date,
+				'event'								=> $eItem,
+				'start_day'						=> date('j', $start_date),
+				'start_day_zero'			=> date('d', $start_date),
+				'start_day_name'			=> $day_names[date('w', $start_date)],
+				'start_day_name_2'		=> strtoupper(substr($day_names[date('w', $start_date)], 1, 2)),
+				'start_month'					=> date('n', $start_date),
+				'start_month_zero'		=> date('m', $start_date),
+				'start_month_name'		=> $month_names[date('n', $start_date)-1],
+				'start_month_name_3'	=> strtoupper(substr($month_names[date('n', $start_date)-1], 1, 3)),
+				'start_year'					=> date('Y', $start_date),
+				'start_time'					=> date(event_cfg_time_str, $start_date),
+
+				'end_day'							=> date('j', $end_date),
+				'end_day_zero'				=> date('d', $end_date),
+				'end_day_name'				=> $day_names[date('w', $end_date)],
+				'end_day_name_2'			=> strtoupper(substr($day_names[date('w', $end_date)], 1, 2)),
+				'end_month'						=> date('n', $end_date),
+				'end_month_zero'			=> date('m', $end_date),
+				'end_month_name'			=> $month_names[date('n', $end_date)-1],
+				'end_month_name_3'		=> strtoupper(substr($month_names[date('n', $end_date)-1], 1, 3)),
+				'end_year'						=> date('Y', $end_date),
+				'end_time'						=> date(event_cfg_time_str, $end_date),
+				
+				'participants_max'		=> $event[dbEvent::field_participants_max],
+				'participants_total'	=> $event[dbEvent::field_participants_total],
+				'participants_free'		=> $event[dbEvent::field_participants_max]-$event[dbEvent::field_participants_total],
+
+				'deadline'						=> date(event_cfg_date_str, strtotime($event[dbEvent::field_deadline])),	
+			
+				'group_name'					=> $eventGroup[dbEventGroup::field_name],
+				'group_desc'					=> $eventGroup[dbEventGroup::field_desc],
+			
+				'link_order'					=> sprintf('%s?%s=%s&%s=%s', $this->response_link, self::request_action, self::action_order, self::request_event_id, $event[dbEvent::field_id]),
+				'link_day'						=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->response_link,	self::request_event, self::event_day,	self::request_month, $month, self::request_day,	date('j', $start_date),	self::request_year,	$year)
 			);
 		}
 		
