@@ -18,6 +18,8 @@ define('event_cfg_date_str',											'd.m.Y');
 define('event_cfg_datetime_str',									'd.m.Y H:i');
 define('event_cfg_day_names',											"Sonntag, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag");
 define('event_cfg_decimal_separator',             ',');
+define('event_cfg_list_date_simple',							'%02d.%02d.%d');
+define('event_cfg_list_data_double',							'%02d.%02d./%02d.%02d.%d');
 define('event_cfg_month_names',										"Januar,Februar,März,April,Mai,Juni,Juli,August,September,Oktober,November,Dezember");
 define('event_cfg_thousand_separator',						'.');
 define('event_cfg_time_long_str',									'H:i:s');

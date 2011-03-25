@@ -22,9 +22,12 @@ class monthlyCalendar {
 	const request_year			= 'y';
 	const request_month			= 'm';
 	const request_day				= 'd';
+	const request_event_id	= 'id';
 	
-	const action_show_month	= 'sm';
+	const action_show_month	= 'month';
 	const action_default		= 'def';
+	const action_show_list	= 'list';
+	const action_order			= 'ord';
 	
 	const event_day					= 'day';
 	
@@ -41,6 +44,7 @@ class monthlyCalendar {
 	const param_select_month	= 'month';
 	const param_select_year		= 'year';
 	const param_group					= 'group';
+	const param_action				= 'action';
 	
 	private $params = array(
 		self::param_show_weeks		=> true,
@@ -50,7 +54,8 @@ class monthlyCalendar {
 		self::param_response_id		=> -1,
 		self::param_select_month	=> 0,
 		self::param_select_year		=> 0,
-		self::param_group					=> ''
+		self::param_group					=> '',
+		self::param_action				=> self::action_show_month
 	);
 	
 	public function __construct() {
@@ -127,14 +132,17 @@ class monthlyCalendar {
 		$html_allowed = array();
   	foreach ($_REQUEST as $key => $value) {
   		if (!in_array($key, $html_allowed)) {
-  			// Sonderfall: Value Felder der Konfiguration werden durchnummeriert und duerfen HTML enthalten...
-  			if (strpos($key, dbEventCfg::field_value) == false) {
-    			$_REQUEST[$key] = $this->xssPrevent($value);
-  			}
+   			$_REQUEST[$key] = $this->xssPrevent($value);
   		} 
   	}
-    isset($_REQUEST[self::request_action]) ? $action = $_REQUEST[self::request_action] : $action = self::action_default;
+  	
+  	$action = (isset($this->params[self::param_action])) ? $this->params[self::param_action] : self::action_show_month;
+  	if (isset($_REQUEST[self::request_action])) $action = $_REQUEST[self::request_action];
+  		
   	switch ($action):
+		case self::action_show_list:
+			$result = $this->showList();
+			break;
 		case self::action_show_month:
   	default:
 			$result = $this->showCalendar();  		
@@ -144,7 +152,7 @@ class monthlyCalendar {
 		return $result;	
   } // action()
 	
-	private function getEvents($month, $year, $group='') {
+	private function getEvents($month, $year, $group='', $is_sheet=true) {
 		global $dbEvent;
 		global $dbEventGroup;
 		
@@ -171,7 +179,7 @@ class monthlyCalendar {
 		
 		$ld = date ('j', mktime(0, 0, 0, $month+1,0, $year));
 		$SQL = sprintf( "SELECT %s FROM %s WHERE (%s>='%s' AND %s<='%s')%s AND %s='%s'",
-										dbEvent::field_event_date_from,
+										($is_sheet) ? dbEvent::field_event_date_from : '*',
 										$dbEvent->getTableName(),
 										dbEvent::field_event_date_from,
 										date('Y-m-d H:i:s', mktime(0,0,0, $month, 1, $year)),
@@ -185,11 +193,16 @@ class monthlyCalendar {
 			$this->setError($dbEvent->getError());
 			return false;
 		}
-		$result = array();
-		foreach ($events as $event) {
-			$result[] = date('j', strtotime($event[dbEvent::field_event_date_from]));
+		if ($is_sheet) {
+			$result = array();
+			foreach ($events as $event) {
+				$result[] = date('j', strtotime($event[dbEvent::field_event_date_from]));
+			}
+			return $result;
 		}
-		return $result;
+		else {
+			return $events;
+		}
 	} // getEvents()
 	
 	public function showCalendar() {
@@ -381,5 +394,74 @@ class monthlyCalendar {
 			return false;
 		}
 	} // getDayName()
+	
+	public function showList() {
+		global $eventTools;
+		
+		if (($this->params[self::param_select_month] > 0) && ($this->params[self::param_select_month] < 12)) {
+			$month = $this->params[self::param_select_month];
+		}
+		elseif ($this->params[self::param_select_month] < 0) {
+			$month = date('n') + $this->params[self::param_select_month];
+		} 
+		elseif (($this->params[self::param_select_month] > 100) && ($this->params[self::param_select_month] < 112)) { 
+			$month = date('n') + ($this->params[self::param_select_month] - 100);
+		}
+		else {
+			$month = date('n');
+		}
+		
+		if ($this->params[self::param_select_year] == 0) {
+			// 0 == use actual year
+			$year = date('Y');
+		}
+		elseif ($this->params[self::param_select_year] < 0) { 
+			// substract value from actual year
+			$year = date('Y') + $this->params[self::param_select_year];
+		}
+		elseif (($this->params[self::param_select_year] > 0) && ($this->params[self::param_select_year] < 100)) {
+			$year = date('Y') + $this->params[self::param_select_year];
+		}
+		else {
+			$year = $this->params[self::param_select_year];
+		}
+		
+		if ($this->params[self::param_response_id] > 0) {
+			$eventTools->getUrlByPageID($this->params[self::param_response_id], $this->response_link);
+		}
+		else {
+			$this->response_link = $this->page_link;
+		}
+		
+		// Events einlesen
+		$events = $this->getEvents($month, $year, $this->params[self::param_group], false);
+		
+		$items = array();
+		foreach ($events as $event) {
+			if (date('j', strtotime($event[dbEvent::field_event_date_from])) !== date('j', strtotime($event[dbEvent::field_event_date_to]))) {
+				$date = sprintf(event_cfg_list_data_double, 
+												date('j', strtotime($event[dbEvent::field_event_date_from])),
+												date('n', strtotime($event[dbEvent::field_event_date_from])),
+												date('j', strtotime($event[dbEvent::field_event_date_to])),
+												date('n', strtotime($event[dbEvent::field_event_date_to])),
+												date('Y', strtotime($event[dbEvent::field_event_date_to])));
+			}
+			else {
+				$date = sprintf(event_cfg_list_date_simple,
+												date('j', strtotime($event[dbEvent::field_event_date_from])),
+												date('n', strtotime($event[dbEvent::field_event_date_from])),
+												date('Y', strtotime($event[dbEvent::field_event_date_from])));
+			}
+			$items[] = array(
+				'date'		=> $date,
+				'link'		=> sprintf('%s?%s=%s&%s=%s', $this->response_link, self::request_action, self::action_order, self::request_event_id, $event[dbEvent::field_id])
+			);
+		}
+		
+		$data = array(
+			'dates' => $items
+		);
+		return $this->getTemplate('calendar.list.htt', $data);
+	} // showList()
 	
 } // class monthlyCalendar
