@@ -1188,7 +1188,13 @@ class eventBackend {
   	
   	$dt = strtotime($detail[dbEventOrder::field_confirm_order]);
 		$declared = (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? date(event_cfg_datetime_str, $dt) : event_text_no;
-			
+
+		$label_free_1 = substr($detail[dbEventOrder::field_free_1], 0, strpos($detail[dbEventOrder::field_free_1], '|'));
+  	$label_free_2 = substr($detail[dbEventOrder::field_free_2], 0, strpos($detail[dbEventOrder::field_free_2], '|'));
+  	$label_free_3 = substr($detail[dbEventOrder::field_free_3], 0, strpos($detail[dbEventOrder::field_free_3], '|'));
+  	$label_free_4 = substr($detail[dbEventOrder::field_free_4], 0, strpos($detail[dbEventOrder::field_free_4], '|'));
+  	$label_free_5 = substr($detail[dbEventOrder::field_free_5], 0, strpos($detail[dbEventOrder::field_free_5], '|'));
+  	 	
   	$data = array(
   		'title'						=> $detail[dbEventOrder::field_title],
   		'first_name'			=> $detail[dbEventOrder::field_first_name],
@@ -1210,6 +1216,17 @@ class eventBackend {
   		'declared'				=> $declared,
   		'label_message'		=> event_label_message,
   		'message'					=> $detail[dbEventOrder::field_message],
+  		'label_free_1'		=> (!empty($label_free_1)) ? $label_free_1 : sprintf(event_label_free_field_nr, 1),
+  	 	'label_free_2'		=> (!empty($label_free_2)) ? $label_free_2 : sprintf(event_label_free_field_nr, 2),
+  	 	'label_free_3'		=> (!empty($label_free_3)) ? $label_free_3 : sprintf(event_label_free_field_nr, 3),
+  	 	'label_free_4'		=> (!empty($label_free_4)) ? $label_free_4 : sprintf(event_label_free_field_nr, 4),
+  	 	'label_free_5'		=> (!empty($label_free_5)) ? $label_free_5 : sprintf(event_label_free_field_nr, 5),
+  	 	'free_1'					=> substr($detail[dbEventOrder::field_free_1], strpos($detail[dbEventOrder::field_free_1], '|')+1),
+  		'free_2'					=> substr($detail[dbEventOrder::field_free_2], strpos($detail[dbEventOrder::field_free_2], '|')+1),
+  		'free_3'					=> substr($detail[dbEventOrder::field_free_3], strpos($detail[dbEventOrder::field_free_3], '|')+1),
+  		'free_4'					=> substr($detail[dbEventOrder::field_free_4], strpos($detail[dbEventOrder::field_free_4], '|')+1),
+  		'free_5'					=> substr($detail[dbEventOrder::field_free_5], strpos($detail[dbEventOrder::field_free_5], '|')+1),
+  		
   		'back_link'				=> sprintf('%s&%s=%s', $this->page_link, self::request_action, self::action_messages),
   		'back_text'				=> event_text_back 
   	);

@@ -16,6 +16,9 @@ Erreichbarkeit: {$order_best_time|default:''}
 Zusätzliche Mitteilung:
 {$order_message|default:''}
 
+Freies Feld 1: {$order_free_1}
+Freies Feld 2: {$order_free_2}
+
 Wir werden uns in Kürze mit Ihnen in Verbindung setzen.
 
 Mit freundlichen Grüßen

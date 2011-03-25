@@ -74,6 +74,7 @@ define('event_label_event_location',							'Veranstaltungsort');
 define('event_label_event_title',									'Schlagzeile für das Event');
 define('event_label_event_time_start',						'Uhrzeit: Beginn des Event');
 define('event_label_event_time_end',							'Uhrzeit: Ende des Event');
+define('event_label_free_field_nr',								'Freies Feld %d');
 define('event_label_group_description',						'Beschreibung der Gruppe');
 define('event_label_group_name',									'Bezeichner für die Gruppe');
 define('event_label_group_select',								'Gruppe auswählen');

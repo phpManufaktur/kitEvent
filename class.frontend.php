@@ -17,7 +17,6 @@ require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/initialize.php');
 require_once(WB_PATH.'/include/captcha/captcha.php');
 require_once(WB_PATH.'/framework/class.wb.php');
 
-
 class eventFrontend {
 	const request_action				= 'act';
 	const request_event					= 'evt';
@@ -26,6 +25,7 @@ class eventFrontend {
 	const request_day						= 'd';
 	const request_event_id			= 'id';
 	const request_event_detail	= 'det';
+	const request_free_fields		= 'ff';
 	
 	const request_must_fields	= 'mf';
 	
@@ -68,7 +68,7 @@ class eventFrontend {
 	const view_day						= 'day';
 	const view_week						= 'week';
 	const view_month					= 'month';
-	const view_active					= 'active';
+	const view_active					= 'active'; 
 	
 	private $params = array(
 		self::param_view				=> self::view_active,
@@ -80,7 +80,7 @@ class eventFrontend {
 	private $template_path;
 	private $page_link;
 	
-	public function __construct() {
+	public function __construct() { 
 		global $eventTools;
 		$url = '';
 		$_SESSION['FRONTEND'] = true;	
@@ -94,7 +94,7 @@ class eventFrontend {
 		return $this->params;
 	} // getParams()
 	
-	public function setParams($params = array()) {
+	public function setParams($params = array()) { 
 		$this->params = $params;
 		$this->template_path = WB_PATH.'/modules/kit_event/htt/'.$this->params[self::param_preset].'/'.KIT_EVT_LANGUAGE.'/';
 		if (!file_exists($this->template_path)) {
@@ -418,6 +418,8 @@ class eventFrontend {
   	}
   	
 		// ok - Daten sichern und Bestaetigungsmails versenden	
+		$free_fields = (isset($_REQUEST[self::request_free_fields])) ? explode(',', $_REQUEST[self::request_free_fields]) : array();
+		
   	$orderData = array(
   		dbEventOrder::field_best_time			=> (isset($_REQUEST[self::request_best_time])) ? $_REQUEST[self::request_best_time] : '',
   		dbEventOrder::field_city					=> (isset($_REQUEST[self::request_city])) ? $_REQUEST[self::request_city] : '',
@@ -432,7 +434,12 @@ class eventFrontend {
   		dbEventOrder::field_phone					=> (isset($_REQUEST[self::request_phone])) ? $_REQUEST[self::request_phone] : '',
   		dbEventOrder::field_street				=> (isset($_REQUEST[self::request_street])) ? $_REQUEST[self::request_street] : '',
   		dbEventOrder::field_title					=> (isset($_REQUEST[self::request_title])) ? $_REQUEST[self::request_title] : '',
-  		dbEventOrder::field_zip						=> (isset($_REQUEST[self::request_zip])) ? $_REQUEST[self::request_zip] : '' 
+  		dbEventOrder::field_zip						=> (isset($_REQUEST[self::request_zip])) ? $_REQUEST[self::request_zip] : '',
+  		dbEventOrder::field_free_1				=> (isset($_REQUEST[dbEventOrder::field_free_1])) ? (isset($free_fields[0])) ? $free_fields[0].'|'.$_REQUEST[dbEventOrder::field_free_1] : '|'.$_REQUEST[dbEventOrder::field_free_1] : '',
+  		dbEventOrder::field_free_2				=> (isset($_REQUEST[dbEventOrder::field_free_2])) ? (isset($free_fields[1])) ? $free_fields[1].'|'.$_REQUEST[dbEventOrder::field_free_2] : '|'.$_REQUEST[dbEventOrder::field_free_2] : '',
+  		dbEventOrder::field_free_3				=> (isset($_REQUEST[dbEventOrder::field_free_3])) ? (isset($free_fields[2])) ? $free_fields[2].'|'.$_REQUEST[dbEventOrder::field_free_3] : '|'.$_REQUEST[dbEventOrder::field_free_3] : '',
+  		dbEventOrder::field_free_4				=> (isset($_REQUEST[dbEventOrder::field_free_4])) ? (isset($free_fields[3])) ? $free_fields[3].'|'.$_REQUEST[dbEventOrder::field_free_4] : '|'.$_REQUEST[dbEventOrder::field_free_4] : '',
+  		dbEventOrder::field_free_5				=> (isset($_REQUEST[dbEventOrder::field_free_5])) ? (isset($free_fields[4])) ? $free_fields[4].'|'.$_REQUEST[dbEventOrder::field_free_5] : '|'.$_REQUEST[dbEventOrder::field_free_5] : ''  		 
   	);
   	
   	$order_id = -1;
@@ -490,6 +497,11 @@ class eventFrontend {
   		'order_best_time'					=> $orderData[dbEventOrder::field_best_time],
   		'order_message'						=> $orderData[dbEventOrder::field_message],
   		'order_confirm'						=> (!strtotime($orderData[dbEventOrder::field_confirm_order])) ? strtoupper(event_text_not_confirmed) : strtoupper(event_text_confirmed),
+  		'order_free_1'						=> substr($orderData[dbEventOrder::field_free_1], strpos($orderData[dbEventOrder::field_free_1], '|')+1),
+  		'order_free_2'						=> substr($orderData[dbEventOrder::field_free_2], strpos($orderData[dbEventOrder::field_free_2], '|')+1),
+  		'order_free_3'						=> substr($orderData[dbEventOrder::field_free_3], strpos($orderData[dbEventOrder::field_free_3], '|')+1),
+  		'order_free_4'						=> substr($orderData[dbEventOrder::field_free_4], strpos($orderData[dbEventOrder::field_free_4], '|')+1),
+  		'order_free_5'						=> substr($orderData[dbEventOrder::field_free_5], strpos($orderData[dbEventOrder::field_free_5], '|')+1)  		
  		);
 
  		if (!$this->getEventData($event_id, $event, $event_parser)) return false;
@@ -533,7 +545,11 @@ class eventFrontend {
   		return false;
   	}
   	$event_id = (isset($_REQUEST[self::request_event_id])) ? (int) $_REQUEST[self::request_event_id] : (int) $_REQUEST[dbEvent::field_id];
-
+	
+  	if (!$this->getEventData($event_id, $event, $parser_data)) return false;
+  	
+  	$event_group = $event[dbEvent::field_event_group];
+  	
   	// persoenliche Anrede...
  		$titles = explode(',', event_cfg_title);
  		$options = '';
@@ -542,6 +558,35 @@ class eventFrontend {
  			$options .= sprintf('<option value="%s"%s>%s</option>', $title, $selected, $title); 
  		}
  		$request_select_title = sprintf('<select name="%s">%s</select>', self::request_title, $options);
+ 		
+ 		// Auswahlfeld für Termine
+ 		$SQL = sprintf( "SELECT * FROM %s,%s WHERE %s.%s=%s.%s AND %s >= '%s' AND %s='%s' AND %s='%s'",
+ 										$dbEvent->getTableName(),
+ 										$dbEventItem->getTableName(),
+ 										$dbEvent->getTableName(),
+ 										dbEvent::field_event_item,
+ 										$dbEventItem->getTableName(),
+ 										dbEventItem::field_id,
+ 										dbEvent::field_event_date_from,
+ 										date('Y-m-d 00:00:00'),
+ 										dbEvent::field_event_group,
+ 										$event_group,
+ 										dbEvent::field_status,
+ 										dbEvent::status_active);
+ 		$other_events = array();
+ 		if (!$dbEvent->sqlExec($SQL, $other_events)) {
+ 			$this->setError($dbEvent->getError());
+ 			return false;
+ 		}
+ 		$options = '';
+ 		foreach ($other_events as $other) {
+ 			$selected = ($other[dbEvent::field_id] == $event_id) ? ' selected="selected"' : '';
+ 			$options .= sprintf('<option value="%s"%s>%s</option>',
+ 													$other[dbEvent::field_id],
+ 													$selected,
+ 													date(event_cfg_date_str, strtotime($other[dbEvent::field_event_date_from]))); 
+ 		}
+ 		$request_select_event_date = sprintf('<select name="%s">%s</select>', dbEvent::field_id, $options);
  		
  		// Eingabefelder erzeugen
  		$input_array = array(
@@ -585,9 +630,11 @@ class eventFrontend {
  			'event_name'							=> dbEvent::field_id,
  			'event_value'							=> $event_id,
  			'must_fields_name'				=> self::request_must_fields,
+ 			'define_free_fields'			=> self::request_free_fields,
  			
  			'request_response'					=> ($this->isMessage()) ? $this->getMessage() : '',
  			'request_select_title'			=> $request_select_title,
+ 			'request_select_event_date'	=> $request_select_event_date,
  			'request_input_first_name'	=> $input[self::request_first_name],
  			'request_input_last_name'		=> $input[self::request_last_name],
  			'request_input_company'			=> $input[self::request_company],
@@ -603,12 +650,17 @@ class eventFrontend {
  			'request_checkbox_order_confirm'	=> $checkbox[self::request_confirm],
  			'request_checkbox_terms_and_conditions' => $checkbox[self::request_terms],
  		
+ 			'request_free_1'						=> dbEventOrder::field_free_1,
+ 			'request_free_2'						=> dbEventOrder::field_free_2,
+ 			'request_free_3'						=> dbEventOrder::field_free_3,
+ 			'request_free_4'						=> dbEventOrder::field_free_4,
+ 			'request_free_5'						=> dbEventOrder::field_free_5,
+ 		
  			'request_captcha'						=> $call_captcha,
  			'request_submit'						=> sprintf('<input type="submit" value="%s" />', event_btn_ok),
  			'request_abort'							=> sprintf('<input type="button" value="%s" onclick="javascript: window.location = \'%s\'; return false;" />', event_btn_abort, $this->page_link)
  		);
  		
-  	if (!$this->getEventData($event_id, $event, $parser_data)) return false;
   	$data = array_merge($data, $parser_data);
   	return $this->getTemplate('frontend.event.order.htt', $data);
   } // orderEvent()

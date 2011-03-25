@@ -5,6 +5,7 @@
     <input type="hidden" name="{$action_name}" value="{$action_value}" />
     <input type="hidden" name="{$event_name}" value="{$event_value}" />
     <input type="hidden" name="{$must_fields_name}" value="captcha,email,terms_and_conditions" />
+    <input type="hidden" name="{$define_free_fields}" value="Notiz, Bezahlung" />
     <h2>Anmeldung: {$evt_headline}</h2>
     {* $request_response ermöglicht es dem Programm bei Bedarf Meldungen einzublenden,
      * z.B. über fehlende Angaben, Fehler bei der Eingabe des CAPTCHA Code etc. ...
@@ -20,6 +21,11 @@
         <col width="*" />
         <col width="150" />
       </colgroup>
+      <tr>
+        <td class="evt_order_label">Veranstaltung am</td>
+        <td class="evt_order_value">{$request_select_event_date}</td>
+        <td class="evt_order_help"></td>
+      </tr>
       <tr>
         <td class="evt_order_label">Beginn</td>
         <td class="evt_order_value">{$evt_start_datetime} Uhr</td>
@@ -108,6 +114,17 @@
         <td class="evt_order_value">{$request_text_message}</td>
         <td class="evt_order_help"></td>
       </tr>
+      <tr>
+        <td class="evt_order_label">Freies Feld 1</td>
+        <td class="evt_order_value"><input type="text" name="{$request_free_1}" /></td>
+        <td class="evt_order_help"></td>
+      </tr>
+      <tr>
+        <td class="evt_order_label">Freies Feld 2</td>
+        <td class="evt_order_value"><input type="text" name="{$request_free_2}" /></td>
+        <td class="evt_order_help"></td>
+      </tr>
+
       <tr>
         <td class="evt_order_value" colspan="2">{$request_checkbox_order_confirm} hiermit melde ich mich <b>verbindlich</b> an.</td>
         <td class="evt_order_help">Mit dem Setzen des Häkchens melden Sie sich verbindlich für die Veranstaltung an.</td>

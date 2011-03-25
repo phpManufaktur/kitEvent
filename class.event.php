@@ -173,6 +173,11 @@ class dbEventOrder extends dbConnectLE {
 	const field_message				= 'ord_message';
 	const field_confirm_order	= 'ord_confirm';
 	const field_send_mail			= 'ord_send_mail';
+	const field_free_1				= 'ord_free_1';
+	const field_free_2				= 'ord_free_2';
+	const field_free_3				= 'ord_free_3';
+	const field_free_4				= 'ord_free_4';
+	const field_free_5				= 'ord_free_5';
 	const field_timestamp			= 'ord_timestamp';
 	
 	private $createTables 		= false;
@@ -197,6 +202,11 @@ class dbEventOrder extends dbConnectLE {
 		$this->addFieldDefinition(self::field_message, "TEXT NOT NULL DEFAULT ''");
 		$this->addFieldDefinition(self::field_confirm_order, "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
 		$this->addFieldDefinition(self::field_send_mail, "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
+		$this->addFieldDefinition(self::field_free_1, "TEXT NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_free_2, "TEXT NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_free_3, "TEXT NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_free_4, "TEXT NOT NULL DEFAULT ''");
+		$this->addFieldDefinition(self::field_free_5, "TEXT NOT NULL DEFAULT ''");
 		$this->addFieldDefinition(self::field_timestamp, "TIMESTAMP");
   	$this->checkFieldDefinitions();
   	// Tabelle erstellen

@@ -36,12 +36,9 @@ function kit_error_handler($level, $message, $file, $line) {
 								'<tr><td style="vertical-align:top;">Line:File</td><td><b>%s</b> : <i>%s</i></td></tr></table></div>', 
 								$type, $message, $line, $file);
 }
-
-// if WB Error Reporting is switched to E_ALL set own error handler!
-if (ini_get('error_reporting') == E_ALL) {
-	ini_set("error_reporting", 0);
-	set_error_handler("kit_error_handler");
-}
+// Prompt all errors and use own error_handler
+ini_set('error_reporting', E_ALL);
+set_error_handler("kit_error_handler");
 
 // include language file
 if(!file_exists(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.php')) {

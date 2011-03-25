@@ -38,13 +38,19 @@ class monthlyCalendar {
 	const param_navigation		= 'navigation';
 	const param_show_today		= 'show_today';
 	const param_response_id		= 'response_id';
+	const param_select_month	= 'month';
+	const param_select_year		= 'year';
+	const param_group					= 'group';
 	
 	private $params = array(
 		self::param_show_weeks		=> true,
 		self::param_inactive_days	=> true,
 		self::param_navigation		=> true,
 		self::param_show_today		=> true,
-		self::param_response_id		=> -1
+		self::param_response_id		=> -1,
+		self::param_select_month	=> 0,
+		self::param_select_year		=> 0,
+		self::param_group					=> ''
 	);
 	
 	public function __construct() {
@@ -138,19 +144,43 @@ class monthlyCalendar {
 		return $result;	
   } // action()
 	
-	private function getEvents($month, $year) {
+	private function getEvents($month, $year, $group='') {
 		global $dbEvent;
+		global $dbEventGroup;
+		
+		$group = trim($group);
+		$select_group = '';
+		
+		if (!empty($group)) {
+			// ID der angegebenen Gruppe ermitteln
+			$SQL = sprintf( "SELECT %s FROM %s WHERE %s='%s' AND %s='%s'",
+											dbEventGroup::field_id,
+											$dbEventGroup->getTableName(),
+											dbEventGroup::field_name,
+											$group,
+											dbEventGroup::field_status,
+											dbEventGroup::status_active	);
+			if (!$dbEventGroup->sqlExec($SQL, $groups)) {
+				$this->setError($dbEventGroup->getError());
+				return false;
+			}	
+			if (count($groups) > 0) {
+				$select_group = sprintf(" AND %s='%s'", dbEvent::field_event_group, $groups[0][dbEventGroup::field_id]);
+			}
+		}
+		
 		$ld = date ('j', mktime(0, 0, 0, $month+1,0, $year));
-		$SQL = sprintf( "SELECT %s FROM %s WHERE %s>='%s' AND %s<='%s' AND %s='%s'",
+		$SQL = sprintf( "SELECT %s FROM %s WHERE (%s>='%s' AND %s<='%s')%s AND %s='%s'",
 										dbEvent::field_event_date_from,
 										$dbEvent->getTableName(),
 										dbEvent::field_event_date_from,
 										date('Y-m-d H:i:s', mktime(0,0,0, $month, 1, $year)),
 										dbEvent::field_event_date_to,
 										date('Y-m-d H:i:s', mktime(23,59,59, $month, $ld, $year)),
+										$select_group,
 										dbEvent::field_status,
 										dbEvent::status_active);
-		$events = array();
+		$events = array(); 
 		if (!$dbEvent->sqlExec($SQL, $events)) {
 			$this->setError($dbEvent->getError());
 			return false;
@@ -166,8 +196,36 @@ class monthlyCalendar {
 		global $eventTools;
 		global $parser;
 		
-		$month = isset($_REQUEST[self::request_month]) ? $_REQUEST[self::request_month] : date('n');
-		$year = isset($_REQUEST[self::request_year]) ? $_REQUEST[self::request_year] : date('Y');
+		if (($this->params[self::param_select_month] > 0) && ($this->params[self::param_select_month] < 12)) {
+			$month = $this->params[self::param_select_month];
+		}
+		elseif ($this->params[self::param_select_month] < 0) {
+			$month = date('n') + $this->params[self::param_select_month];
+		} 
+		elseif (($this->params[self::param_select_month] > 100) && ($this->params[self::param_select_month] < 112)) { 
+			$month = date('n') + ($this->params[self::param_select_month] - 100);
+		}
+		else {
+			$month = date('n');
+		}
+		
+		if ($this->params[self::param_select_year] == 0) {
+			// 0 == use actual year
+			$year = date('Y');
+		}
+		elseif ($this->params[self::param_select_year] < 0) { 
+			// substract value from actual year
+			$year = date('Y') + $this->params[self::param_select_year];
+		}
+		elseif (($this->params[self::param_select_year] > 0) && ($this->params[self::param_select_year] < 100)) {
+			$year = date('Y') + $this->params[self::param_select_year];
+		}
+		else {
+			$year = $this->params[self::param_select_year];
+		}
+		
+		if (isset($_REQUEST[self::request_month])) $month = $_REQUEST[self::request_month];
+		if (isset($_REQUEST[self::request_year])) $year = $_REQUEST[self::request_year];
 		
 		$last_day_of_month = date ('j', mktime(0, 0, 0, $month+1,0, $year));
 		$month_name = $this->getMonthName($month);
@@ -180,7 +238,7 @@ class monthlyCalendar {
 		}
 		
 		// Events einlesen
-		$events = $this->getEvents($month, $year);
+		$events = $this->getEvents($month, $year, $this->params[self::param_group]);
 		
 		// Parameter fuer die Navigation
 		if (($month-1) == 0) { 

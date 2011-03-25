@@ -21,5 +21,10 @@
   <p>{$label_declared} {$declared}</p>
   <p>{$label_message}:</p>
   <p>{$message}</p>
+  <p>{$label_free_1}: {$free_1}</p>
+  <p>{$label_free_2}: {$free_2}</p>
+  <p>{$label_free_3}: {$free_3}</p>
+  <p>{$label_free_4}: {$free_4}</p>
+  <p>{$label_free_5}: {$free_5}</p>
   <p><a href="{$back_link}">{$back_text}</a></p>
 </div>
