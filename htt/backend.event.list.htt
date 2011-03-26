@@ -28,7 +28,7 @@
     {/foreach}
     </tr>
     {foreach $rows row}
-    <tr class="{$row.flipflop}">
+    <tr class="{cycle values=array('flip', 'flop')}">
       <td class="data_{$row.id_name}"><a href="{$row.id_link}">{$row.id}</a></td>
       <td class="data_{$row.date_from_name}">{$row.date_from}</td>
       <td class="data_{$row.date_to_name}">{$row.date_to}</td>

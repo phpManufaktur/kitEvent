@@ -32,7 +32,7 @@
       <th class="head_{$message_name}">{$message_th}</th>
     </tr>
     {foreach $rows row}
-    <tr>
+    <tr class="{cycle values=array('flip','flop')}">
       <td class="data_{$order_date_name}"><a href="{$row.order_date_link}">{$row.order_date}</a></td>
       <td class="data_{$email_name}"><a href="mailto:{$row.email}">{$row.email}</a></td>
       <td class="data_{$name_name}">{$row.name}</td>

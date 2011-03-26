@@ -20,11 +20,11 @@
     $date.start_day               Start Tag des Event
     $date.start_day_zero          dto. mit führender Null
     $date.start_day_name          Wochentag, ausgeschrieben
-    $date.start_day_name_2        Wochentag, 2 Zeichen, Großbuchstaben
+    $date.start_day_name_2        Wochentag, erste 2 Zeichen
     $date.start_month             Monat (Zahl)
     $date.start_month_zero        dto. mit führender Null
     $date.start_month_name        Monatsname, ausgeschrieben
-    $date.start_month_name_3      Monatsname, 3 Zeichen, Großbuchstaben
+    $date.start_month_name_3      Monatsname, erste 3 Zeichen
     $date.start_year              Jahr
     $date.start_time              Start Uhrzeit
 
@@ -56,10 +56,10 @@
    {foreach $dates date}
      {if $date.start_day !== $date.end_day}
        {* wird angezeigt, wenn sich der Termin über mehrere Tage erstreckt... *}
-       <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_zero}.{$date.start_month_zero}/{$date.end_day_zero}.{$date.end_month_zero}.{$date.end_year}</a></div>
+       <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_zero}.{$date.start_month_zero}./{$date.end_day_zero}.{$date.end_month_zero}.{$date.end_year}</a></div>
      {else}
        {* wird für Termine verwendet, die am gleichen Tag beginnen und enden... *}
-       <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_name_2} {$date.start_day_zero}.{$date.start_month_zero}.{$date.start_year} - {$date.event.headline}</a></div>
+       <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_zero}.{$date.start_month_zero}.{$date.start_year}</a></div>
      {/if}
    {/foreach}
  </div>

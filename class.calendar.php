@@ -216,7 +216,7 @@ class monthlyCalendar {
 		global $eventTools;
 		global $parser;
 		
-		if (($this->params[self::param_select_month] > 0) && ($this->params[self::param_select_month] < 12)) {
+		if (($this->params[self::param_select_month] > 0) && ($this->params[self::param_select_month] < 13)) {
 			$month = $this->params[self::param_select_month];
 		}
 		elseif ($this->params[self::param_select_month] < 0) {
@@ -482,27 +482,26 @@ class monthlyCalendar {
 			$day_names = explode(',', event_cfg_day_names);
 			$month_names = explode(',', event_cfg_month_names);
 			$items[] = array(
-				//'date'		=> $date,
 				'event'								=> $eItem,
 				'start_day'						=> date('j', $start_date),
 				'start_day_zero'			=> date('d', $start_date),
 				'start_day_name'			=> $day_names[date('w', $start_date)],
-				'start_day_name_2'		=> strtoupper(substr($day_names[date('w', $start_date)], 1, 2)),
+				'start_day_name_2'		=> substr($day_names[date('w', $start_date)], 1, 2),
 				'start_month'					=> date('n', $start_date),
 				'start_month_zero'		=> date('m', $start_date),
 				'start_month_name'		=> $month_names[date('n', $start_date)-1],
-				'start_month_name_3'	=> strtoupper(substr($month_names[date('n', $start_date)-1], 1, 3)),
+				'start_month_name_3'	=> substr($month_names[date('n', $start_date)-1], 1, 3),
 				'start_year'					=> date('Y', $start_date),
 				'start_time'					=> date(event_cfg_time_str, $start_date),
 
 				'end_day'							=> date('j', $end_date),
 				'end_day_zero'				=> date('d', $end_date),
 				'end_day_name'				=> $day_names[date('w', $end_date)],
-				'end_day_name_2'			=> strtoupper(substr($day_names[date('w', $end_date)], 1, 2)),
+				'end_day_name_2'			=> substr($day_names[date('w', $end_date)], 1, 2),
 				'end_month'						=> date('n', $end_date),
 				'end_month_zero'			=> date('m', $end_date),
 				'end_month_name'			=> $month_names[date('n', $end_date)-1],
-				'end_month_name_3'		=> strtoupper(substr($month_names[date('n', $end_date)-1], 1, 3)),
+				'end_month_name_3'		=> substr($month_names[date('n', $end_date)-1], 1, 3),
 				'end_year'						=> date('Y', $end_date),
 				'end_time'						=> date(event_cfg_time_str, $end_date),
 				

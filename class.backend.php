@@ -284,11 +284,8 @@ class eventBackend {
   	
   	$items = '';
   	$rows = array();
-  	$flipflop = true;
   	foreach ($events as $event) {
-  		($flipflop) ? $flipflop = false : $flipflop = true;
-			($flipflop) ? $class = 'flip' : $class = 'flop';
-			$where = array(dbEventGroup::field_id => $event[dbEvent::field_event_group]);
+  		$where = array(dbEventGroup::field_id => $event[dbEvent::field_event_group]);
 			$group = array();
 			if (!$dbEventGroup->sqlSelectRecord($where, $group)) {
 				$this->setError($dbEventGroup->getError());
@@ -298,8 +295,7 @@ class eventBackend {
 			
 			$group = -1;
   		$rows[] = array(
-  			'flipflop'					=> $class,
-	  		'id_name'						=> dbEvent::field_id,
+  			'id_name'						=> dbEvent::field_id,
 	  		'id_link'						=> sprintf(	'%s&%s=%s&%s=%s',
   																			$this->page_link,
   																			self::request_action,
@@ -1109,16 +1105,13 @@ class eventBackend {
   	$row = new Dwoo_Template_File($this->template_path.'backend.order.list.row.htt');
   	
   	$items = '';
-  	$flipflop = true;
   	$rows = array();
   	foreach ($messages as $message) {
-  		($flipflop) ? $flipflop = false : $flipflop = true;
-			$dt = strtotime($message[dbEventOrder::field_confirm_order]);
+  		$dt = strtotime($message[dbEventOrder::field_confirm_order]);
 			$declared = (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? event_text_yes : '';
 			$name = sprintf('%s, %s', $message[dbEventOrder::field_last_name], $message[dbEventOrder::field_first_name]);
 			if (strlen($name) < 3) $name = '';
 			$rows[] = array(
-				'flipflop'					=> ($flipflop) ? 1 : 0,
 				'order_date_link'		=> sprintf('%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_messages_detail, dbEventOrder::field_id, $message[dbEventOrder::field_id]),
 				'order_date'				=> date(event_cfg_datetime_str, strtotime($message[dbEventOrder::field_order_date])),
 				'email'							=> $message[dbEventOrder::field_email],

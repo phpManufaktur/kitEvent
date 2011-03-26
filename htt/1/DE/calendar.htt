@@ -7,7 +7,7 @@
  * @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
  * @version $Id$
  *}
-<div class="cms_container">
+ <div class="cms_container">
   <table width="100%">
     {if $show_weeks == 1}
     <colgroup>
