@@ -190,7 +190,7 @@ class monthlyCalendar {
 										$dbEvent->getTableName(),
 										dbEvent::field_event_date_from,
 										date('Y-m-d H:i:s', mktime(0,0,0, $month, 1, $year)),
-										dbEvent::field_event_date_to,
+										dbEvent::field_event_date_from,
 										date('Y-m-d H:i:s', mktime(23,59,59, $month, $ld, $year)),
 										$select_group,
 										dbEvent::field_status,
