@@ -1,6 +1,77 @@
-<!-- $Id: frontend.event.teaser.htt 6 2011-03-20 08:11:21Z phpmanufaktur $ -->
+{*
+  kitEvent
+
+  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+  @link http://phpmanufaktur.de
+  @copyright 2011
+  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+  @version $Id: backend.about.htt 8 2011-03-23 11:49:27Z phpmanufaktur $
+
+  Dieses Template wird eingebunden um die zusammengefassten Informationen zu dem
+  jeweiligen Termin anzuzeigen.
+
+  Verfügbare Variablen:
+
+  // Anfangszeiten des Events
+  $event.start.timestamp              - Unix timestamp
+  $event.start.date                   - formatiertes Datum (dd.mm.yyyy)
+  $event.start.time                   - formatierte Zeit (hh:mm)
+  $event.start.day                    - Tag
+ 	$event.start.day_zero               - Tag, mit führender Null
+ 	$event.start.day_name               - Wochentag
+ 	$event.start.day_name_2             - Wochentag, erste 2 Zeichen
+ 	$event.start.month                  - Monat
+ 	$event.start.month_zero             - Monat, mit führender Null
+ 	$event.start.month_name             - Monatsname
+ 	$event.start.month_name_3           - Monatsname, erste 3 Zeichen
+ 	$event.start.year                   - Jahr
+ 	$event.start.year_2                 - Jahr, letzte 2 Ziffern
+ 	$event.start.week                   - Kalenderwoche
+	$event.start.publish_date           - Veröffentlichungsdatum, formatiiert (dd.mm.yyyy)
+	$event.start.publish_timestamp      - Veröffentlichungsdatum, Unix timestamp
+
+  // Endzeiten des Events - Beschreibungen siehe Anfangszeiten...
+  $event.end.timestamp
+  $event.end.date
+  $event.end.time
+  $event.end.day
+ 	$event.end.day_zero
+ 	$event.end.day_name
+ 	$event.end.day_name_2
+ 	$event.end.month
+ 	$event.end.month_zero
+ 	$event.end.month_name
+ 	$event.end.month_name_3
+ 	$event.end.year
+ 	$event.end.year_2
+ 	$event.end.week
+	$event.end.publish_date
+	$event.end.publish_timestamp
+
+  $event.headline                     - Titelzeile, Schlagzeile
+ 	$event.id                           - ID des Events
+ 	$event.group_name                   - Gruppenbezeichner
+ 	$event.group_desc                   - Gruppenbeschreibung
+
+	$event.participants_max             - max. Anzahl Teilnehmer
+ 	$event.participants_total           - bisher gemeldete Teilnehmer
+ 	$event.participants_free            - freie Plätze
+
+ 	$event.deadline_date                - Meldeschluß, formatiertes Datum (dd.mm.yyyy)
+ 	$event.deadline_timestamp           - Meldeschluß, Unix timestamp
+
+ 	$event.desc_short                   - Kurzbeschreibung
+ 	$event.desc_long                    - Langbeschreibung
+ 	$event.location                     - Veranstaltungsort
+ 	$event.costs                        - Kosten (ohne Währungsangabe)
+
+ 	$event.link_desc                    - Link zu einer ergänzenden Beschreibung des Event
+ 	$event.link_order                   - Link zum Anmeldeformular
+  $event.link_detail                  - Link zu detailierten Informationen (Langbeschreibung)
+  $event.link_start                   - Link auf die Event Übersichtsseite
+
+ *}
 <div class="evt_teaser">
-<div class="evt_detail">
   <table width="100%">
     <colgroup>
       <col width="120" />
@@ -14,13 +85,13 @@
          * dem Monat angezeigt. Das Datum wird sn Sonntagen anders formatiert.
         *}
         <div class="evt_cal_sheet_img">
-          <div class="evt_cal_sheet_month">{$evt_start_month}</div>
-          {if $evt_start_day_of_week == "Sonntag"}
-            <div class="evt_cal_sheet_day_holiday">{$evt_start_day}</div>
+          <div class="evt_cal_sheet_month">{$event.start.month_name}</div>
+          {if $event.start.day_name == "Sonntag"}
+            <div class="evt_cal_sheet_day_holiday">{$event.start.day}</div>
           {else}
-            <div class="evt_cal_sheet_day">{$evt_start_day}</div>
+            <div class="evt_cal_sheet_day">{$event.start.day}</div>
           {/if}
-          <div class="evt_cal_sheet_day_name">{$evt_start_day_of_week}</div>
+          <div class="evt_cal_sheet_day_name">{$event.start.day_name}</div>
         </div>
       </td>
       <td class="evt_cal_content">
@@ -30,21 +101,21 @@
          * Beschreibung der Veranstaltung sowie die zusätzlichen Angaben
          * ausgegeben.
          *}
-        <div class="evt_cal_group_desc">{$evt_group_desc}</div>
-        <div class="evt_cal_headline">{$evt_headline}</div>
-        {$evt_desc_short}
-        <div class="evt_cal_read_more"><a href="{$evt_detail_link}">mehr erfahren...</a></div>
+        <div class="evt_cal_group_desc">{$event.group_desc}</div>
+        <div class="evt_cal_headline">{$event.headline}</div>
+        {$event.desc_short}
+        <div class="evt_cal_read_more"><a href="{$event.link_detail}">mehr erfahren...</a></div>
       </td>
         {*
          * Es wird der Gruppen Bezeichner genutzt um auf der rechten Seite einen
          * farbigen Streifen sowie einen beschreibenden Schriftzug passend zu
          * der jeweiligen Gruppe auszugeben.
          *}
-      {if $evt_group_name == "WBUG"}
+      {if $event.group_name == "WBUG"}
         <td class="evt_cal_group_wbug"></td>
-      {elseif $evt_group_name == "phpManufaktur"}
+      {elseif $event.group_name == "phpManufaktur"}
         <td class="evt_cal_group_phpmanufaktur"></td>
-      {elseif $evt_group_name == "Extern"}
+      {elseif $event.group_name == "Extern"}
         <td class="evt_cal_group_extern"></td>
       {else}
         <td class="evt_cal_group_none"></td>

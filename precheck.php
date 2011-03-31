@@ -22,8 +22,13 @@ $PRECHECK['WB_ADDONS'] = array(
 	'dwoo' => array('VERSION' => '0.10', 'OPERATOR' => '>='),
 	'droplets' => array('VERSION' => '1.0', 'OPERATOR' => '>=')
 );
+
 if (file_exists(WB_PATH.'/modules/kit/info.php')) {
 	$PRECHECK['WB_ADDONS']['kit'] = array('VERSION' => '0.35', 'OPERATOR' => '>='); 
+}
+
+if (file_exists(WB_PATH.'/modules/kit_event/info.php')) {
+	$PRECHECK['WB_ADDONS']['kit_event'] = array('VERSION' => '0.25', 'OPERATOR' => '>=');
 }
 
 global $database;  

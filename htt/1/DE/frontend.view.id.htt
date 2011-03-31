@@ -1,5 +1,23 @@
-<!-- $Id$ -->
+{*
+  kitEvent
+
+  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+  @link http://phpmanufaktur.de
+  @copyright 2011
+  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+  @version $Id$
+
+  Dieses Template wird eingebunden um die Informationen zu einem Event anzuzeigen.
+
+  Verfügbare Variablen:
+  - siehe Beschreibung bei frontend.event.teaser.htt -
+
+ *}
 <div class="evt_view_id">
-  {$event}<!-- Anzeige von frontend.event.detail.htt oder frontend.event.teaser.htt -->
-  <div><a href="{$evt_start_link}">Zur Übersicht...</a></div>
+  {if $show_details == 1}
+    {include('frontend.event.detail.htt')}
+  {else}
+    {include('frontend.event.teaser.htt')}
+  {/if}
+  <div><a href="{$event.link_start}">Zur Übersicht...</a></div>
 </div>

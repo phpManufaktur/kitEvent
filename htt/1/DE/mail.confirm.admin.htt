@@ -1,17 +1,50 @@
-Zu der Veranstaltung {$evt_headline} am {$evt_start_datetime} Uhr ist soeben folgende Mitteilung eingegangen:
+{*
+  kitEvent
 
-Die Anmeldung ist: {$order_confirm}
+  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+  @link http://phpmanufaktur.de
+  @copyright 2011
+  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+  @version $Id$
 
-{$order_title|default:''}
-{$order_first_name|default:''} {$order_last_name|default:''}
-{$order_street|default:''}
-{$order_zip|default:''} {$order_city|default:''}
+  Dieses Template wird eingebunden um die Events zu einem bestimmten Tag anzuzeigen.
 
-E-Mail: {$order_email}
-Ihr Telefon: {$order_phone|default:''}
-Erreichbarkeit: {$order_best_time|default:''}
+  Verfügbare Variablen:
+
+  - siehe auch Beschreibung bei frontend.event.teaser.htt -
+
+  $order.title
+  $order.first_name
+  $order.last_name
+  $order.company
+  $order.street
+  $order.zip
+  $order.city
+  $order.email
+  $order.phone
+  $order.best_time
+  $order.message
+  $order.confirm_datetime
+  $order.confirm_timestamp
+  $order.free_1
+  $order.free_2
+  $order.free_3
+  $order.free_4
+  $order.free_5
+
+*}
+Zu der Veranstaltung {$event.headline} am {$event.start.datetime} Uhr ist soeben folgende Mitteilung eingegangen:
+
+{$order.title}
+{$order.first_name} {$order.last_name}
+{$order.street}
+{$order.zip} {$order.city}
+
+E-Mail: {$order.email}
+Ihr Telefon: {$order.phone}
+Erreichbarkeit: {$order.best_time}
 
 Zusätzliche Mitteilung:
-{$order_message|default:''}
+{$order.message}
 
 ### AUTOMATISCHE BENACHRICHTIGUNG ###

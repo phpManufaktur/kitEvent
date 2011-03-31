@@ -1,29 +1,101 @@
-<!-- $Id$ -->
+{*
+  kitEvent
+
+  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+  @link http://phpmanufaktur.de
+  @copyright 2011
+  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+  @version $Id$
+
+  Dieses Template wird eingebunden um die zusammengefassten Informationen zu dem
+  jeweiligen Termin anzuzeigen.
+
+  Verfügbare Variablen:
+
+  // Anfangszeiten des Events
+  $event.start.timestamp              - Unix timestamp
+  $event.start.date                   - formatiertes Datum (dd.mm.yyyy)
+  $event.start.time                   - formatierte Zeit (hh:mm)
+  $event.start.day                    - Tag
+ 	$event.start.day_zero               - Tag, mit führender Null
+ 	$event.start.day_name               - Wochentag
+ 	$event.start.day_name_2             - Wochentag, erste 2 Zeichen
+ 	$event.start.month                  - Monat
+ 	$event.start.month_zero             - Monat, mit führender Null
+ 	$event.start.month_name             - Monatsname
+ 	$event.start.month_name_3           - Monatsname, erste 3 Zeichen
+ 	$event.start.year                   - Jahr
+ 	$event.start.year_2                 - Jahr, letzte 2 Ziffern
+ 	$event.start.week                   - Kalenderwoche
+	$event.start.publish_date           - Veröffentlichungsdatum, formatiiert (dd.mm.yyyy)
+	$event.start.publish_timestamp      - Veröffentlichungsdatum, Unix timestamp
+
+  // Endzeiten des Events - Beschreibungen siehe Anfangszeiten...
+  $event.end.timestamp
+  $event.end.date
+  $event.end.time
+  $event.end.day
+ 	$event.end.day_zero
+ 	$event.end.day_name
+ 	$event.end.day_name_2
+ 	$event.end.month
+ 	$event.end.month_zero
+ 	$event.end.month_name
+ 	$event.end.month_name_3
+ 	$event.end.year
+ 	$event.end.year_2
+ 	$event.end.week
+	$event.end.publish_date
+	$event.end.publish_timestamp
+
+  $event.headline                     - Titelzeile, Schlagzeile
+ 	$event.id                           - ID des Events
+ 	$event.group_name                   - Gruppenbezeichner
+ 	$event.group_desc                   - Gruppenbeschreibung
+
+	$event.participants_max             - max. Anzahl Teilnehmer
+ 	$event.participants_total           - bisher gemeldete Teilnehmer
+ 	$event.participants_free            - freie Plätze
+
+ 	$event.deadline_date                - Meldeschluß, formatiertes Datum (dd.mm.yyyy)
+ 	$event.deadline_timestamp           - Meldeschluß, Unix timestamp
+
+ 	$event.desc_short                   - Kurzbeschreibung
+ 	$event.desc_long                    - Langbeschreibung
+ 	$event.location                     - Veranstaltungsort
+ 	$event.costs                        - Kosten (ohne Währungsangabe)
+
+ 	$event.link_desc                    - Link zu einer ergänzenden Beschreibung des Event
+ 	$event.link_order                   - Link zum Anmeldeformular
+  $event.link_detail                  - Link zu detailierten Informationen (Langbeschreibung)
+  $event.link_start                   - Link auf die Event Übersichtsseite
+
+ *}
+
 <div class="evt_teaser">
-  <h2>{$evt_headline}</h2>
+  <h2>{$event.headline}</h2>
   <div><b>Verkürzte Ansicht (TEASER)</b></div>
-  <div>ID: {$evt_id}</div>
-  <div>Gruppenbezeichner: {$evt_group_name}</div>
-  <div>Gruppenbeschreibung: {$evt_group_desc}</div>
-  <div>Beginn, Datum: {$evt_start_date}</div>
-  <div>Beginn, Datum und Uhrzeit: {$evt_start_datetime}</div>
-  <div>Beginn, Uhrzeit: {$evt_start_time}</div>
-  <div>Beginn, Tag: {$evt_start_day}</div>
-  <div>Beginn, Wochentag: {$evt_start_day_of_week}</div>
-  <div>Beginn, Monat: {$evt_start_month}</div>
-  <div>Ende, Datum: {$evt_end_date}</div>
-  <div>Ende, Datum und Uhrzeit: {$evt_end_datetime}</div>
-  <div>Ende, Uhrzeit: {$evt_end_time}</div>
-  <div>Veröffentlichung, Beginn: {$evt_publish_start}</div>
-  <div>Veröffentlichung, Ende: {$evt_publish_end}</div>
-  <div>Max. Teilnehmer: {$evt_participants_max}</div>
-  <div>Gemeldete Teilnehmer: {$evt_participants_total}</div>
-  <div>Freie Plätze: {$evt_participants_free}</div>
-  <div>Anmeldeschluß: {$evt_deadline}</div>
-  <div>Kurzbeschreibung:</ br>{$evt_desc_short}</div>
-  <div>Langbeschreibung:</ br>{$evt_desc_long}</div>
-  <div><a href="{$evt_desc_link}">Ergänzender Link...</a></div>
-  <div>Veranstaltungsort: {$evt_location}</div>
-  <div>Kosten: {$evt_costs}</div>
-  <div><a href="{$evt_detail_link}">Detailierte Informationen zu dem Termin</a></div>
+  <div>ID: {$event.id}</div>
+  <div>Gruppenbezeichner: {$event.group_name}</div>
+  <div>Gruppenbeschreibung: {$event.group_desc}</div>
+  <div>Beginn, Datum: {$event.start.date}</div>
+  <div>Beginn, Datum und Uhrzeit: {$event.start.datetime}</div>
+  <div>Beginn, Uhrzeit: {$event.start.time}</div>
+  <div>Beginn, Tag: {$event.start.day}</div>
+  <div>Beginn, Wochentag: {$event.start.day_name}</div>
+  <div>Beginn, Monat: {$event.start.month}</div>
+  <div>Ende, Datum: {$event.end.date}</div>
+  <div>Ende, Datum und Uhrzeit: {$event.end.datetime}</div>
+  <div>Ende, Uhrzeit: {$event.end.time}</div>
+  <div>Veröffentlichung, Beginn: {$event.start.publish_date}</div>
+  <div>Veröffentlichung, Ende: {$event.end.publish_date}</div>
+  <div>Max. Teilnehmer: {$event.participants_max}</div>
+  <div>Gemeldete Teilnehmer: {$event.participants_total}</div>
+  <div>Freie Plätze: {$event.participants_free}</div>
+  <div>Anmeldeschluß: {$event.deadline_date}</div>
+  <div>Kurzbeschreibung:</ br>{$event.desc_short}</div>
+  <div><a href="{$event.link_desc}">Ergänzender Link...</a></div>
+  <div>Veranstaltungsort: {$event.location}</div>
+  <div>Kosten: {$event.costs} &euro;</div>
+  <div><a href="{$event.link_detail}">Detailierte Informationen zu dem Termin</a></div>
 </div>

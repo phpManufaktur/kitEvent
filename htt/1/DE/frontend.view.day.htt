@@ -1,16 +1,58 @@
-<!-- $Id$ -->
+{*
+  kitEvent
+
+  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+  @link http://phpmanufaktur.de
+  @copyright 2011
+  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+  @version $Id$
+
+  Dieses Template wird eingebunden um die Events zu einem bestimmten Tag anzuzeigen.
+
+  Verfügbare Variablen:
+
+  - siehe auch Beschreibung bei frontend.event.teaser.htt -
+
+  $day.date
+ 	$day.day
+ 	$day.day_zero
+ 	$day.day_name
+ 	$day.day_name_2
+ 	$day.month_name
+ 	$day.month_name_3
+ 	$day.month
+ 	$day.month_zero
+ 	$day.year
+ 	$day.year_2
+ 	$day.week
+ 	$day.link_start
+
+ *}
 <div id="evt_view_day">
-  <h2>Übersicht über die Veranstaltungen am {$evt_view_day_date}</h2>
-  <div>Tag: {$evt_view_day_day}</div>
-  <div>Tag: {$evt_view_day_day_zero}</div>
-  <div>Wochentag: {$evt_view_day_day_name}</div>
-  <div>Monat: {$evt_view_day_month}</div>
-  <div>Monat: {$evt_view_day_month_zero}</div>
-  <div>Monat: {$evt_view_day_month_name}</div>
-  <div>Jahr: {$evt_view_day_year}</div>
+  <h2>Übersicht über die Veranstaltungen am {$day.date}</h2>
+  <div>Tag: {$day.day}</div>
+  <div>Tag: {$day.day_zero}</div>
+  <div>Wochentag: {$day.day_name}</div>
+  <div>Monat: {$day.month}</div>
+  <div>Monat: {$day.month_zero}</div>
+  <div>Monat: {$day.month_name}</div>
+  <div>Jahr: {$day.year}</div>
   <div>
-    <p>Termine:</p>
-    {$events}
+    {if isset($events)}
+      <p>Termine:</p>
+      {foreach $events event}
+        {if $show_details == 1}
+          {include('frontend.event.detail.htt')}
+        {else}
+          {include('frontend.event.teaser.htt')}
+        {/if}
+      {/foreach}
+    {else}
+      {* es liegen keine Termine für diesen Tag vor *}
+      <h2>Veranstaltungen</h2>
+      <p>Sorry, für den {$day.date} sind leider keine Veranstaltungen geplant.</p>
+      <p>Bitte besuchen Sie uns morgen wieder!</p>
+    {/if}
   </div>
-  <div><a href="{$evt_start_link}">Zur Übersicht...</a></div>
+  <div><a href="{$day.link_start}">Zur Übersicht...</a></div>
 </div>

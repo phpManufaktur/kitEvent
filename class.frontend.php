@@ -28,17 +28,7 @@ class eventFrontend {
 	const request_free_fields		= 'ff';
 	
 	const request_must_fields	= 'mf';
-	
-	const must_captcha				= 'captcha';
-	const must_first_name			= 'first_name';
-	const must_last_name			= 'last_name';
-	const must_street					= 'street';
-	const must_zip						= 'zip';
-	const must_city						= 'city';
-	const must_email					= 'email';
-	const must_phone					= 'phone';
-	const must_terms					= 'terms_and_conditions';					
-	
+
 	const request_title				= 'title';
 	const request_first_name	= 'fn';
 	const request_last_name		= 'ln';
@@ -52,6 +42,7 @@ class eventFrontend {
 	const request_confirm			= 'con';
 	const request_terms				= 'trm';
 	const request_message			= 'msg';
+	const request_captcha			= 'cpt';
 	
 	const action_default 			= 'def';
 	const action_day					= 'day';
@@ -257,6 +248,35 @@ class eventFrontend {
   	return mktime(0,0,0,date('n', $date),date('j', $date)-$sub,date('Y',$date));
   }
   
+  private function getStartEndDates($event_data=array(), $is_start=true) {
+  	$date = ($is_start) ? strtotime($event_data[dbEvent::field_event_date_from]) : strtotime($event_data[dbEvent::field_event_date_to]);
+  	$publish = ($is_start) ? strtotime($event_data[dbEvent::field_publish_date_from]) : strtotime($event_data[dbEvent::field_publish_date_to]);
+  	
+  	$weekdays = explode(',', event_cfg_day_names);
+ 		$months = explode(',', event_cfg_month_names);
+  	
+  	$dates = array(
+ 			'timestamp'					=> $date,
+ 			'date'							=> date(event_cfg_date_str, $date),
+ 			'datetime'					=> date(event_cfg_datetime_str, $date),
+ 			'time'							=> date(event_cfg_time_str, $date),
+ 			'day'								=> date('j', $date),
+ 			'day_zero'					=> date('d', $date),
+ 			'day_name'					=> trim($weekdays[date('w', $date)]),
+ 			'day_name_2'				=> substr(trim($weekdays[date('w', $date)]), 1, 2),
+ 			'month'							=> date('n', $date),
+ 			'month_zero'				=> date('m', $date),
+ 			'month_name'				=> trim($months[date('n', $date)-1]),
+ 			'month_name_3'			=> substr(trim($months[date('n', $date)-1]), 1, 3),
+ 			'year'							=> date('Y', $date),
+ 			'year_2'						=> date('y', $date),
+ 			'week'							=> date('W', $date),
+			'publish_date'			=> date(event_cfg_date_str, $publish),
+			'publish_timestamp'	=> $publish,
+ 		);
+ 		return $dates;
+  } // getStartEndDates()
+  
   /**
    * Daten fuer die angegebene Event ID auslesen und zusaetzlich ein Array mit Informationen
    * fuer die Ausgabe ueber beliebige Templates erzeugen
@@ -265,7 +285,7 @@ class eventFrontend {
    * @param REFERENCE ARRAY $parser_data
    * @return BOOL true on success
    */
-  private function getEventData($event_id, &$event_data=array(), &$parser_data=array()) {
+  private function getEventData($event_id, &$event_data=array(), &$event_parser=array()) {
   	global $dbEvent;
   	global $dbEventItem;
   	global $dbEventGroup;
@@ -310,46 +330,43 @@ class eventFrontend {
  			$participants_free = event_text_participants_free;
  		}
  		
- 		$weekdays = explode(',', event_cfg_day_names);
- 		$months = explode(',', event_cfg_month_names);
-  	
  		if ($event_data[dbEventItem::field_costs] > 0) {
  			$costs = sprintf(event_cfg_currency, number_format($event_data[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator));
  		}
  		else {
  			$costs = event_text_none;
  		}
-  	$parser_data = array( 
-  		'evt_headline'						=> $event_data[dbEventItem::field_title],
- 			'evt_id'									=> sprintf('%03d', $event_data[dbEvent::field_id]),
- 			'evt_group_name'					=> $group_name,
- 			'evt_group_desc'					=> $group_desc,					
- 			'evt_start_date'					=> date(event_cfg_date_str, strtotime($event_data[dbEvent::field_event_date_from])),
- 			'evt_start_datetime'			=> date(event_cfg_datetime_str, strtotime($event_data[dbEvent::field_event_date_from])),
- 			'evt_start_time'					=> date(event_cfg_time_str, strtotime($event_data[dbEvent::field_event_date_from])),
- 			'evt_start_day'						=> date('j', strtotime($event_data[dbEvent::field_event_date_from])),
- 			'evt_start_day_of_week'		=> trim($weekdays[date('w', strtotime($event_data[dbEvent::field_event_date_from]))]),
- 			'evt_start_month'					=> trim($months[date('n', strtotime($event_data[dbEvent::field_event_date_from]))-1]), 
- 			'evt_end_date'						=> date(event_cfg_date_str, strtotime($event_data[dbEvent::field_event_date_to])),
- 			'evt_end_datetime'				=> date(event_cfg_datetime_str, strtotime($event_data[dbEvent::field_event_date_to])),
- 			'evt_end_time'						=> date(event_cfg_time_str, strtotime($event_data[dbEvent::field_event_date_to])),
- 			'evt_publish_start'				=> date(event_cfg_date_str, strtotime($event_data[dbEvent::field_publish_date_from])),
- 			'evt_publish_end'					=> date(event_cfg_date_str, strtotime($event_data[dbEvent::field_publish_date_to])),
- 			'evt_participants_max'		=> $participants_max,
- 			'evt_participants_total'	=> $event_data[dbEvent::field_participants_total],
- 			'evt_participants_free'		=> $participants_free,
- 			'evt_deadline'						=> date(event_cfg_date_str, strtotime($event_data[dbEvent::field_deadline])),
- 			'evt_desc_short'					=> stripslashes($event_data[dbEventItem::field_desc_short]),
- 			'evt_desc_long'						=> stripslashes($event_data[dbEventItem::field_desc_long]),
- 			'evt_desc_link'						=> stripslashes($event_data[dbEventItem::field_desc_link]),
- 			'evt_location'						=> $event_data[dbEventItem::field_location],
- 			'evt_costs'								=> $costs,
- 			'evt_order_link'					=> sprintf('%s?%s=%s&%s=%s', $this->page_link, self::request_action, self::action_order, self::request_event_id, $event_id),
-  		'evt_detail_link'					=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_event, self::request_event_id, $event_id, self::request_event, self::view_id, self::request_event_detail, 1),
-  		'evt_start_link'					=> $this->page_link
+ 		$start = strtotime($event_data[dbEvent::field_event_date_from]);
+ 		$end = strtotime($event_data[dbEvent::field_event_date_to]);
+ 		
+ 		$event_parser = array(
+ 			'headline'								=> $event_data[dbEventItem::field_title],
+ 			'id'											=> $event_data[dbEvent::field_id],
+ 			'group_name'							=> $group_name,
+ 			'group_desc'							=> $group_desc,
+ 			
+ 			'start'										=> $this->getStartEndDates($event_data, true),
+ 			'end'											=> $this->getStartEndDates($event_data, false),
+ 			
+ 			'participants_max'				=> $participants_max,
+ 			'participants_total'			=> $event_data[dbEvent::field_participants_total],
+ 			'participants_free'				=> $participants_free,
+ 		
+ 			'deadline_date'						=> date(event_cfg_date_str, strtotime($event_data[dbEvent::field_deadline])),
+ 			'deadline_timestamp'			=> strtotime($event_data[dbEvent::field_deadline]),
+ 		
+ 			'desc_short'							=> stripslashes($event_data[dbEventItem::field_desc_short]),
+ 			'desc_long'								=> stripslashes($event_data[dbEventItem::field_desc_long]),
+ 			'location'								=> $event_data[dbEventItem::field_location],
+ 			'costs'										=> number_format($costs, 2, event_cfg_decimal_separator, event_cfg_thousand_separator), 
+ 		
+ 			'link_desc'								=> stripslashes($event_data[dbEventItem::field_desc_link]),
+ 			'link_order'							=> sprintf('%s?%s=%s&%s=%s', $this->page_link, self::request_action, self::action_order, self::request_event_id, $event_id),
+  		'link_detail'							=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_event, self::request_event_id, $event_id, self::request_event, self::view_id, self::request_event_detail, 1),
+  		'link_start'							=> $this->page_link
  		);
  		return true;
-  } // getEventFields()
+  } // getEventData()
   
   /**
    * Anmeldung zu einem Event pruefen, ggf. wieder Anmeldedialog mit Hinweisen
@@ -376,38 +393,39 @@ class eventFrontend {
   	$mf = strtolower($_REQUEST[self::request_must_fields]);
   	$mf = str_replace(' ', '', $mf);
   	$must_fields = explode(',', $mf);
-  	if (!in_array(self::must_email, $must_fields)) $must_fields[] = self::must_email;
-  	
+//if (!in_array(self::must_email, $must_fields)) $must_fields[] = self::must_email;
+ 		if (!in_array(self::request_email, $must_fields)) $must_fields = self::request_email;
+ 		 	
   	$message = '';
   	foreach ($must_fields as $must_field) {
   		switch ($must_field):
-  		case self::must_captcha:
+  		case self::request_captcha:
 		  	if (!isset($_REQUEST['captcha']) || ($_REQUEST['captcha'] != $_SESSION['captcha'])) $message .= event_msg_captcha_invalid;
 				break;
-  		case self::must_city:
+  		case self::request_city:
   			if (!isset($_REQUEST[self::request_city]) || (strlen($_REQUEST[self::request_city]) < 4)) $message .= event_msg_must_city;
   			break;		
-  		case self::must_email:
+  		case self::request_email:
 		  	if (!isset($_REQUEST[self::request_email]) || !$eventTools->validateEMail($_REQUEST[self::request_email])) {
 					$message .= sprintf(event_msg_invalid_email, $_REQUEST[self::request_email]);
 				}
   			break;
-  		case self::must_first_name:
+  		case self::request_first_name:
   			if (!isset($_REQUEST[self::request_first_name]) || empty($_REQUEST[self::request_first_name])) $message .= event_msg_must_first_name;
   			break;
-  		case self::must_last_name:
+  		case self::request_last_name:
   			if (!isset($_REQUEST[self::request_last_name]) || empty($_REQUEST[self::request_last_name])) $message .= event_msg_must_last_name;
   			break;
-			case self::must_phone:
+			case self::request_phone:
   			if (!isset($_REQUEST[self::request_phone]) || empty($_REQUEST[self::request_phone])) $message .= event_msg_must_phone;
   			break;
-  		case self::must_street:
+  		case self::request_street:
   			if (!isset($_REQUEST[self::request_street]) || empty($_REQUEST[self::request_street])) $message .= event_msg_must_street;
   			break;
-  		case self::must_terms:
+  		case self::request_terms:
   			if (!isset($_REQUEST[self::request_terms])) $message .= event_msg_must_terms_and_conditions;
   			break;
-  		case self::must_zip:
+  		case self::request_zip:
   			if (!isset($_REQUEST[self::request_zip]) || empty($_REQUEST[self::request_zip])) $message .= event_msg_must_zip;
   			break;
   		endswitch;
@@ -450,18 +468,6 @@ class eventFrontend {
  		
   	// wenn eine Anmeldung erfolgt ist, muss der Zaehler bei dbEvent erhoeht werden!
   	if (false !== ($dt = $orderData[dbEventOrder::field_confirm_order])) {
-  		/* dieser "kurze" Aufruf zur Aktualisierung loest einen E_WARNING in der WB class.database.php aus !!!
-  		$SQL = sprintf( "UPDATE %s SET %s=%s+'1' WHERE %s='%s'", 
-  										$dbEvent->getTableName(),
-  										dbEvent::field_participants_total,
-  										dbEvent::field_participants_total,
-  										dbEvent::field_id,
-  										$event_id);
-  		if (!$dbEvent->sqlExec($SQL, $result)) {
-  			$this->setError($dbEvent->getError());
-  			return false;
-  		}
-  		*/
   		$SQL = sprintf(	"SELECT %s FROM %s WHERE %s='%s'",
   										dbEvent::field_participants_total,
   										$dbEvent->getTableName(),
@@ -484,28 +490,32 @@ class eventFrontend {
   	}
   	
   	// Bestaetigungsmail an den Kunden
-  	$data = array(
-  		'order_title'							=> $orderData[dbEventOrder::field_title],
-  		'order_first_name'				=> $orderData[dbEventOrder::field_first_name],
-  		'order_last_name'					=> $orderData[dbEventOrder::field_last_name],
-  		'order_company'						=> $orderData[dbEventOrder::field_company],
-  		'order_street'						=> $orderData[dbEventOrder::field_street],
-  		'order_zip'								=> $orderData[dbEventOrder::field_zip],
-  		'order_city'							=> $orderData[dbEventOrder::field_city],
-  		'order_email'							=> $orderData[dbEventOrder::field_email],
-  		'order_phone'							=> $orderData[dbEventOrder::field_phone],
-  		'order_best_time'					=> $orderData[dbEventOrder::field_best_time],
-  		'order_message'						=> $orderData[dbEventOrder::field_message],
-  		'order_confirm'						=> (!strtotime($orderData[dbEventOrder::field_confirm_order])) ? strtoupper(event_text_not_confirmed) : strtoupper(event_text_confirmed),
-  		'order_free_1'						=> substr($orderData[dbEventOrder::field_free_1], strpos($orderData[dbEventOrder::field_free_1], '|')+1),
-  		'order_free_2'						=> substr($orderData[dbEventOrder::field_free_2], strpos($orderData[dbEventOrder::field_free_2], '|')+1),
-  		'order_free_3'						=> substr($orderData[dbEventOrder::field_free_3], strpos($orderData[dbEventOrder::field_free_3], '|')+1),
-  		'order_free_4'						=> substr($orderData[dbEventOrder::field_free_4], strpos($orderData[dbEventOrder::field_free_4], '|')+1),
-  		'order_free_5'						=> substr($orderData[dbEventOrder::field_free_5], strpos($orderData[dbEventOrder::field_free_5], '|')+1)  		
+  	$order = array(
+  		'title'							=> $orderData[dbEventOrder::field_title],
+  		'first_name'				=> $orderData[dbEventOrder::field_first_name],
+  		'last_name'					=> $orderData[dbEventOrder::field_last_name],
+  		'company'						=> $orderData[dbEventOrder::field_company],
+  		'street'						=> $orderData[dbEventOrder::field_street],
+  		'zip'								=> $orderData[dbEventOrder::field_zip],
+  		'city'							=> $orderData[dbEventOrder::field_city],
+  		'email'							=> $orderData[dbEventOrder::field_email],
+  		'phone'							=> $orderData[dbEventOrder::field_phone],
+  		'best_time'					=> $orderData[dbEventOrder::field_best_time],
+  		'message'						=> $orderData[dbEventOrder::field_message],
+  		'confirm_datetime'	=> (!strtotime($orderData[dbEventOrder::field_confirm_order])) ? NULL : date(event_cfg_datetime_str, strtotime($orderData[dbEventOrder::field_confirm_order])),
+  		'confirm_timestamp' => (!strtotime($orderData[dbEventOrder::field_confirm_order])) ? NULL : strtotime($orderData[dbEventOrder::field_confirm_order]),
+  		'free_1'						=> substr($orderData[dbEventOrder::field_free_1], strpos($orderData[dbEventOrder::field_free_1], '|')+1),
+  		'free_2'						=> substr($orderData[dbEventOrder::field_free_2], strpos($orderData[dbEventOrder::field_free_2], '|')+1),
+  		'free_3'						=> substr($orderData[dbEventOrder::field_free_3], strpos($orderData[dbEventOrder::field_free_3], '|')+1),
+  		'free_4'						=> substr($orderData[dbEventOrder::field_free_4], strpos($orderData[dbEventOrder::field_free_4], '|')+1),
+  		'free_5'						=> substr($orderData[dbEventOrder::field_free_5], strpos($orderData[dbEventOrder::field_free_5], '|')+1)  		
  		);
 
  		if (!$this->getEventData($event_id, $event, $event_parser)) return false;
- 		$data = array_merge($data, $event_parser);
+ 		$data = array(
+ 			'order'		=> $order,
+ 			'event'		=> $event_parser
+ 		);
  		
  		if (false == ($body = $this->getTemplate('mail.confirm.participant.htt', $data))) return false;
   	if (!$wb->mail(SERVER_EMAIL, $orderData[dbEventOrder::field_email], $event[dbEventItem::field_title], $body)) {
@@ -550,77 +560,52 @@ class eventFrontend {
   	
   	$event_group = $event[dbEvent::field_event_group];
   	
+  	$request = array();
   	// persoenliche Anrede...
  		$titles = explode(',', event_cfg_title);
  		$options = '';
+ 		$title_values = array();
  		foreach ($titles as $title) {
- 			$selected = (isset($_REQUEST[self::request_title]) && ($_REQUEST[self::request_title] == $title)) ? ' selected="selected"' : '';
- 			$options .= sprintf('<option value="%s"%s>%s</option>', $title, $selected, $title); 
+ 			$title_values[] = array(
+ 				'value'			=> $title,
+ 				'text'			=> $title,
+ 				'selected'	=> (isset($_REQUEST[self::request_title]) && ($_REQUEST[self::request_title] == $title)) ? 1 : NULL
+ 			);
  		}
- 		$request_select_title = sprintf('<select name="%s">%s</select>', self::request_title, $options);
- 		
- 		// Auswahlfeld für Termine
- 		$SQL = sprintf( "SELECT * FROM %s,%s WHERE %s.%s=%s.%s AND %s >= '%s' AND %s='%s' AND %s='%s'",
- 										$dbEvent->getTableName(),
- 										$dbEventItem->getTableName(),
- 										$dbEvent->getTableName(),
- 										dbEvent::field_event_item,
- 										$dbEventItem->getTableName(),
- 										dbEventItem::field_id,
- 										dbEvent::field_event_date_from,
- 										date('Y-m-d 00:00:00'),
- 										dbEvent::field_event_group,
- 										$event_group,
- 										dbEvent::field_status,
- 										dbEvent::status_active);
- 		$other_events = array();
- 		if (!$dbEvent->sqlExec($SQL, $other_events)) {
- 			$this->setError($dbEvent->getError());
- 			return false;
- 		}
- 		$options = '';
- 		foreach ($other_events as $other) {
- 			$selected = ($other[dbEvent::field_id] == $event_id) ? ' selected="selected"' : '';
- 			$options .= sprintf('<option value="%s"%s>%s</option>',
- 													$other[dbEvent::field_id],
- 													$selected,
- 													date(event_cfg_date_str, strtotime($other[dbEvent::field_event_date_from]))); 
- 		}
- 		$request_select_event_date = sprintf('<select name="%s">%s</select>', dbEvent::field_id, $options);
- 		
+ 		$request['title']['name'] = self::request_title;
+ 		$request['title']['value'] = $title_values;
+
  		// Eingabefelder erzeugen
  		$input_array = array(
- 			self::request_first_name,
- 			self::request_last_name,
- 			self::request_company,
- 			self::request_street,
- 			self::request_zip,
- 			self::request_city,
- 			self::request_email,
- 			self::request_phone,
- 			self::request_best_time
+ 			'first_name'		=> self::request_first_name,
+ 			'last_name'			=> self::request_last_name,
+ 			'company'				=> self::request_company,
+ 			'street'				=> self::request_street,
+ 			'zip'						=> self::request_zip,
+ 			'city'					=> self::request_city,
+ 			'email'					=> self::request_email,
+ 			'phone'					=> self::request_phone,
+ 			'best_time'			=> self::request_best_time,
+ 			'message'				=> self::request_message,
+ 			'confirm_order'	=> self::request_confirm,
+ 			'confirm_terms'	=> self::request_terms,
+ 			'free_1'				=> dbEventOrder::field_free_1,
+ 			'free_2'				=> dbEventOrder::field_free_2,
+ 			'free_3'				=> dbEventOrder::field_free_3,
+ 			'free_4'				=> dbEventOrder::field_free_4,
+ 			'free_5'				=> dbEventOrder::field_free_5
  		);
- 		$input = array();
- 		foreach ($input_array as $key) {
- 			$input[$key] = sprintf(	'<input type="text" name="%s" value="%s" />',	$key,	(isset($_REQUEST[$key])) ? $_REQUEST[$key] : '');
+ 		foreach ($input_array as $field => $name) {
+ 			$request[$field]['name'] = $name;
+ 			$request[$field]['value'] = (isset($_REQUEST[$name])) ? $_REQUEST[$name] : NULL;
  		}
- 		
- 		// Checkboxen erzeugen
- 		$checkbox_array = array(
- 			self::request_confirm,
- 			self::request_terms
- 		);
- 		$checkbox = '';
- 		foreach ($checkbox_array as $key) {
- 			$checked = (isset($_REQUEST[$key])) ? ' checked="checked"' : '';
- 			$checkbox[$key] = sprintf('<input type="checkbox" name="%s" value="1" %s />', $key, $checked);
- 		}
- 		
  		// CAPTCHA
  		ob_start();
 			call_captcha();
 			$call_captcha = ob_get_contents();
 		ob_end_clean();
+		$request['captcha']['name'] = self::request_captcha;
+		$request['captcha']['print'] = $call_captcha;
 		
  		$data = array(
  			'form_name'								=> 'event_order',
@@ -631,37 +616,11 @@ class eventFrontend {
  			'event_value'							=> $event_id,
  			'must_fields_name'				=> self::request_must_fields,
  			'define_free_fields'			=> self::request_free_fields,
- 			
- 			'request_response'					=> ($this->isMessage()) ? $this->getMessage() : '',
- 			'request_select_title'			=> $request_select_title,
- 			'request_select_event_date'	=> $request_select_event_date,
- 			'request_input_first_name'	=> $input[self::request_first_name],
- 			'request_input_last_name'		=> $input[self::request_last_name],
- 			'request_input_company'			=> $input[self::request_company],
- 			'request_input_street'			=> $input[self::request_street],
- 			'request_input_zip'					=> $input[self::request_zip],
- 			'request_input_city'				=> $input[self::request_city],
- 			'request_input_email'				=> $input[self::request_email],
- 			'request_input_phone'				=> $input[self::request_phone],
- 			'request_input_best_time'		=> $input[self::request_best_time],
- 			
- 			'request_text_message'			=> sprintf('<textarea name="%s">%s</textarea>', self::request_message, (isset($_REQUEST[self::request_message])) ? $_REQUEST[self::request_message] : ''),
- 		
- 			'request_checkbox_order_confirm'	=> $checkbox[self::request_confirm],
- 			'request_checkbox_terms_and_conditions' => $checkbox[self::request_terms],
- 		
- 			'request_free_1'						=> dbEventOrder::field_free_1,
- 			'request_free_2'						=> dbEventOrder::field_free_2,
- 			'request_free_3'						=> dbEventOrder::field_free_3,
- 			'request_free_4'						=> dbEventOrder::field_free_4,
- 			'request_free_5'						=> dbEventOrder::field_free_5,
- 		
- 			'request_captcha'						=> $call_captcha,
- 			'request_submit'						=> sprintf('<input type="submit" value="%s" />', event_btn_ok),
- 			'request_abort'							=> sprintf('<input type="button" value="%s" onclick="javascript: window.location = \'%s\'; return false;" />', event_btn_abort, $this->page_link)
+ 			'event'										=> $parser_data,
+			'response'								=> ($this->isMessage()) ? $this->getMessage() : NULL,
+ 			'request'									=> $request,
  		);
  		
-  	$data = array_merge($data, $parser_data);
   	return $this->getTemplate('frontend.event.order.htt', $data);
   } // orderEvent()
   
@@ -700,12 +659,11 @@ class eventFrontend {
  	public function viewEventID($event_id=-1, $show_details=true) {
  		$show_details = (isset($_REQUEST[self::request_event_detail])) ? (bool) $_REQUEST[self::request_event_detail] : $show_details;
  		$event_id = (isset($_REQUEST[self::request_event_id])) ? (int) $_REQUEST[self::request_event_id] : $event_id;
- 		
- 		$template = ($show_details) ? 'frontend.event.detail.htt' : 'frontend.event.teaser.htt';
  		if (!$this->getEventData($event_id, $event_data, $parser_data)) return false;
- 		if (false == ($event = $this->getTemplate($template, $parser_data))) return false;
- 		$data = array('event' => $event);
- 		$data = array_merge($data, $parser_data);
+ 		$data = array(
+ 			'show_details' 	=> ($show_details) ? 1 : 0,
+ 			'event'					=> $parser_data 
+ 		);
  		return $this->getTemplate('frontend.view.id.htt', $data);
  	} // viewEventID()
  	
@@ -736,17 +694,20 @@ class eventFrontend {
  		$weekdays = explode(',', event_cfg_day_names);
  		$months = explode(',', event_cfg_month_names);
 		
- 		$data = array(
- 			'view'											=> 'day',
- 			'evt_view_day_date'					=> date(event_cfg_date_str, $dt),
- 			'evt_view_day_day'					=> date('j', $dt),
- 			'evt_view_day_day_zero'			=> date('d', $dt),
- 			'evt_view_day_day_name'			=> trim($weekdays[date('w', $dt)]),
- 			'evt_view_day_month_name'		=> trim($months[date('n', $dt)-1]),
- 			'evt_view_day_month'				=> date('n', $dt),
- 			'evt_view_day_month_zero'		=> date('m', $dt),
- 			'evt_view_day_year'					=> date('Y'),
- 			'evt_start_link'						=> $this->page_link
+ 		$day = array(
+ 			'date'					=> date(event_cfg_date_str, $dt),
+ 			'day'						=> date('j', $dt),
+ 			'day_zero'			=> date('d', $dt),
+ 			'day_name'			=> trim($weekdays[date('w', $dt)]),
+ 			'day_name_2'		=> substr(trim($weekdays[date('w', $dt)]), 1, 2),
+ 			'month_name'		=> trim($months[date('n', $dt)-1]),
+ 			'month_name_3'	=> substr(trim($months[date('n', $dt)-1]), 1, 3),
+ 			'month'					=> date('n', $dt),
+ 			'month_zero'		=> date('m', $dt),
+ 			'year'					=> date('Y', $dt),
+ 			'year_2'				=> date('y', $dt),
+ 			'week'					=> date('W', $dt),
+ 			'link_start'		=> $this->page_link
  		);
  		
  		$filter_group = '';
@@ -779,21 +740,17 @@ class eventFrontend {
  			$this->setError($dbEvent->getError());
  			return false;
  		}
- 		if (count($events) < 1) {
- 			// keine Treffer
- 			return $this->getTemplate('frontend.view.none.htt', $data);
- 		}
- 		$result = '';
- 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
- 		$template = ($show_details) ? 'frontend.event.detail.htt' : 'frontend.event.teaser.htt';
+ 		$event_items = array();
  		foreach ($events as $event) {
  			if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data)) return false;
- 			$result .= $this->getTemplate($template, $parser_data); 
+ 			$event_items[] = $parser_data;
  		}
- 		
- 		$data['events'] = $result;
- 		$data = array_merge($data, $parser_data); 		
- 		
+ 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
+ 		$data = array(
+ 			'day'						=> $day,
+ 			'show_details'	=> ($show_details) ? 1 : 0,
+ 			'events'				=> (count($events) > 0) ? $event_items : NULL
+ 		);
  		return $this->getTemplate('frontend.view.day.htt', $data);
  	} // viewEventDay()
   
@@ -831,38 +788,44 @@ class eventFrontend {
  			$next_month = $month;
  			$next_year = $year;
  		}
- 		
- 		$data = array(
- 			'view'															=> 'month',
- 			'evt_start_link'										=> $this->page_link,
- 			'evt_view_month_month'							=> $month,
- 			'evt_view_month_month_zero'					=> date('m', $dt),
- 			'evt_view_month_month_name'					=> $months[$month-1],
- 			'evt_view_month_year'								=> $year,
- 			'evt_view_month_prev_month_name'		=> $months[$prev_month],
- 			'evt_view_month_next_month_name'		=> $months[$next_month],
- 			'evt_view_month_prev_month_link'		=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s', 
- 																											$this->page_link,
- 																											self::request_action,
- 																											self::action_event,
- 																											self::request_event,
- 																											self::view_month,
- 																											self::request_month,
- 																											$prev_month+1,
- 																											self::request_year,
- 																											$prev_year),
- 			 'evt_view_month_next_month_link'		=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s', 
- 																											$this->page_link,
- 																											self::request_action,
- 																											self::action_event,
- 																											self::request_event,
- 																											self::view_month,
- 																											self::request_month,
- 																											$next_month+1,
- 																											self::request_year,
- 																											$next_year)																		
+ 		$data_month = array(
+ 			'month'									=> $month,
+ 			'month_zero'						=> date('m', $dt),
+ 			'month_name'						=> $months[$month-1],
+ 			'month_name_3'					=> substr($months[$month-1], 1, 3),
+ 			'year'									=> $year,
+ 			'year_2'								=> date('y', $dt),
+ 			'last_day'							=> date ('j', mktime(0, 0, 0, $month+1, 0, $year)),
+ 			'prev_month'						=> $prev_month+1,
+ 			'prev_month_zero'				=> sprintf('%02d', $prev_month+1),
+ 			'prev_month_name'				=> $months[$prev_month],
+ 			'prev_month_name_3'			=> substr($months[$prev_month], 1, 3),
+ 			'next_month'						=> $next_month,
+ 			'next_month_zero'				=> sprintf('%02d', $next_month),
+ 			'next_month_name'				=> $months[$next_month],
+ 			'next_month_name_3'			=> substr($months[$next_month], 1, 3),
+ 			'link_start'						=> $this->page_link,
+ 			'link_prev_month'				=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s', 
+ 																					$this->page_link,
+ 																					self::request_action,
+ 																					self::action_event,
+ 																					self::request_event,
+ 																					self::view_month,
+ 																					self::request_month,
+ 																					$prev_month+1,
+ 																					self::request_year,
+ 																					$prev_year),
+ 		  'link_next_month'				=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s', 
+ 																					$this->page_link,
+ 																					self::request_action,
+ 																					self::action_event,
+ 																					self::request_event,
+ 																					self::view_month,
+ 																					self::request_month,
+ 																					$next_month+1,
+ 																					self::request_year,
+ 																					$next_year)				
  		);
- 		
  		$filter_group = '';
  		$group = (isset($_REQUEST[self::param_group]) && !empty($_REQUEST[self::param_group])) ? $_REQUEST[self::param_group] : $this->params[self::param_group];
  		if (!empty($group)) {
@@ -894,20 +857,17 @@ class eventFrontend {
  			$this->setError($dbEvent->getError());
  			return false;
  		}
- 		if (count($events) < 1) {
- 			return $this->getTemplate('frontend.view.none.htt', $data);
- 		}
- 		
- 		$result = '';
- 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
- 		$template = ($show_details) ? 'frontend.event.detail.htt' : 'frontend.event.teaser.htt';
+ 		$event_items = array();
  		foreach ($events as $event) {
  			if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data)) return false;
- 			$result .= $this->getTemplate($template, $parser_data); 
- 		}
- 		
- 		$data['events'] = $result;
- 		$data = array_merge($data, $parser_data);
+ 			$event_items[] = $parser_data; 
+ 		} 		
+ 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
+ 		$data = array(
+ 			'show_details'		=> ($show_details) ? 1 : 0,
+ 			'month'						=> $data_month,
+ 			'events'					=> (count($events) > 0) ? $event_items : NULL
+ 		);
 		return $this->getTemplate('frontend.view.month.htt', $data); 		
  	} // viewEventMonth()
  	
@@ -940,44 +900,44 @@ class eventFrontend {
  		$prev_date = mktime(0,0,0,$month,$monday-7,$year);
  		$next_date = mktime(0,0,0,$month,$monday+7,$year);
  		
- 		$data = array(
- 			'view'													=> 'week',
- 			'evt_start_link'								=> $this->page_link,
- 			'evt_view_week_monday'					=> date('j', $dt),
- 			'evt_view_week_monday_zero'			=> date('d', $dt),
- 			'evt_view_week_sunday'					=> date('j', mktime(0,0,0,$month,$monday+6,$year)),
- 			'evt_view_week_sunday_zero'			=> date('d', mktime(0,0,0,$month,$monday+6,$year)),
- 			'evt_view_week_week'						=> (int) date('W', $dt),
- 			'evt_view_week_week_zero'				=> date('W', $dt),
- 			'evt_view_week_year'						=> date('Y', $dt),
- 			'evt_view_week_month'						=> date('n', $dt),
- 			'evt_view_week_month_zero'			=> date('m', $dt),
- 			'evt_view_week_month_name'			=> $months[date('n')-1],
- 			'evt_view_week_prev_week_link'	=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s',
- 																									$this->page_link,
- 																									self::request_action,
- 																									self::action_event,
- 																									self::request_event,
- 																									self::view_week,
- 																									self::request_month,
- 																									date('n', $prev_date),
- 																									self::request_day,
- 																									date('j', $prev_date),
- 																									self::request_year,
- 																									date('Y', $prev_date)),
- 			'evt_view_week_next_week_link'	=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s',
- 																									$this->page_link,
- 																									self::request_action,
- 																									self::action_event,
- 																									self::request_event,
- 																									self::view_week,
- 																									self::request_month,
- 																									date('n', $next_date),
- 																									self::request_day,
- 																									date('j', $next_date),
- 																									self::request_year,
- 																									date('Y', $next_date))
- 																									
+ 		$week = array(
+ 			'monday'					=> date('j', $dt),
+ 			'monday_zero'			=> date('d', $dt),
+ 			'sunday'					=> date('j', mktime(0,0,0,$month,$monday+6,$year)),
+ 			'sunday_zero'			=> date('d', mktime(0,0,0,$month,$monday+6,$year)),
+ 			'week'						=> (int) date('W', $dt),
+ 			'week_zero'				=> date('W', $dt),
+ 			'year'						=> date('Y', $dt),
+ 			'year_2'					=> date('y', $dt),
+ 			'month'						=> date('n', $dt),
+ 			'month_zero'			=> date('m', $dt),
+ 			'month_name'			=> $months[date('n')-1],
+ 			'month_name_3'		=> substr($months[date('n')-1], 1, 3),
+ 			'link_prev_week'	=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s',
+ 																		$this->page_link,
+ 																		self::request_action,
+ 																		self::action_event,
+ 																		self::request_event,
+ 																		self::view_week,
+ 																		self::request_month,
+ 																		date('n', $prev_date),
+ 																		self::request_day,
+ 																		date('j', $prev_date),
+ 																		self::request_year,
+ 																		date('Y', $prev_date)),
+ 			'link_next_week'	=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s',
+ 																		$this->page_link,
+ 																		self::request_action,
+ 																		self::action_event,
+ 																		self::request_event,
+ 																		self::view_week,
+ 																		self::request_month,
+ 																		date('n', $next_date),
+ 																		self::request_day,
+ 																		date('j', $next_date),
+ 																		self::request_year,
+ 																		date('Y', $next_date)),							
+ 			'link_start'			=> $this->page_link,
  		);
  		
  		$filter_group = '';
@@ -1011,20 +971,17 @@ class eventFrontend {
  			$this->setError($dbEvent->getError());
  			return false;
  		}
- 		if (count($events) < 1) {
- 			return $this->getTemplate('frontend.view.none.htt', $data);
- 		}
- 		
- 		$result = '';
- 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
- 		$template = ($show_details) ? 'frontend.event.detail.htt' : 'frontend.event.teaser.htt';
+ 		$event_items = array();
  		foreach ($events as $event) {
  			if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data)) return false;
- 			$result .= $this->getTemplate($template, $parser_data); 
+ 			$event_items[] = $parser_data; 
  		}
- 		
- 		$data['events'] = $result;
- 		$data = array_merge($data, $parser_data);
+ 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
+ 		$data = array(
+ 			'show_details'	=> ($show_details) ? 1 : 0,
+ 			'events'				=> (count($events) > 0) ? $event_items : NULL,
+ 			'week'					=> $week
+ 		);
  		return $this->getTemplate('frontend.view.week.htt', $data);
  	} // viewEventWeek()
  	
@@ -1071,19 +1028,16 @@ class eventFrontend {
  			$this->setMessage(sprintf(event_msg_no_event_at_date, $months[$month-1]));
  			return $this->getMessage();
  		}
- 		
- 		$result = '';
- 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
- 		$template = ($show_details) ? 'frontend.event.detail.htt' : 'frontend.event.teaser.htt';
+ 		$event_items = array();
  		foreach ($events as $event) {
  			if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data)) return false;
- 			$result .= $this->getTemplate($template, $parser_data); 
+ 			$event_items[] = $parser_data;
  		}
- 		
+ 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
  		$data = array(
- 			'events'			=> $result
+ 			'events' 				=> $event_items,
+ 			'show_details'	=> ($show_details) ? 1 : 0
  		);
- 		$data = array_merge($data, $parser_data);
  		return $this->getTemplate('frontend.view.active.htt', $data);
  	} // viewEventActive
  	

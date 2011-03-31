@@ -1,17 +1,30 @@
-<!-- $Id: frontend.view.week.htt 5 2011-03-19 16:42:19Z phpmanufaktur $ -->
 <div id="evt_view_week">
-  <h2>Übersicht über die Veranstaltungen in der {$evt_view_week_week}. Kalenderwoche</h2>
-  <p>Woche: {$evt_view_week_week_zero}</p>
-  <p>Jahr: {$evt_view_week_year}</p>
-  <p>Monat: {$evt_view_week_month}</p>
-  <p>Monat: {$evt_view_week_month_zero}</p>
-  <p>Monat: {$evt_view_week_month_name}</p>
-  <p>Montag: {$evt_view_week_monday}</p>
-  <p>Montag: {$evt_view_week_monday_zero}</p>
-  <p>Sonntag: {$evt_view_week_sunday}</p>
-  <p>Sonntag: {$evt_view_week_sunday_zero}</p>
-  <p><a href="{$evt_view_week_prev_week_link}">Vorherige Woche</a></p>
-  <p><a href="{$evt_view_week_next_week_link}">Nächste Woche</a></p>
-  {$events}
-  <p><a href="{$evt_start_link}">Zur Übersicht...</a></p>
+  <h2>Übersicht über die Veranstaltungen in der {$week.week}. Kalenderwoche</h2>
+  <p>Woche: {$week.week_zero}</p>
+  <p>Jahr: {$week.year}</p>
+  <p>Monat: {$week.month}</p>
+  <p>Monat: {$week.month_zero}</p>
+  <p>Monat: {$week.month_name}</p>
+  <p>Montag: {$week.monday}</p>
+  <p>Montag: {$week.monday_zero}</p>
+  <p>Sonntag: {$week.sunday}</p>
+  <p>Sonntag: {$week.sunday_zero}</p>
+  <p><a href="{$week.link_prev_week}">Vorherige Woche</a></p>
+  <p><a href="{$week.link_next_week}">Nächste Woche</a></p>
+  {if isset($events)}
+    <p>Veranstaltungen:</p>
+    {foreach $events event}
+      {if $show_details == 1}
+        {include('frontend.event.detail.htt')}
+      {else}
+        {include('frontend.event.teaser.htt')}
+      {/if}
+    {/foreach}
+  {else}
+    {* es liegen keine Termine für diese Woche vor *}
+    <h2>Veranstaltungen</h2>
+    <p>Sorry, für die {$week.week}. Kalenderwoche sind leider keine Veranstaltungen geplant.</p>
+    <p>Bitte besuchen Sie uns nächste Woche wieder!</p>
+  {/if}
+  <p><a href="{$week.link_start}">Zur Übersicht...</a></p>
 </div>

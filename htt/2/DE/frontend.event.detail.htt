@@ -1,4 +1,19 @@
-<!-- $Id: frontend.event.detail.htt 6 2011-03-20 08:11:21Z phpmanufaktur $ -->
+{*
+  kitEvent
+
+  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+  @link http://phpmanufaktur.de
+  @copyright 2011
+  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+  @version $Id: backend.about.htt 8 2011-03-23 11:49:27Z phpmanufaktur $
+
+  Dieses Template wird eingebunden um die detailierten Informationen zu dem
+  jeweiligen Termin anzuzeigen.
+
+  Verfügbare Variablen:
+  - siehe Beschreibung bei frontend.event.teaser.htt -
+
+ *}
 <div class="evt_detail">
   <table width="100%">
     <colgroup>
@@ -13,13 +28,13 @@
          * dem Monat angezeigt. Das Datum wird sn Sonntagen anders formatiert.
         *}
         <div class="evt_cal_sheet_img">
-          <div class="evt_cal_sheet_month">{$evt_start_month}</div>          
-          {if $evt_start_day_of_week == "Sonntag"}
-            <div class="evt_cal_sheet_day_holiday">{$evt_start_day}</div>
+          <div class="evt_cal_sheet_month">{$event.start.month_name}</div>
+          {if $event.start.day_name == "Sonntag"}
+            <div class="evt_cal_sheet_day_holiday">{$event.start.day}</div>
           {else}
-            <div class="evt_cal_sheet_day">{$evt_start_day}</div>
+            <div class="evt_cal_sheet_day">{$event.start.day}</div>
           {/if}
-          <div class="evt_cal_sheet_day_name">{$evt_start_day_of_week}</div>
+          <div class="evt_cal_sheet_day_name">{$event.start.day_name}</div>
         </div>
       </td>
       <td class="evt_cal_content">
@@ -29,15 +44,15 @@
          * Beschreibung der Veranstaltung sowie die zusätzlichen Angaben
          * ausgegeben.
          *}
-        <div class="evt_cal_group_desc">{$evt_group_desc}</div>
-        <div class="evt_cal_headline">{$evt_headline}</div>
-        {$evt_desc_long}
+        <div class="evt_cal_group_desc">{$event.group_desc}</div>
+        <div class="evt_cal_headline">{$event.headline}</div>
+        {$event.desc_long}
         {*
          * Die Angaben zu Termin, Zielgruppe, Anzahl Teilnehmer etc. sind von der Gruppe
          * abhängig. Für Termine der phpManufaktur sowie der Usergroup wird eine
          * Tabelle angezeigt und verschiedene Felder bereits vorbelegt.
         *}
-        {if $evt_group_name == "WBUG" || $evt_group_name == "phpManufaktur" }
+        {if $event.group_name == "WBUG" || $event.group_name == "phpManufaktur" }
           <table width="100%">
             <colgroup>
               <col width="90" />
@@ -45,10 +60,10 @@
             </colgroup>
             <tr>
               <td class="evt_cal_sheet_table_label">Termin</td>
-              <td class="evt_cal_sheet_table_value">{$evt_start_day_of_week}, <b>{$evt_start_date}</b> von <b>{$evt_start_time} - {$evt_end_time} Uhr</b></td>
+              <td class="evt_cal_sheet_table_value">{$event.start.day_name}, <b>{$event.start.date}</b> von <b>{$event.start.time} - {$event.end.time} Uhr</b></td>
             </tr>
             {* Die Angaben zur Usergroup und Veranstaltungen der phpManufaktur unterscheiden sich ein wenig... *}
-            {if $evt_group_name == "WBUG"}
+            {if $event.group_name == "WBUG"}
               <tr>
                 <td class="evt_cal_sheet_table_label">Ort</td>
                 <td class="evt_cal_sheet_table_value"><a href="http://www.stz-pankow.de/index.php?id=9">Stadtteilzentrum Pankow (STZ), Schönholzer Str. 10</a></td>
@@ -63,19 +78,19 @@
               </tr>
               <tr>
                 <td class="evt_cal_sheet_table_label">Information</td>
-                <td class="evt_cal_sheet_table_value">Erfahren Sie mehr über die <a href="{$evt_desc_link}">WebsiteBaker Usergroup Berlin</a>!</td>
+                <td class="evt_cal_sheet_table_value">Erfahren Sie mehr über die <a href="{$event.link_desc}">WebsiteBaker Usergroup Berlin</a>!</td>
               </tr>
               <tr>
                 <td class="evt_cal_sheet_table_label">Teilnehmer</td>
-                <td class="evt_cal_sheet_table_value">max. <b>{$evt_participants_max}</b></td>
+                <td class="evt_cal_sheet_table_value">max. <b>{$event.participants_max}</b></td>
               </tr>
               <tr>
                 <td class="evt_cal_sheet_table_label">Kosten</td>
-                <td class="evt_cal_sheet_table_value"><b>{$evt_costs}</b> <i>(für die Raummiete, Beamer, Getränke etc.)</i></td>
+                <td class="evt_cal_sheet_table_value"><b>{$event.costs} &euro;</b> <i>(für die Raummiete, Beamer, Getränke etc.)</i></td>
               </tr>
               <tr>
                 <td class="evt_cal_sheet_table_label">Anmeldung</td>
-                <td class="evt_cal_sheet_table_value">bis zum <b>{$evt_deadline}</b>, <b><a href="{$evt_order_link}">Anmeldeformular</a></b></td>
+                <td class="evt_cal_sheet_table_value">bis zum <b>{$event.deadline_date}</b>, <b><a href="{$event.link_order}">Anmeldeformular</a></b></td>
               </tr>              
             {else}
               <tr>
@@ -92,20 +107,20 @@
               </tr>
               <tr>
                 <td class="evt_cal_sheet_table_label">Teilnehmer</td>
-                <td class="evt_cal_sheet_table_value">mind. <b>2</b>, max. <b>{$evt_participants_max}</b> Teilnehmer</td>
+                <td class="evt_cal_sheet_table_value">mind. <b>2</b>, max. <b>{$event.participants_max}</b> Teilnehmer</td>
               </tr>
               <tr>
                 <td class="evt_cal_sheet_table_label">Kosten</td>
-                <td class="evt_cal_sheet_table_value"><b>{$evt_costs}</b></td>
+                <td class="evt_cal_sheet_table_value"><b>{$event.costs} &euro;</b></td>
               </tr>
               {* automatische Berechnung der Gebühr bei Buchung als Einzelkurs... *}
               <tr>
                 <td class="evt_cal_sheet_table_label"></td>
-                <td class="evt_cal_sheet_table_value"><i>Sie können diesen Workshop auch als <b>Einzelkurs</b> buchen, Sie zahlen in diesem Fall <b>{math "$evt_costs*2"},00 &euro;</b>.</i></td>
+                <td class="evt_cal_sheet_table_value"><i>Sie können diesen Workshop auch als <b>Einzelkurs</b> buchen, Sie zahlen in diesem Fall <b>{math "$event.costs*2"},00 &euro;</b>.</i></td>
               </tr>
               <tr>
                 <td class="evt_cal_sheet_table_label">Anmeldung</td>
-                <td class="evt_cal_sheet_table_value">bis zum <b>{$evt_deadline}</b>, <b><a href="{$evt_order_link}">Anmeldeformular</a></b></td>
+                <td class="evt_cal_sheet_table_value">bis zum <b>{$event.deadline_date}</b>, <b><a href="{$event.link_order}">Anmeldeformular</a></b></td>
               </tr>
             {/if}
           </table>
@@ -118,11 +133,11 @@
          * farbigen Streifen sowie einen beschreibenden Schriftzug passend zu
          * der jeweiligen Gruppe auszugeben.
          *}
-      {if $evt_group_name == "WBUG"}
+      {if $event.group_name == "WBUG"}
         <td class="evt_cal_group_wbug"></td>
-      {elseif $evt_group_name == "phpManufaktur"}
+      {elseif $event.group_name == "phpManufaktur"}
         <td class="evt_cal_group_phpmanufaktur"></td>
-      {elseif $evt_group_name == "Extern"}
+      {elseif $event.group_name == "Extern"}
         <td class="evt_cal_group_extern"></td>
       {else}
         <td class="evt_cal_group_none"></td>

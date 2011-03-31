@@ -3,6 +3,11 @@ kitEvent
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+Release 0.25
+2011-03-26
+New BETA Release, start adding and changing basic function which are not
+compatible to the previous releases
+
 Release 0.10 - 0.24
 2011-03-25
 Special edition, non-public

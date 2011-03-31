@@ -1,4 +1,16 @@
-<!-- $Id: frontend.view.active.htt 6 2011-03-20 08:11:21Z phpmanufaktur $ -->
+{*
+  kitEvent
+
+  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+  @link http://phpmanufaktur.de
+  @copyright 2011
+  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+  @version $Id: backend.about.htt 8 2011-03-23 11:49:27Z phpmanufaktur $
+
+  Dieses Template wird aufgerufen um die aktuellen Events des Anbieters
+  anzuzeigen. Abhängig von der Konfiguration werden entweder die zusammgefassten
+  oder die ausführlichen Informationen zu den vorhandenen Terminen angezeigt.
+ *}
 <div id="evt_view_active">
   <h2>Aktuelle Workshops und Termine</h2>
   <div class="evt_view_intro">
@@ -10,7 +22,13 @@
     <img src="<?php echo WB_URL; ?>/modules/kit_event/htt/2/DE/img/rh_schriftzug_small.png" width="250" height="40" alt="Ralf Hertsch" />
   </div>
   <div class="evt_view_event">
-    {$events}
+    {foreach $events event}
+      {if $show_details == 1}
+        {include('frontend.event.detail.htt')}
+      {else}
+        {include('frontend.event.teaser.htt')}
+      {/if}
+    {/foreach}
   </div>
   <div class="evt_price_info">Alle Preisangaben verstehen sich brutto, einschließlich der gesetzlichen Umsatzssteuer von z.Zt. 19%.</div>
 </div>
