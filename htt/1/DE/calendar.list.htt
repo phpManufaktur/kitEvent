@@ -59,7 +59,7 @@
        <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_zero}.{$date.start_month_zero}./{$date.end_day_zero}.{$date.end_month_zero}.{$date.end_year}</a></div>
      {else}
        {* wird für Termine verwendet, die am gleichen Tag beginnen und enden... *}
-       <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_zero}.{$date.start_month_zero}.{$date.start_year}</a></div>
+       <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_zero}.{$date.start_month_zero}.{$date.start_year}</a> {$date.event.headline}</div>
      {/if}
    {/foreach}
  </div>
