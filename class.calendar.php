@@ -251,7 +251,7 @@ class monthlyCalendar {
 		$month_name = $this->getMonthName($month);
 		
 		if ($this->params[self::param_response_id] > 0) {
-			$eventTools->getUrlByPageID($this->params[self::param_response_id], $this->response_link);
+			$eventTools->getUrlByPageID($this->params[self::param_response_id], $this->response_link, true);
 		}
 		else {
 			$this->response_link = $this->page_link;
@@ -437,7 +437,7 @@ class monthlyCalendar {
 		}
 		
 		if ($this->params[self::param_response_id] > 0) {
-			$eventTools->getUrlByPageID($this->params[self::param_response_id], $this->response_link);
+			$eventTools->getUrlByPageID($this->params[self::param_response_id], $this->response_link, true);
 		}
 		else {
 			$this->response_link = $this->page_link;

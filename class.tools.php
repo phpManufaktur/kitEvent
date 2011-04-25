@@ -289,9 +289,9 @@ class kitEventTools {
    * @param REFERENCE $url
    * @return BOOLEAN
    */
-  public function getUrlByPageID($pageID, &$url) {
+  public function getUrlByPageID($pageID, &$url, $ignore_topics=false) {
   	global $database;
-  	if (isset($_REQUEST['topics_title']) && defined('TOPIC_ID')) {
+  	if (!$ignore_topics && isset($_REQUEST['topics_title']) && defined('TOPIC_ID')) {
   		// es handelt sich um eine TOPICS Seite
   		$SQL = sprintf("SELECT link FROM %smod_topics WHERE topic_id='%d'", TABLE_PREFIX, TOPIC_ID);
   		if (false !== ($link = $database->get_one($SQL))) {

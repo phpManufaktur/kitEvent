@@ -105,6 +105,7 @@ define('event_msg_group_name_empty',							'<p>Der Gruppen Bezeichner darf nicht
 define('event_msg_group_updated',									'<p>Die Gruppe mit der <b>ID %03d</b> wurde aktualisiert!');
 define('event_msg_invalid_email',									'<p>Die E-Mail Adresse <b>%s</b> ist nicht gültig, bitte prüfen Sie Ihre Eingabe.</p>');
 define('event_msg_must_city',											'<p>Bitte geben Sie die <b>Stadt</b> an.</p>');
+define('event_msg_must_data_privacy',							'<p>Bitte bestätigen Sie, dass Sie unsere <b>Datenschutzerklärung</b> akzeptieren.</p>');
 define('event_msg_must_first_name',								'<p>Bitte geben Sie Ihren <b>Vornamen</b> an.</p>');
 define('event_msg_must_last_name',								'<p>Bitte geben Sie Ihren <b>Nachnamen</b> an.</p>');
 define('event_msg_must_phone',										'<p>Bitte geben Sie eine <b>Telefonnummer</b> an.</p>');

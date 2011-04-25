@@ -26,6 +26,7 @@ class eventFrontend {
 	const request_event_id			= 'id';
 	const request_event_detail	= 'det';
 	const request_free_fields		= 'ff';
+	const request_perma_link		= 'perl';
 	
 	const request_must_fields	= 'mf';
 
@@ -41,6 +42,7 @@ class eventFrontend {
 	const request_best_time		= 'bt';
 	const request_confirm			= 'con';
 	const request_terms				= 'trm';
+	const request_privacy			= 'prv';
 	const request_message			= 'msg';
 	const request_captcha			= 'cpt';
 	
@@ -54,6 +56,8 @@ class eventFrontend {
 	const param_preset				= 'preset';
 	const param_detail				= 'detail';
 	const param_group					= 'group';
+	const param_event_id			= 'event_id';
+	const param_response_id		= 'response_id'; // noch inaktiv!!!
 	
 	const view_id							= 'id';
 	const view_day						= 'day';
@@ -65,7 +69,9 @@ class eventFrontend {
 		self::param_view				=> self::view_active,
 		self::param_preset			=> 1, 
 		self::param_detail			=> false,
-		self::param_group				=> ''
+		self::param_group				=> '',
+		self::param_event_id		=> -1,
+		self::param_response_id => -1
 	);
 	
 	private $template_path;
@@ -220,6 +226,12 @@ class eventFrontend {
    			$_REQUEST[$key] = $this->xssPrevent($value);
   		} 
   	}
+  	if ((isset($_REQUEST[self::request_perma_link]) && is_numeric($_REQUEST[self::request_perma_link])) || ($this->params[self::param_event_id] !== -1)) {
+  		$_REQUEST[self::request_action] = self::action_event;
+  		$_REQUEST[self::request_event] = self::view_id;
+  		$_REQUEST[self::request_event_id] = (isset($_REQUEST[self::request_perma_link]) && is_numeric($_REQUEST[self::request_perma_link])) ? $_REQUEST[self::request_perma_link] : $this->params[self::param_event_id];
+  		$_REQUEST[self::request_event_detail] = (isset($_REQUEST[self::request_event_detail])) ? $_REQUEST[self::request_event_detail] : $this->params[self::param_detail];
+  	}
     isset($_REQUEST[self::request_action]) ? $action = $_REQUEST[self::request_action] : $action = self::action_default;
     if (isset($_REQUEST[self::request_event])) $action = self::action_event;
   	switch ($action):
@@ -363,7 +375,8 @@ class eventFrontend {
  			'link_desc'								=> stripslashes($event_data[dbEventItem::field_desc_link]),
  			'link_order'							=> sprintf('%s?%s=%s&%s=%s', $this->page_link, self::request_action, self::action_order, self::request_event_id, $event_id),
   		'link_detail'							=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_event, self::request_event_id, $event_id, self::request_event, self::view_id, self::request_event_detail, 1),
-  		'link_start'							=> $this->page_link
+  		'link_start'							=> $this->page_link,
+ 			'link_permanent'					=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_event, self::request_event_id, $event_id, self::request_event, self::view_id, self::request_event_detail, 1)
  		);
  		return true;
   } // getEventData()
@@ -393,13 +406,11 @@ class eventFrontend {
   	$mf = strtolower($_REQUEST[self::request_must_fields]);
   	$mf = str_replace(' ', '', $mf);
   	$must_fields = explode(',', $mf);
-//if (!in_array(self::must_email, $must_fields)) $must_fields[] = self::must_email;
- 		if (!in_array(self::request_email, $must_fields)) $must_fields = self::request_email;
- 		 	
+ 		if (!in_array(self::request_email, $must_fields)) $must_fields[] = self::request_email;
   	$message = '';
   	foreach ($must_fields as $must_field) {
   		switch ($must_field):
-  		case self::request_captcha:
+  		case self::request_captcha: 
 		  	if (!isset($_REQUEST['captcha']) || ($_REQUEST['captcha'] != $_SESSION['captcha'])) $message .= event_msg_captcha_invalid;
 				break;
   		case self::request_city:
@@ -424,6 +435,9 @@ class eventFrontend {
   			break;
   		case self::request_terms:
   			if (!isset($_REQUEST[self::request_terms])) $message .= event_msg_must_terms_and_conditions;
+  			break;
+  		case self::request_privacy:
+  			if (!isset($_REQUEST[self::request_privacy])) $message .= event_msg_must_data_privacy;
   			break;
   		case self::request_zip:
   			if (!isset($_REQUEST[self::request_zip]) || empty($_REQUEST[self::request_zip])) $message .= event_msg_must_zip;
@@ -589,6 +603,7 @@ class eventFrontend {
  			'message'				=> self::request_message,
  			'confirm_order'	=> self::request_confirm,
  			'confirm_terms'	=> self::request_terms,
+ 			'confirm_privacy' => self::request_privacy,
  			'free_1'				=> dbEventOrder::field_free_1,
  			'free_2'				=> dbEventOrder::field_free_2,
  			'free_3'				=> dbEventOrder::field_free_3,
@@ -606,7 +621,6 @@ class eventFrontend {
 		ob_end_clean();
 		$request['captcha']['name'] = self::request_captcha;
 		$request['captcha']['print'] = $call_captcha;
-		
  		$data = array(
  			'form_name'								=> 'event_order',
  			'form_action'							=> $this->page_link,

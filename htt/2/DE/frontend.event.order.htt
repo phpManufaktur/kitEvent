@@ -51,7 +51,7 @@
   <form name="{$form_name}" action="{$form_action}" method="post">
     <input type="hidden" name="{$action_name}" value="{$action_value}" />
     <input type="hidden" name="{$event_name}" value="{$event_value}" />
-    <input type="hidden" name="{$must_fields_name}" value="{$request.captcha.name}{$request.email.name},{$request.confirm_terms.name}" />
+    <input type="hidden" name="{$must_fields_name}" value="{$request.captcha.name}{$request.email.name}" />
     <input type="hidden" name="{$define_free_fields}" value="" />
     <h2>Anmeldung: {$event.headline}</h2>
     {* $request_response ermöglicht es dem Programm bei Bedarf Meldungen einzublenden,
@@ -65,7 +65,6 @@
       <div class="message">{$response}</div>
     {/if}
     <div class="evt_order_event_desc">
-      <p><b>Veranstaltung:</b></p>
       {$event.desc_short}
     </div>
     <table width="100%">
@@ -109,7 +108,7 @@
       {/if}
       <tr>
         <td class="evt_order_label">Kosten</td>
-        <td class="evt_order_value">{$evt_costs} &euro;</td>
+        <td class="evt_order_value">{$event.costs} &euro;</td>
         <td class="evt_order_help">Alle Preisangaben verstehen sich <b>pro Teilnehmer</b> und brutto, einschließlich der gesetzlichen Umsatzsteuer von z.Zt. 19%.</td>
       </tr>
       <tr>
