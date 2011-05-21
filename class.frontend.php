@@ -1039,7 +1039,7 @@ class eventFrontend {
  			return false;
  		}
  		if (count($events) < 1) {
- 			$this->setMessage(sprintf(event_msg_no_event_at_date, $months[$month-1]));
+ 			$this->setMessage(sprintf(event_msg_no_event_at_date, $months[date('n')-1]));//$months[$month-1]));
  			return $this->getMessage();
  		}
  		$event_items = array();
