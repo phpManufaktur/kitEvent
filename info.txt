@@ -3,6 +3,10 @@ kitEvent
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+Release 0.26
+2011-05-22
+Added interaction with droplet_extension, enabling full WebsiteBaker search and adding header information on detail page (title, description, keywords)
+
 Release 0.25
 2011-03-26
 New BETA Release, start adding and changing basic function which are not

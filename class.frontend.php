@@ -16,6 +16,7 @@ if (!defined('WB_PATH')) die('invalid call of '.$_SERVER['SCRIPT_NAME']);
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/initialize.php');
 require_once(WB_PATH.'/include/captcha/captcha.php');
 require_once(WB_PATH.'/framework/class.wb.php');
+require_once(WB_PATH.'/modules/droplet_extension/interface.php');
 
 class eventFrontend {
 	const request_action				= 'act';
@@ -58,6 +59,8 @@ class eventFrontend {
 	const param_group					= 'group';
 	const param_event_id			= 'event_id';
 	const param_response_id		= 'response_id'; // noch inaktiv!!!
+	const param_search				= 'search';
+	const param_header				= 'header';
 	
 	const view_id							= 'id';
 	const view_day						= 'day';
@@ -71,7 +74,9 @@ class eventFrontend {
 		self::param_detail			=> false,
 		self::param_group				=> '',
 		self::param_event_id		=> -1,
-		self::param_response_id => -1
+		self::param_response_id => -1,
+		self::param_search			=> false,
+		self::param_header			=> false
 	);
 	
 	private $template_path;
@@ -645,6 +650,14 @@ class eventFrontend {
  		}
  		$event_view = (isset($_REQUEST[self::request_event])) ? strtolower(trim($_REQUEST[self::request_event])) : $show_view;
  		$event_view = trim(strtolower($event_view));
+ 		
+ 		if (function_exists('is_registered_droplet_search') && ($this->params[self::param_search] && !is_registered_droplet_search('kit_event'))) {
+	 		register_droplet_search('kit_event', PAGE_ID, 'kit_event');
+ 		}
+ 		if (function_exists('is_registered_droplet_header') && ($this->params[self::param_header] && !is_registered_droplet_header('kit_event'))) { 
+	 		register_droplet_header('kit_event', PAGE_ID, 'kit_event');
+ 		}
+ 		 
  		
  		switch ($event_view):
  		case self::view_id:

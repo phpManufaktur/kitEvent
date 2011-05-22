@@ -18,9 +18,11 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.frontend.php')) {
 	$params[eventFrontend::param_detail] = (isset($detail) && (strtolower($detail) == 'true')) ? true : false;
 	$params[eventFrontend::param_group] = (isset($group) && !empty($group)) ? $group : ''; 
 	$params[eventFrontend::param_event_id] = (isset($event_id) && !empty($event_id)) ? $event_id : -1;
-	$event->setParams($params);
+	$params[eventFrontend::param_search] = (isset($search) && strtolower($search) == 'true') ? true : false;  
+  $params[eventFrontend::param_header] = (isset($header) && strtolower($header) == 'true') ? true : false;  
+  $event->setParams($params);
 	return $event->action();
 }
 else {
-	return "kitEvent is not installed!";
+	return "kitEvent is not installed!"; 
 }

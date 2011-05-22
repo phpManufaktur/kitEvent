@@ -133,6 +133,7 @@ define('event_tab_messages',											'Mitteilungen');
 
 define('event_text_create_new_group',							'- neue Gruppe erstellen -');
 define('event_text_back',													'Zurück...');
+define('event_text_hour',													'Uhr');
 define('event_text_yes',													'JA');
 define('event_text_no',														'NEIN');
 define('event_text_no_group',											'- keine Gruppe -');
