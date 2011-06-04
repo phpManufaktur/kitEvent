@@ -20,6 +20,7 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.frontend.php')) {
 	$params[eventFrontend::param_event_id] = (isset($event_id) && !empty($event_id)) ? $event_id : -1;
 	$params[eventFrontend::param_search] = (isset($search) && strtolower($search) == 'true') ? true : false;  
   $params[eventFrontend::param_header] = (isset($header) && strtolower($header) == 'true') ? true : false;  
+  $params[eventFrontend::param_css] = (isset($load_css) && strtolower($load_css) == 'false') ? false : true;  
   $event->setParams($params);
 	return $event->action();
 }

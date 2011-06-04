@@ -16,7 +16,10 @@ if (!defined('WB_PATH')) die('invalid call of '.$_SERVER['SCRIPT_NAME']);
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/initialize.php');
 require_once(WB_PATH.'/include/captcha/captcha.php');
 require_once(WB_PATH.'/framework/class.wb.php');
-require_once(WB_PATH.'/modules/droplet_extension/interface.php');
+// Connect with DropletsExtension Interface
+if (file_exists(WB_PATH.'/modules/droplets_extension/interface.php')) {
+	require_once(WB_PATH.'/modules/droplets_extension/interface.php');
+}
 
 class eventFrontend {
 	const request_action				= 'act';
@@ -61,6 +64,7 @@ class eventFrontend {
 	const param_response_id		= 'response_id'; // noch inaktiv!!!
 	const param_search				= 'search';
 	const param_header				= 'header';
+	const param_css						= 'css';
 	
 	const view_id							= 'id';
 	const view_day						= 'day';
@@ -76,7 +80,8 @@ class eventFrontend {
 		self::param_event_id		=> -1,
 		self::param_response_id => -1,
 		self::param_search			=> false,
-		self::param_header			=> false
+		self::param_header			=> false,
+		self::param_css					=> true
 	);
 	
 	private $template_path;
@@ -302,7 +307,7 @@ class eventFrontend {
    * @param REFERENCE ARRAY $parser_data
    * @return BOOL true on success
    */
-  private function getEventData($event_id, &$event_data=array(), &$event_parser=array()) {
+  public function getEventData($event_id, &$event_data=array(), &$event_parser=array()) {
   	global $dbEvent;
   	global $dbEventItem;
   	global $dbEventGroup;
@@ -651,14 +656,17 @@ class eventFrontend {
  		$event_view = (isset($_REQUEST[self::request_event])) ? strtolower(trim($_REQUEST[self::request_event])) : $show_view;
  		$event_view = trim(strtolower($event_view));
  		
- 		if (function_exists('is_registered_droplet_search') && ($this->params[self::param_search] && !is_registered_droplet_search('kit_event'))) {
+ 		// Register Droplet for the WebsiteBaker Search Function
+ 		if (function_exists('is_registered_droplet_search') && ($this->params[self::param_search] && !is_registered_droplet_search('kit_event', PAGE_ID))) {
 	 		register_droplet_search('kit_event', PAGE_ID, 'kit_event');
  		}
- 		if (function_exists('is_registered_droplet_header') && ($this->params[self::param_header] && !is_registered_droplet_header('kit_event'))) { 
+ 		if (function_exists('is_registered_droplet_header') && ($this->params[self::param_header] && !is_registered_droplet_header('kit_event', PAGE_ID))) { 
 	 		register_droplet_header('kit_event', PAGE_ID, 'kit_event');
  		}
+ 		if (function_exists('is_registered_droplet_css') && ($this->params[self::param_css] && !is_registered_droplet_css('kit_event', PAGE_ID))) { 
+	 		register_droplet_css('kit_event', PAGE_ID, 'kit_event', 'frontend.css');
+ 		}
  		 
- 		
  		switch ($event_view):
  		case self::view_id:
  			$result = $this->viewEventID();
