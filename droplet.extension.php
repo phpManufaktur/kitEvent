@@ -40,7 +40,10 @@ if (!function_exists('kit_event_droplet_search')) {
 		$htt_path = WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/htt/';
 		$tpl_title = new Dwoo_Template_File($htt_path.'search.result.title.htt');
 		$tpl_description = new Dwoo_Template_File($htt_path.'search.result.description.htt');
+	  $frontend = new eventFrontend();
+		
 		foreach ($events as $event) {
+	    $frontend->getEventData($event[dbEvent::field_id], $event_data, $parser_data);
 			$result[] = array(
 				'url'						=> $page_url,
 				'params'				=> http_build_query(array(eventFrontend::request_action 			=> eventFrontend::action_event,
@@ -49,14 +52,15 @@ if (!function_exists('kit_event_droplet_search')) {
 																									eventFrontend::request_event_detail => 1)), 
 				'title'					=> $parser->get($tpl_title, array('date_time' => sprintf('%s %s', date(event_cfg_datetime_str, strtotime($event[dbEvent::field_event_date_from])), event_text_hour),
 																													'title'			=> $event[dbEventItem::field_title])), 
-				'description'		=> $parser->get($tpl_description, array('description' => strip_tags($event[dbEventItem::field_desc_short]))),
+				'description'		=> $parser->get($tpl_description, array('description' => strip_tags($event[dbEventItem::field_desc_short]),
+	                                                              'event'       => $parser_data)),
 				'text'					=> strip_tags($event[dbEventItem::field_desc_short]).' '.strip_tags($event[dbEventItem::field_desc_long]),
 				'modified_when'	=> strtotime($event[dbEvent::field_timestamp]),
 				'modified_by'		=> 1 // admin
 			);
 		}
 		return  $result; 
-	} // kit_event_droplet_search()
+	} // kit_event_droplet_search()	
 }
 
 if (!function_exists('kit_event_droplet_header')) {
