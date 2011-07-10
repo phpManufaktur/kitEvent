@@ -18,7 +18,7 @@ if(!file_exists(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .
 else {
 	require_once(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.php');
 	define('KIT_EVT_LANGUAGE', LANGUAGE); // die Konstante gibt an in welcher Sprache KIT Event aktuell arbeitet
-}
+} 
 
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.event.php');
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.droplets.php');
@@ -37,6 +37,40 @@ if (!$dbEventOrder->sqlFieldExists(dbEventOrder::field_free_1)) {
 			$error .= sprintf('[UPGRADE] %s', $dbEventOrder->getError());
 			break;
 		}
+	}
+}
+
+// Release 0.28
+$dbEventGroup = new dbEventGroup();  
+if (!$dbEventGroup->sqlFieldExists(dbEventGroup::field_perma_link_pattern)) {
+	// permaLink Pattern hinzufuegen 
+	if (!$dbEventGroup->sqlAlterTableAddField(dbEventGroup::field_perma_link_pattern, "VARCHAR(128) NOT NULL DEFAULT ''", dbEventGroup::field_name)) {
+		$error .= sprintf('[UPGRADE] %s', $dbEventGroup->getError());
+	}
+} 
+if (!$dbEventGroup->sqlFieldExists(dbEventGroup::field_redirect_page)) {
+	// permaLink Pattern hinzufuegen
+	if (!$dbEventGroup->sqlAlterTableAddField(dbEventGroup::field_redirect_page, "VARCHAR(255) NOT NULL DEFAULT ''", dbEventGroup::field_perma_link_pattern)) {
+		$error .= sprintf('[UPGRADE] %s', $dbEventGroup->getError());
+	}
+}
+$dbEvent = new dbEvent();
+if (!$dbEvent->sqlFieldExists(dbEvent::field_perma_link)) {
+	// permaLink hinzufuegen
+	if (!$dbEvent->sqlAlterTableAddField(dbEvent::field_perma_link, "VARCHAR(128) NOT NULL DEFAULT ''", dbEvent::field_deadline)) {
+		$error .= sprintf('[UPGRADE] %s', $dbEvent->getError());
+	}
+}
+if (!$dbEvent->sqlFieldExists(dbEvent::field_ical_file)) {
+	// Feld fuer iCal hinzufuegen
+	if (!$dbEvent->sqlAlterTableAddField(dbEvent::field_ical_file, "VARCHAR(32) NOT NULL DEFAULT ''", dbEvent::field_perma_link)) {
+		$error .= sprintf('[UPGRADE] %s', $dbEvent->getError());
+	}
+}
+if (!$dbEvent->sqlFieldExists(dbEvent::field_qrcode_image)) {
+	// Feld fuer QR Code hinzufuegen
+	if (!$dbEvent->sqlAlterTableAddField(dbEvent::field_qrcode_image, "VARCHAR(32) NOT NULL DEFAULT ''", dbEvent::field_ical_file)) {
+		$error .= sprintf('[UPGRADE] %s', $dbEvent->getError());
 	}
 }
 

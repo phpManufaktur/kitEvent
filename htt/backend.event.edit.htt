@@ -104,6 +104,14 @@
       <td class="label_{$event.link.name}">{$event.link.label}</td>
       <td class="value_{$event.link.name}"><input type="text" name="{$event.link.name}" value="{$event.link.value}" /></td>
     </tr>
+    <tr>
+      <td class="label_{$event.perma_link.name}">{$event.perma_link.label}</td>
+      <td class="value_{$event.perma_link.name}"><input type="text" name="{$event.perma_link.name}" value="{$event.perma_link.value}" /></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td class="hint_{$event.perma_link.name}">{$event.perma_link.hint}</td>
+    </tr>
     <tr><td colspan="2">&nbsp;</td></tr>
     <tr>
       <td colspan="2">

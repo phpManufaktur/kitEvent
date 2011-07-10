@@ -16,10 +16,7 @@ if (!defined('WB_PATH')) die('invalid call of '.$_SERVER['SCRIPT_NAME']);
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/initialize.php');
 require_once(WB_PATH.'/include/captcha/captcha.php');
 require_once(WB_PATH.'/framework/class.wb.php');
-// Connect with DropletsExtension Interface
-if (file_exists(WB_PATH.'/modules/droplets_extension/interface.php')) {
-	require_once(WB_PATH.'/modules/droplets_extension/interface.php');
-}
+require_once(WB_PATH.'/modules/droplets_extension/interface.php');
 
 class eventFrontend {
 	const request_action				= 'act';
@@ -88,10 +85,10 @@ class eventFrontend {
 	private $page_link;
 	
 	public function __construct() { 
-		global $eventTools;
+		global $kitLibrary;
 		$url = '';
 		$_SESSION['FRONTEND'] = true;	
-		$eventTools->getPageLinkByPageID(PAGE_ID, $url);
+		$kitLibrary->getPageLinkByPageID(PAGE_ID, $url);
 		$this->page_link = $url; 
 		$this->template_path = WB_PATH.'/modules/kit_event/htt/'.$this->params[self::param_preset].'/'.KIT_EVT_LANGUAGE.'/'; 	
 		date_default_timezone_set(event_cfg_time_zone);
@@ -285,11 +282,11 @@ class eventFrontend {
  			'day'								=> date('j', $date),
  			'day_zero'					=> date('d', $date),
  			'day_name'					=> trim($weekdays[date('w', $date)]),
- 			'day_name_2'				=> substr(trim($weekdays[date('w', $date)]), 1, 2),
+ 			'day_name_2'				=> substr(trim($weekdays[date('w', $date)]), 0, 2),
  			'month'							=> date('n', $date),
  			'month_zero'				=> date('m', $date),
  			'month_name'				=> trim($months[date('n', $date)-1]),
- 			'month_name_3'			=> substr(trim($months[date('n', $date)-1]), 1, 3),
+ 			'month_name_3'			=> substr(trim($months[date('n', $date)-1]), 0, 3),
  			'year'							=> date('Y', $date),
  			'year_2'						=> date('y', $date),
  			'week'							=> date('W', $date),
@@ -311,6 +308,8 @@ class eventFrontend {
   	global $dbEvent;
   	global $dbEventItem;
   	global $dbEventGroup;
+  	global $dbEventCfg;
+  	global $kitLibrary;
   	
   	$SQL = sprintf( 'SELECT * FROM %1$s, %2$s WHERE %1$s.%3$s = %2$s.%4$s AND %1$s.%5$s=\'%6$s\'',
  										$dbEvent->getTableName(),
@@ -352,41 +351,131 @@ class eventFrontend {
  			$participants_free = event_text_participants_free;
  		}
  		
+ 		/*
  		if ($event_data[dbEventItem::field_costs] > 0) {
  			$costs = sprintf(event_cfg_currency, number_format($event_data[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator));
  		}
  		else {
  			$costs = event_text_none;
  		}
+ 		*/
+ 		
  		$start = strtotime($event_data[dbEvent::field_event_date_from]);
  		$end = strtotime($event_data[dbEvent::field_event_date_to]);
  		
+ 		// QR Code
+ 		if ($dbEventCfg->getValue(dbEventCfg::cfgQRCodeExec) == 1) {
+ 			// QR Code verwenden
+ 			$dir = $kitLibrary->removeLeadingSlash($dbEventCfg->getValue(dbEventCfg::cfgQRCodeDir));
+  		$dir = $kitLibrary->addSlash($dir);
+  		$dir_path = WB_PATH.MEDIA_DIRECTORY.'/'.$dir;
+  		$filename = $event_data[dbEvent::field_qrcode_image];
+  		if (!empty($filename) && file_exists($dir_path.$filename)) {
+	  		list($qrcode_width, $qrcode_height) = getimagesize($dir_path.$filename);
+	  		$qrcode_src = WB_URL.MEDIA_DIRECTORY.'/'.$dir.$filename;
+	  		$qrcode_type = $dbEventCfg->getValue(dbEventCfg::cfgQRCodeContent);	
+	  		$qrcode_text = ($qrcode_type == 1) ? event_text_qrcode_content_url : event_text_qrcode_content_ical;
+  		}
+  		else {
+  			$qrcode_src = '';
+	 			$qrcode_width = 0;
+	 			$qrcode_height = 0;
+	 			$qrcode_text = '';
+	 			$qrcode_type = 0;
+  		}
+ 		}
+ 		else {
+ 			$qrcode_src = '';
+ 			$qrcode_width = 0;
+ 			$qrcode_height = 0;
+ 			$qrcode_text = '';
+ 			$qrcode_type = 0;
+ 		}
+ 		// iCal
+ 		if (($dbEventCfg->getValue(dbEventCfg::cfgICalExec) == 1) && !empty($event_data[dbEvent::field_ical_file])) {
+ 			$dir = $kitLibrary->removeLeadingSlash($dbEventCfg->getValue(dbEventCfg::cfgICalDir));
+  		$dir = $kitLibrary->addSlash($dir);
+  		$dir_url = WB_URL.MEDIA_DIRECTORY.'/'.$dir;
+  		$filename = $event_data[dbEvent::field_ical_file];
+  		$ical_link = $dir_url.$filename;
+ 		}
+ 		else {
+ 			$ical_link = '';
+ 		}
+ 		
+ 		
  		$event_parser = array(
+ 			//'group_name'							=> $group_name,
+ 			//'group_desc'							=> $group_desc,
+ 			//'participants_max'				=> $participants_max,
+ 			//'participants_total'			=> $event_data[dbEvent::field_participants_total],
+ 			//'participants_free'				=> $participants_free,
+			//'deadline_date'						=> date(event_cfg_date_str, strtotime($event_data[dbEvent::field_deadline])),
+ 			//'deadline_timestamp'			=> strtotime($event_data[dbEvent::field_deadline]),
+ 		 	//'desc_short'							=> stripslashes($event_data[dbEventItem::field_desc_short]),
+ 			//'desc_long'								=> stripslashes($event_data[dbEventItem::field_desc_long]),
+ 			//'costs'										=> number_format($costs, 2, event_cfg_decimal_separator, event_cfg_thousand_separator), 
+ 			//'link_desc'								=> stripslashes($event_data[dbEventItem::field_desc_link]),
+ 			//'link_order'							=> sprintf('%s?%s=%s&%s=%s', $this->page_link, self::request_action, self::action_order, self::request_event_id, $event_id),
+  		//'link_detail'							=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_event, self::request_event_id, $event_id, self::request_event, self::view_id, self::request_event_detail, 1),
+  		//'link_start'							=> $this->page_link,
+ 		
  			'headline'								=> $event_data[dbEventItem::field_title],
  			'id'											=> $event_data[dbEvent::field_id],
- 			'group_name'							=> $group_name,
- 			'group_desc'							=> $group_desc,
- 			
+ 			'group'										=> array(
+ 																			'name'				=> $group_name,
+ 																			'description'	=> $group_desc
+ 																		),	
  			'start'										=> $this->getStartEndDates($event_data, true),
  			'end'											=> $this->getStartEndDates($event_data, false),
- 			
- 			'participants_max'				=> $participants_max,
- 			'participants_total'			=> $event_data[dbEvent::field_participants_total],
- 			'participants_free'				=> $participants_free,
- 		
- 			'deadline_date'						=> date(event_cfg_date_str, strtotime($event_data[dbEvent::field_deadline])),
- 			'deadline_timestamp'			=> strtotime($event_data[dbEvent::field_deadline]),
- 		
- 			'desc_short'							=> stripslashes($event_data[dbEventItem::field_desc_short]),
- 			'desc_long'								=> stripslashes($event_data[dbEventItem::field_desc_long]),
+ 			'participants'						=> array(
+ 																			'max'		=> $participants_max,
+ 																			'total'	=> $event_data[dbEvent::field_participants_total],
+ 																			'free'	=> $participants_free
+ 																		),
+ 			'deadline'								=> array(
+ 																			'date'	=> strtotime($event_data[dbEvent::field_deadline])
+ 																		),
+ 			'description'							=> array(
+ 																			'short'	=> stripslashes($event_data[dbEventItem::field_desc_short]),
+ 																			'long'	=> stripslashes($event_data[dbEventItem::field_desc_long])
+ 																		),
  			'location'								=> $event_data[dbEventItem::field_location],
- 			'costs'										=> number_format($costs, 2, event_cfg_decimal_separator, event_cfg_thousand_separator), 
- 		
- 			'link_desc'								=> stripslashes($event_data[dbEventItem::field_desc_link]),
- 			'link_order'							=> sprintf('%s?%s=%s&%s=%s', $this->page_link, self::request_action, self::action_order, self::request_event_id, $event_id),
-  		'link_detail'							=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_event, self::request_event_id, $event_id, self::request_event, self::view_id, self::request_event_detail, 1),
-  		'link_start'							=> $this->page_link,
- 			'link_permanent'					=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_event, self::request_event_id, $event_id, self::request_event, self::view_id, self::request_event_detail, 1)
+ 			'costs'										=> array(
+ 																			'value'		=> $event_data[dbEventItem::field_costs],
+ 																			'format'	=> array(
+ 																											'float'		=> number_format($event_data[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator),
+ 																											'currency'=> sprintf(event_cfg_currency, number_format($event_data[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator))
+ 																										),
+ 																		),
+ 			'link'										=> array(
+ 																			'description'		=> stripslashes($event_data[dbEventItem::field_desc_link]),
+ 																			'register'			=> sprintf(	'%s%s%s',
+ 																		 															$this->page_link,
+ 																		 															(strpos($this->page_link, '?') === false) ? '?' : '&', 
+ 																		 															http_build_query(array(	self::request_action 		=> self::action_order, 
+ 																		 																											self::request_event_id 	=> $event_id))),
+ 																		 	'detail'				=> sprintf(	'%s%s%s',
+ 																		 															$this->page_link,
+ 																		 															(strpos($this->page_link, '?') === false) ? '?' : '&', 
+ 																		 															http_build_query(array(	self::request_action 				=> self::action_event, 
+ 																		 																											self::request_event_id 			=> $event_id, 
+ 																		 																											self::request_event 				=> self::view_id,
+ 																		 																											self::request_event_detail 	=> 1 ))),
+ 																			'start'					=> $this->page_link,
+ 																		 	'permanent'			=> (empty($event_data[dbEvent::field_perma_link])) ? '' : WB_URL.PAGES_DIRECTORY.'/'.$event_data[dbEvent::field_perma_link],
+ 																		 	'ical'					=> $ical_link																										 	
+ 																		),
+ 			'qr_code'									=> array(
+ 																			'is_active'		=> (int) $dbEventCfg->getValue(dbEventCfg::cfgQRCodeExec),
+ 																			'image'				=> array(
+ 																													'src'		=> $qrcode_src,
+ 																													'width'	=> $qrcode_width,
+ 																													'height'=> $qrcode_height,
+ 																													'text'	=> $qrcode_text,
+ 																													'type'	=> $qrcode_type
+ 																												)
+ 																		), 
  		);
  		return true;
   } // getEventData()
@@ -398,7 +487,7 @@ class eventFrontend {
    * @return FALSE on error or DIALOG/MESSAGE on success  
    */
   public function checkOrder() { 
-  	global $eventTools;
+  	global $kitLibrary;
   	global $dbEvent;
   	global $dbEventOrder;
   	global $wb;
@@ -427,7 +516,7 @@ class eventFrontend {
   			if (!isset($_REQUEST[self::request_city]) || (strlen($_REQUEST[self::request_city]) < 4)) $message .= event_msg_must_city;
   			break;		
   		case self::request_email:
-		  	if (!isset($_REQUEST[self::request_email]) || !$eventTools->validateEMail($_REQUEST[self::request_email])) {
+		  	if (!isset($_REQUEST[self::request_email]) || !$kitLibrary->validateEMail($_REQUEST[self::request_email])) {
 					$message .= sprintf(event_msg_invalid_email, $_REQUEST[self::request_email]);
 				}
   			break;

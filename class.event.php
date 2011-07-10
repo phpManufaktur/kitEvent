@@ -28,6 +28,9 @@ class dbEvent extends dbConnectLE {
 	const field_participants_max		= 'evt_participants_max';
 	const field_participants_total	= 'evt_participants_total';
 	const field_deadline						= 'evt_deadline';
+	const field_perma_link					= 'evt_perma_link';
+	const field_ical_file						= 'evt_ical_file';
+	const field_qrcode_image				= 'evt_qrcode_image';
 	const field_status							= 'evt_status';
 	const field_timestamp						= 'evt_timestamp';
 	
@@ -58,6 +61,9 @@ class dbEvent extends dbConnectLE {
   	$this->addFieldDefinition(self::field_participants_max, "INT(11) NOT NULL DEFAULT '-1'");
   	$this->addFieldDefinition(self::field_participants_total, "INT(11) NOT NULL DEFAULT '0'");
   	$this->addFieldDefinition(self::field_deadline, "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
+  	$this->addFieldDefinition(self::field_perma_link, "VARCHAR(128) NOT NULL DEFAULT ''");
+  	$this->addFieldDefinition(self::field_ical_file, "VARCHAR(32) NOT NULl DEFAULT ''");
+  	$this->addFieldDefinition(self::field_qrcode_image, "VARCHAR(32) NOT NULl DEFAULT ''");
   	$this->addFieldDefinition(self::field_status, "TINYINT NOT NULL DEFAULT '".self::status_active."'"); 
   	$this->addFieldDefinition(self::field_timestamp, "TIMESTAMP");
   	$this->setIndexFields(array(self::field_event_item, self::field_event_group));
@@ -117,6 +123,8 @@ class dbEventGroup extends dbConnectLE {
 	
 	const field_id									= 'group_id';
 	const field_name								= 'group_name';
+	const field_redirect_page				= 'group_redirect_page';
+	const field_perma_link_pattern	= 'group_perma_pattern';
 	const field_desc								= 'group_desc';
 	const field_status							= 'group_status';
 	const field_timestamp						= 'group_timestamp';
@@ -139,6 +147,8 @@ class dbEventGroup extends dbConnectLE {
   	$this->setTableName('mod_kit_event_group');
   	$this->addFieldDefinition(self::field_id, "INT(11) NOT NULL AUTO_INCREMENT", true);
   	$this->addFieldDefinition(self::field_name, "VARCHAR(64) NOT NULL DEFAULT ''");
+  	$this->addFieldDefinition(self::field_redirect_page, "VARCHAR(255) NOT NULL DEFAULT ''"); 
+  	$this->addFieldDefinition(self::field_perma_link_pattern, "VARCHAR(128) NOT NULL DEFAULT ''");
   	$this->addFieldDefinition(self::field_desc, "VARCHAR(255) NOT NULL DEFAULT ''");
   	$this->addFieldDefinition(self::field_status, "TINYINT NOT NULL DEFAULT '".self::status_active."'"); 
   	$this->addFieldDefinition(self::field_timestamp, "TIMESTAMP");
@@ -262,9 +272,27 @@ class dbEventCfg extends dbConnectLE {
   private $message					= '';
     
   const cfgEventExec				= 'cfgEventExec';
+  const cfgICalDir					= 'cfgICalDir';
+  const cfgICalExec					= 'cfgICalExec';
+  const cfgPermaLinkExec		= 'cfgPermaLinkExec';
+  const cfgQRCodeDir				= 'cfgQRCodeDir';
+  const cfgQRCodeExec				= 'cfgQRCodeExec';
+  const cfgQRCodeSize				= 'cfgQRCodeSize';
+  const cfgQRCodeECLevel		= 'cfgQRCodeECLevel';
+  const cfgQRCodeMargin			= 'cfgQRCodeMargin';
+  const cfgQRCodeContent		= 'cfgQRCodeContent'; 
   
   public $config_array = array(
-  	array('event_label_cfg_exec', self::cfgEventExec, self::type_boolean, '1', 'event_desc_cfg_exec')
+  	array('event_label_cfg_exec', self::cfgEventExec, self::type_boolean, '1', 'event_desc_cfg_exec'),
+  	array('event_label_cfg_ical_dir', self::cfgICalDir, self::type_string, 'kit_event', 'event_desc_cfg_ical_dir'),
+  	array('event_label_cfg_ical_exec', self::cfgICalExec, self::type_boolean, '1', 'event_desc_cfg_ical_exec'),
+  	array('event_label_cfg_perma_link_exec', self::cfgPermaLinkExec, self::type_boolean, '1', 'event_desc_cfg_perma_link_exec'),
+  	array('event_label_cfg_qrcode_dir', self::cfgQRCodeDir, self::type_string, 'kit_event', 'event_desc_cfg_qrcode_dir'),
+  	array('event_label_cfg_qrcode_exec', self::cfgQRCodeExec, self::type_boolean, '1', 'event_desc_cfg_qrcode_exec'),
+  	array('event_label_cfg_qrcode_size', self::cfgQRCodeSize, self::type_integer, '3', 'event_desc_cfg_qrcode_size'),
+  	array('event_label_cfg_qrcode_eclevel', self::cfgQRCodeECLevel, self::type_integer, '2', 'event_desc_cfg_qrcode_eclevel'),
+  	array('event_label_cfg_qrcode_margin', self::cfgQRCodeMargin, self::type_integer, '2', 'event_desc_cfg_qrcode_margin'),
+  	array('event_label_cfg_qrcode_content', self::cfgQRCodeContent, self::type_integer, '1', 'event_desc_cfg_qrcode_content')  	
   );  
   
   public function __construct($createTables = false) {

@@ -189,3 +189,9 @@ td.evt_order_help {
 .evt_order_value input[name=cty] {
   width: 60%;
 }
+.evt_qrcode {
+  margin: 30px 0 10px 0;
+}
+.evt_tool_btn {
+  padding: 15px 0 0 0;
+}

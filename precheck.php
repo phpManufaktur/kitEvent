@@ -20,7 +20,9 @@ $PRECHECK['PHP_VERSION'] = array('VERSION' => '5.2.0', 'OPERATOR' => '>=');
 $PRECHECK['WB_ADDONS'] = array(
 	'dbconnect_le'	=> array('VERSION' => '0.64', 'OPERATOR' => '>='),
 	'dwoo' => array('VERSION' => '0.10', 'OPERATOR' => '>='),
-	'droplets' => array('VERSION' => '1.0', 'OPERATOR' => '>=')
+	'droplets' => array('VERSION' => '1.0', 'OPERATOR' => '>='),
+	'kit_tools' => array('VERSION' => '0.12', 'OPERATOR' => '>='),
+	'perma_link' => array('VERSION' => '0.10', 'OPERATOR' => '>=')
 );
 
 if (file_exists(WB_PATH.'/modules/kit/info.php')) {

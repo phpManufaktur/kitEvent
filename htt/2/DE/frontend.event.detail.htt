@@ -10,17 +10,36 @@
   Dieses Template wird eingebunden um die detailierten Informationen zu dem
   jeweiligen Termin anzuzeigen.
 
-  Verfügbare Variablen:
-  - siehe Beschreibung bei frontend.event.teaser.htt -
-
+  Um die fuer dieses Template verfuegbaren Variablen zu sehen,
+  fuegen Sie bitte am Anfang der Dateiden Befehl
+  
+                       {dump()}
+  
+  ein.
  *}
-<div class="evt_detail">
+ 
+{$event.group_name = $event.group.name}
+{$event.group_desc = $event.group.description}
+{$event.deadline_date = date_format($event.deadline.date, "%d.%m.%Y")}
+{$event.deadline_timestamp = $event.deadline.date}
+{$event.participants_max = $event.participants.max}
+{$event.participants_total = $event.participants.total}
+{$event.participants_free = $event.participants.free}
+{$event.desc_short = $event.description.short}
+{$event.desc_long = $event.description.long}
+{* $event.costs --> use: $event.costs.format.float *}
+{$event.link_desc = $event.link.description}
+{$event.link_order = $event.link.register}
+{$event.link_detail = $event.link.detail}
+{$event.link_start = $event.link.start}
+
+<div class="evt_detail"> 
   <table width="100%">
     <colgroup>
-      <col width="120" />
+      <col width="150" />
       <col width="*" />
       <col width="25" />
-    </colgroup>
+    </colgroup> 
     <tr>
       <td class="evt_cal_sheet">
         {*
@@ -36,6 +55,11 @@
           {/if}
           <div class="evt_cal_sheet_day_name">{$event.start.day_name}</div>
         </div>
+        {if $event.qr_code.is_active == 1}
+        <div class="evt_qrcode">
+          <img src="{$event.qr_code.image.src}" width="{$event.qr_code.image.width}" height="{$event.qr_code.image.height}" alt="{$event.qr_code.image.text}" title="{$event.qr_code.image.text}" />
+        </div>
+        {/if}
       </td>
       <td class="evt_cal_content">
         {*
@@ -86,12 +110,18 @@
               </tr>
               <tr>
                 <td class="evt_cal_sheet_table_label">Kosten</td>
-                <td class="evt_cal_sheet_table_value"><b>{$event.costs} &euro;</b> <i>(für die Raummiete, Beamer, Getränke etc.)</i></td>
+                <td class="evt_cal_sheet_table_value"><b>{$event.costs.format.float} &euro;</b> <i>(für die Raummiete, Beamer, Getränke etc.)</i></td>
               </tr>
               <tr>
                 <td class="evt_cal_sheet_table_label">Anmeldung</td>
                 <td class="evt_cal_sheet_table_value">bis zum <b>{$event.deadline_date}</b>, <b><a href="{$event.link_order}">Anmeldeformular</a></b></td>
-              </tr>              
+              </tr>
+              <tr>
+                <td></td>
+                <td class="evt_tool_btn">
+                  {if count_characters($event.link.ical) > 0}[<a href="{$event.link.ical}">iCal</a>]  {/if}{if count_characters($event.link.permanent) > 0}[<a href="{$event.link.permanent}">URL</a>]{/if}
+                </td>
+              </tr>
             {else}
               <tr>
                 <td class="evt_cal_sheet_table_label">Ort</td>
@@ -119,8 +149,14 @@
                 <td class="evt_cal_sheet_table_value"><i>Sie können diesen Workshop auch als <b>Einzelkurs</b> buchen, Sie zahlen in diesem Fall <b>{math "$event.costs*2"},00 &euro;</b>.</i></td>
               </tr>
               <tr>
-                <td class="evt_cal_sheet_table_label">Anmeldung</td>
+                <td class="evt_cal_sheet_table_label">Anmeldung_</td>
                 <td class="evt_cal_sheet_table_value">bis zum <b>{$event.deadline_date}</b>, <b><a href="{$event.link_order}">Anmeldeformular</a></b></td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+                <td>
+                  <a href="{$event.link_permanent}">PERMANENT</a>
+                </td>
               </tr>
             {/if}
           </table>

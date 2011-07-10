@@ -61,9 +61,9 @@ class monthlyCalendar {
 	);
 	
 	public function __construct() {
-		global $eventTools;
+		global $kitLibrary;
 		$this->template_path = WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/htt/';
-		$eventTools->getUrlByPageID(PAGE_ID, $this->page_link);
+		$kitLibrary->getUrlByPageID(PAGE_ID, $this->page_link);
 		date_default_timezone_set(event_cfg_time_zone);
 	} // __construct()
 	
@@ -213,7 +213,7 @@ class monthlyCalendar {
 	} // getEvents()
 	
 	public function showCalendar() {
-		global $eventTools;
+		global $kitLibrary;
 		global $parser;
 		
 		if (($this->params[self::param_select_month] > 0) && ($this->params[self::param_select_month] < 13)) {
@@ -251,7 +251,7 @@ class monthlyCalendar {
 		$month_name = $this->getMonthName($month);
 		
 		if ($this->params[self::param_response_id] > 0) {
-			$eventTools->getUrlByPageID($this->params[self::param_response_id], $this->response_link, true);
+			$kitLibrary->getUrlByPageID($this->params[self::param_response_id], $this->response_link, true);
 		}
 		else {
 			$this->response_link = $this->page_link;
@@ -403,7 +403,7 @@ class monthlyCalendar {
 	} // getDayName()
 	
 	public function showList() {
-		global $eventTools;
+		global $kitLibrary;
 		global $dbEvent;
 		global $dbEventItem;
 		global $dbEventGroup;
@@ -437,7 +437,7 @@ class monthlyCalendar {
 		}
 		
 		if ($this->params[self::param_response_id] > 0) {
-			$eventTools->getUrlByPageID($this->params[self::param_response_id], $this->response_link, true);
+			$kitLibrary->getUrlByPageID($this->params[self::param_response_id], $this->response_link, true);
 		}
 		else {
 			$this->response_link = $this->page_link;

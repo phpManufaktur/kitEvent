@@ -13,42 +13,63 @@
   <div class="{if $is_intro == 1}intro{else}message{/if}">{$intro}</div>
   <table width="100%">
     <colgroup>
-      <col width="30%" />
-      <col width="70%" />
+      <col width="180" />
+      <col width="*" />
+      <col width="300" />
     </colgroup>
     <tr>
-      <td class="label_{$group.group.name}">{$group.group.label}</td>
-      <td class="value_{$group.group.name}">
+      <td class="group_label">{$group.group.label}</td>
+      <td class="group_value">
         <select name="{$group.group.name}" onchange="javascript: window.location='{$group.group.location}'+this.value; return false;">
           {foreach $group.group.value grp}
           <option value="{$grp.value}"{if $grp.selected == 1} selected="selected"{/if}>{$grp.text}</option>
           {/foreach}
         </select>
       </td>
+      <td class="group_hint">{$group.group.hint}</td>
     </tr>
     <tr>
-      <td class="label_{$group.name.name}">{$group.name.label}</td>
-      <td class="value_{$group.name.name}"><input type="text" name="{$group.name.name}" value="{$group.name.value}" /></td>
+      <td class="group_label">{$group.name.label}</td>
+      <td class="group_value"><input type="text" name="{$group.name.name}" value="{$group.name.value}" /></td>
+      <td class="group_hint">{$group.name.hint}</td>
     </tr>
     <tr>
-      <td class="label_{$group.desc.name}">{$group.desc.label}</td>
-      <td class="value_{$group.desc.name}">
+      <td class="group_label">{$group.redirect_page.label}</td>
+      <td class="group_value">
+        <select name="{$group.redirect_page.name}"> 
+          {foreach $group.redirect_page.options option}
+          <option value="{$option.value}"{if $group.redirect_page.value == $option.value} selected="selected"{/if}>{$option.text}</option>
+          {/foreach}
+        </select>
+      </td>
+      <td class="group_hint">{$group.redirect_page.hint}</td>
+    </tr>
+    <tr>
+      <td class="group_label">{$group.perma_pattern.label}</td>
+      <td class="group_value"><input type="text" name="{$group.perma_pattern.name}" value="{$group.perma_pattern.value}" /></td>
+      <td class="group_hint">{$group.perma_pattern.hint}</td>
+    </tr>
+    <tr>
+      <td class="group_label">{$group.desc.label}</td>
+      <td class="group_value">
         <textarea name="{$group.desc.name}">{$group.desc.value}</textarea>
       </td>
+      <td class="group_hint">{$group.desc.hint}</td>
     </tr>
     <tr>
-      <td class="label_{$group.status.name}">{$group.status.label}</td>
-      <td class="value_{$group.status.name}">
+      <td class="group_label">{$group.status.label}</td>
+      <td class="group_value">
         <select name="{$group.status.name}">
           {foreach $group.status.value status}
           <option value="{$status.value}"{if $status.selected == 1} selected="selected"{/if}>{$status.text}</option>
           {/foreach}
         </select>
       </td>
+      <td class="group_hint">{$group.status.hint}</td>
     </tr>
-    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr><td colspan="3">&nbsp;</td></tr>
     <tr>
-      <td colspan="2">
+      <td colspan="3">
         <input type="submit" value="{$btn_ok}" />&nbsp;
         <input type="button" value="{$btn_abort}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
       </td>
