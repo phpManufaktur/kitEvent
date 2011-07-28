@@ -18,6 +18,7 @@ require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.editor.php'
 require_once(WB_PATH.'/modules/perma_link/class.interface.php');
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/include/ical/iCalcreator.class.php');
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/include/qrcode/qrlib.php');
+require_once(WB_PATH.'/framework/functions-utf8.php');
 
 class eventBackend {
 
@@ -1052,7 +1053,8 @@ class eventBackend {
   	$event = $event[0];
 
   	// iCal initialisieren und schreiben
-  	$desc = utf8_encode(html_entity_decode(strip_tags($event[dbEventItem::field_desc_long])));
+  	$desc = utf8_fast_entities_to_umlauts(strip_tags($event[dbEventItem::field_desc_long]));
+  	//$desc = utf8_encode(html_entity_decode(strip_tags($event[dbEventItem::field_desc_long])));
   	
   	$vCal = new vcalendar(array('unique_id' => 'kitEvent',
   															'language'	=> strtolower(LANGUAGE)));
@@ -1143,7 +1145,8 @@ class eventBackend {
 		  	
   			$perma_link = str_ireplace($pattern_array, $values_array, $pattern);
   			$permaLink = new permaLink();
-  			if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent')) {
+  			$pid = -1;
+  			if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
   				if ($permaLink->isError()) {
   					$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $permaLink->getError()));
   					return false;
@@ -1183,7 +1186,8 @@ class eventBackend {
 	 			$redirect = sprintf('%s%s%s', $redirect, (strpos($redirect, '?') !== false) ? '&' : '?', 
 	 													http_build_query(array('act'	=> 'evt', 'evt' => 'id', 'det' => '1', 'id' => $event[dbEvent::field_id])));
 	 			$permaLink = new permaLink();
-  			if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent')) {
+	 			$pid = -1;
+  			if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
   				if ($permaLink->isError()) {
   					$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $permaLink->getError()));
   					return false;
@@ -1229,7 +1233,8 @@ class eventBackend {
 	 			$redirect = sprintf('%s%s%s', $redirect, (strpos($redirect, '?') !== false) ? '&' : '?', 
 	 													http_build_query(array('act'	=> 'evt', 'evt' => 'id', 'det' => '1', 'id' => $event[dbEvent::field_id])));
 	 			$permaLink = new permaLink();
-  			if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent')) {
+	 			$pid = -1;
+  			if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
   				if ($permaLink->isError()) {
   					$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $permaLink->getError()));
   					return false;
@@ -1298,7 +1303,8 @@ class eventBackend {
 	 			$redirect = sprintf('%s%s%s', $redirect, (strpos($redirect, '?') !== false) ? '&' : '?', 
 	 													http_build_query(array('act'	=> 'evt', 'evt' => 'id', 'det' => '1', 'id' => $event[dbEvent::field_id])));
 	 			$permaLink = new permaLink();
-  			if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent')) {
+	 			$pid = -1;
+  			if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
   				if ($permaLink->isError()) {
   					$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $permaLink->getError()));
   					return false;

@@ -41,6 +41,7 @@ class monthlyCalendar {
 	const param_navigation		= 'navigation';
 	const param_show_today		= 'show_today';
 	const param_response_id		= 'response_id';
+	const param_ignore_topics	= 'ignore_topics';
 	const param_select_month	= 'month';
 	const param_select_year		= 'year';
 	const param_group					= 'group';
@@ -53,6 +54,7 @@ class monthlyCalendar {
 		self::param_navigation		=> true,
 		self::param_show_today		=> true,
 		self::param_response_id		=> -1,
+		self::param_ignore_topics	=> false,
 		self::param_select_month	=> 0,
 		self::param_select_year		=> 0,
 		self::param_group					=> '',
@@ -251,7 +253,7 @@ class monthlyCalendar {
 		$month_name = $this->getMonthName($month);
 		
 		if ($this->params[self::param_response_id] > 0) {
-			$kitLibrary->getUrlByPageID($this->params[self::param_response_id], $this->response_link, true);
+			$kitLibrary->getUrlByPageID($this->params[self::param_response_id], $this->response_link, $this->params[self::param_ignore_topics]);
 		}
 		else {
 			$this->response_link = $this->page_link;
@@ -437,7 +439,7 @@ class monthlyCalendar {
 		}
 		
 		if ($this->params[self::param_response_id] > 0) {
-			$kitLibrary->getUrlByPageID($this->params[self::param_response_id], $this->response_link, true);
+			$kitLibrary->getUrlByPageID($this->params[self::param_response_id], $this->response_link, $this->params[self::param_ignore_topics]);
 		}
 		else {
 			$this->response_link = $this->page_link;

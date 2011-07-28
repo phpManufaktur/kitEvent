@@ -19,6 +19,7 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.calendar.php')) {
   $params[monthlyCalendar::param_show_today] = (isset($show_today) && strtolower($show_today) == 'true') ? true : false;
   $params[monthlyCalendar::param_show_weeks] = (isset($show_weeks) && strtolower($show_weeks) == 'true') ? true : false;
   $params[monthlyCalendar::param_response_id] = (isset($response_id)) ? $response_id : -1;
+  $params[monthlyCalendar::param_ignore_topics] = (isset($ignore_topics) && strtolower($ignore_topics) == 'true') ? true : false;
   $params[monthlyCalendar::param_select_month] = (isset($month)) ? (int) $month : 0;
   $params[monthlyCalendar::param_select_year] = (isset($year)) ? (int) $year : 0;
   $params[monthlyCalendar::param_group] = (isset($group)) ? $group : '';

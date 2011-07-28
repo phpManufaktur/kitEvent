@@ -58,6 +58,7 @@ class eventFrontend {
 	const param_detail				= 'detail';
 	const param_group					= 'group';
 	const param_event_id			= 'event_id';
+	const param_ignore_topics	= 'ignore_topics';
 	const param_response_id		= 'response_id'; // noch inaktiv!!!
 	const param_search				= 'search';
 	const param_header				= 'header';
@@ -76,6 +77,7 @@ class eventFrontend {
 		self::param_group				=> '',
 		self::param_event_id		=> -1,
 		self::param_response_id => -1,
+		self::param_ignore_topics => false,
 		self::param_search			=> false,
 		self::param_header			=> false,
 		self::param_css					=> true
