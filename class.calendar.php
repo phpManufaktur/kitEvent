@@ -138,7 +138,17 @@ class monthlyCalendar {
   } // getTemplate()
   
 	public function action() {
-		$html_allowed = array();
+		
+		/**
+     * to prevent cross site scripting XSS it is important to look also to 
+     * $_REQUESTs which are needed by other KIT addons. Addons which need
+     * a $_REQUEST with HTML must set this key in $_SESSION['KIT_HTML_REQUEST']
+     */
+    $html_allowed = array();
+		if (isset($_SESSION['KIT_HTML_REQUEST'])) $html_allowed = $_SESSION['KIT_HTML_REQUEST'];
+		$html = array();
+		foreach ($html as $key) $html_allowed[] = $key;
+		$_SESSION['KIT_HTML_REQUEST'] = $html_allowed;
   	foreach ($_REQUEST as $key => $value) {
   		if (!in_array($key, $html_allowed)) {
    			$_REQUEST[$key] = $this->xssPrevent($value);
@@ -147,7 +157,7 @@ class monthlyCalendar {
   	
   	$action = (isset($this->params[self::param_action])) ? $this->params[self::param_action] : self::action_show_month;
   	if (isset($_REQUEST[self::request_action])) $action = $_REQUEST[self::request_action];
-  		
+  	
   	switch ($action):
 		case self::action_show_list:
 			$result = $this->showList();

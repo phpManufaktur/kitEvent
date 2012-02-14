@@ -1,7 +1,13 @@
 kitEvent
-(c) 2011 by phpManufaktur
+(c) 2011 - 2012 by phpManufaktur
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
+
+Release 0.28
+2012-xx-xx
+fixed - xssPrevent() is too grabby, reduced to own requests
+changed: introduce $_SESSION['KIT_HTML_REQUEST'] to mark fields which should not
+  processed by xssPrevent()
 
 Release 0.27
 2011-06-04
@@ -9,7 +15,8 @@ Changed interaction with droplets_extension
 
 Release 0.26
 2011-05-22
-Added interaction with droplets_extension, enabling full WebsiteBaker search and adding header information on detail page (title, description, keywords)
+Added interaction with droplets_extension, enabling full WebsiteBaker search and
+ adding header information on detail page (title, description, keywords)
 
 Release 0.25
 2011-03-26
