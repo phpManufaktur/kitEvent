@@ -2,7 +2,7 @@
 
 /**
  * kitEvent
- * 
+ *
  * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
  * @link http://phpmanufaktur.de
  * @copyright 2011
@@ -26,14 +26,15 @@ $PRECHECK['WB_ADDONS'] = array(
 );
 
 if (file_exists(WB_PATH.'/modules/kit/info.php')) {
-	$PRECHECK['WB_ADDONS']['kit'] = array('VERSION' => '0.35', 'OPERATOR' => '>='); 
+	$PRECHECK['WB_ADDONS']['kit'] = array('VERSION' => '0.35', 'OPERATOR' => '>=');
 }
 
+// this check is important - the early versions of kitEvent can't be upgraded!
 if (file_exists(WB_PATH.'/modules/kit_event/info.php')) {
 	$PRECHECK['WB_ADDONS']['kit_event'] = array('VERSION' => '0.25', 'OPERATOR' => '>=');
 }
 
-global $database;  
+global $database;
 $sql = "SELECT `value` FROM `".TABLE_PREFIX."settings` WHERE `name`='default_charset'";
 $result = $database->query($sql);
 if ($result) {
