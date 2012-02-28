@@ -18,8 +18,8 @@
   <h2>{$event.headline}</h2>
   <div><b>Detailierte Ansicht</b></div>
   <div>ID: {$event.id}</div>
-  <div>Gruppenbezeichner: {$event.group_name}</div>
-  <div>Gruppenbeschreibung: {$event.group_desc}</div>
+  <div>Gruppenbezeichner: {$event.group.name}</div>
+  <div>Gruppenbeschreibung: {$event.group.description}</div>
   <div>Beginn, Datum: {$event.start.date}</div>
   <div>Beginn, Datum und Uhrzeit: {$event.start.datetime}</div>
   <div>Beginn, Uhrzeit: {$event.start.time} Uhr</div>
@@ -31,16 +31,24 @@
   <div>Ende, Uhrzeit: {$event.end.time} Uhr</div>
   <div>Veröffentlichung, Beginn: {$event.start.publish_date}</div>
   <div>Veröffentlichung, Ende: {$event.end.publish_date}</div>
-  <div>Max. Teilnehmer: {$event.participants_max}</div>
-  <div>Gemeldete Teilnehmer: {$event.participants_total}</div>
-  <div>Freie Plätze: {$event.participants_free}</div>
-  <div>Anmeldeschluß: {$event.deadline_date}</div>
-  <div>Langbeschreibung:</ br>{$event.desc_long}</div>
-  {if count_characters($event.link_desc) > 0}
+  <div>Max. Teilnehmer: {$event.participants.max}</div>
+  <div>Gemeldete Teilnehmer: {$event.participants.total}</div>
+  <div>Freie Plätze: {$event.participants.free}</div>
+  <div>Anmeldeschluß: {date_format($event.deadline.date,'%d.%m.%Y')}</div>
+  <div>Kurzbeschreibung (Teaser):<br />{$event.description.short}</div>
+  <div>Langbeschreibung:<br />{$event.description.long}</div>
+  {if count_characters($event.link.description) > 0}
     {* nur anzeigen, wenn ein ergänzender Link gesetzt ist... *}
-    <div><a href="{$event.link_desc}">Ergänzender Link...</a></div>
+    <div><a href="{$event.link.description}">Ergänzender Link...</a></div>
   {/if}
   <div>Veranstaltungsort: {$event.location}</div>
-  <div>Kosten: {$event.costs} &euro;</div>
-  <div><a href="{$event.link_order}">Anmelde Link</a></div>
+  <div>Kosten: {$event.costs.format.currency}</div>
+  <div><a href="{$event.link.register}">Anmelde Link</a></div>
+  {if $event.qr_code.is_active == 1}
+  <div>
+    Der QR-Code enthält: {$event.qr_code.image.text}<br />
+    <img src="{$event.qr_code.image.src}" width="{$event.qr_code.image.width}" height="{$event.qr_code.image.height}" alt="{$event.qr_code.image.text}" />
+  </div>
+  {/if}
+  
 </div>

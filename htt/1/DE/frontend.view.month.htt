@@ -55,5 +55,5 @@
     <p>Sorry, für den {$month.month_name} sind leider keine Veranstaltungen geplant.</p>
     <p>Bitte besuchen Sie uns nächsten Monat wieder!</p>
   {/if}
-  <p><a href="{$month.link_start}">Zur Übersicht...</a></p>
+  <p><a href="{$month.link.start}">Zur Übersicht...</a></p>
 </div>

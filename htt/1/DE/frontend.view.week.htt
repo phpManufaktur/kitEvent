@@ -26,5 +26,5 @@
     <p>Sorry, für die {$week.week}. Kalenderwoche sind leider keine Veranstaltungen geplant.</p>
     <p>Bitte besuchen Sie uns nächste Woche wieder!</p>
   {/if}
-  <p><a href="{$week.link_start}">Zur Übersicht...</a></p>
+  <p><a href="{$week.link.start}">Zur Übersicht...</a></p>
 </div>

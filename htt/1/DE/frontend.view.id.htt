@@ -19,5 +19,5 @@
   {else}
     {include('frontend.event.teaser.htt')}
   {/if}
-  <div><a href="{$event.link_start}">Zur Übersicht...</a></div>
+  <div><a href="{$event.link.start}">Zur Übersicht...</a></div>
 </div>

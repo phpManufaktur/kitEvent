@@ -54,5 +54,5 @@
       <p>Bitte besuchen Sie uns morgen wieder!</p>
     {/if}
   </div>
-  <div><a href="{$day.link_start}">Zur Übersicht...</a></div>
+  <div><a href="{$day.link.start}">Zur Übersicht...</a></div>
 </div>

@@ -35,13 +35,13 @@
     <tr class="cms_navigation">
       {if $show_weeks == 1}<td class="cms_week"></td>{/if}
       <td class="cms_month_prev"><a href="{$navigation.prev_link}" title="{$navigation.prev_hint}">{$navigation.prev_text}</a></td>
-      <td class="cms_month_name" colspan="5">{$navigation.month_year}</td>
+      <td class="cms_month_name" colspan="5">{if $link_month == 1}<a href="{$navigation.month_link}">{$navigation.month_year}</a>{else}{$navigation.month_year}{/if}</td>
       <td class="cms_month_next"><a href="{$navigation.next_link}" title="{$navigation.next_hint}">{$navigation.next_text}</a></td>
     </tr>
     {else}
     <tr class="cms_navigation">
       {if $show_weeks == 1}<td class="cms_week"></td>{/if}
-      <td class="cms_month_name" colspan="7">{$navigation.month_year}</td>
+      <td class="cms_month_name" colspan="7">{if $link_month == 1}<a href="{$navigation.month_link}">{$navigation.month_year}</a>{else}{$navigation.month_year}{/if}</td>
     </tr>
     {/if}
     <tr class="cms_head">

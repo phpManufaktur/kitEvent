@@ -68,8 +68,8 @@
     <input type="hidden" name="{$define_free_fields}" value="Freies Feld 1,Zusätzliches Feld 2" />
     <div>Titel der Veranstaltung: {$event.headline}</div>
     <div>ID: {$event.id}</div>
-    <div>Gruppenbezeichner: {$event.group_name}</div>
-    <div>Gruppenbeschreibung: {$event.group_desc}</div>
+    <div>Gruppenbezeichner: {$event.group.name}</div>
+    <div>Gruppenbeschreibung: {$event.group.description}</div>
     <div>Beginn, Datum: {$event.start.date}</div>
     <div>Beginn, Datum und Uhrzeit: {$event.start.datetime}</div>
     <div>Beginn, Uhrzeit: {$event.start.time}</div>
@@ -81,15 +81,15 @@
     <div>Ende, Uhrzeit: {$event.end.time}</div>
     <div>Veröffentlichung, Beginn: {$event.start.publish_date}</div>
     <div>Veröffentlichung, Ende: {$event.end.publish_date}</div>
-    <div>Max. Teilnehmer: {$event.participants_max}</div>
-    <div>Gemeldete Teilnehmer: {$event.participants_total}</div>
-    <div>Freie Plätze: {$event.participants_free}</div>
-    <div>Anmeldeschluß: {$event.deadline_date}</div>
-    <div>Kurzbeschreibung:</ br>{$event.desc_short}</div>
-    <div>Langbeschreibung:</ br>{$event.desc_long}</div>
-    {if count_characters($event.link_desc)}<div><a href="{$event.link_desc}">Ergänzender Link...</a></div>{/if}
+    <div>Max. Teilnehmer: {$event.participants.max}</div>
+    <div>Gemeldete Teilnehmer: {$event.participants.total}</div>
+    <div>Freie Plätze: {$event.participants.free}</div>
+    <div>Anmeldeschluß: {date_format($event.deadline.date,'%d.%m.%Y')}</div>
+    <div>Kurzbeschreibung:</ br>{$event.description.short}</div>
+    <div>Langbeschreibung:</ br>{$event.description.long}</div>
+    {if count_characters($event.link.description)}<div><a href="{$event.link.description}">Ergänzender Link...</a></div>{/if}
     <div>Veranstaltungsort: {$event.location}</div>
-    <div>Kosten: {$event.costs} &euro;</div>
+    <div>Kosten: {$event.costs.format.currency}</div>
     {*
       Ab hier folgen die Formularfelder
      *}

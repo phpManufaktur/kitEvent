@@ -20,7 +20,7 @@
     <tr>
       <td class="group_label">{$group.group.label}</td>
       <td class="group_value">
-        <select name="{$group.group.name}" onchange="javascript: window.location='{$group.group.location}'+this.value; return false;">
+        <select id="{$group.group.name}" name="{$group.group.name}" onchange="{$group.group.location}">
           {foreach $group.group.value grp}
           <option value="{$grp.value}"{if $grp.selected == 1} selected="selected"{/if}>{$grp.text}</option>
           {/foreach}

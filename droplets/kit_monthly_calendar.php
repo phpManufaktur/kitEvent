@@ -2,7 +2,7 @@
 //:Please visit http://phpManufaktur.de for informations about kitEvent!
 /**
  * kitEvent
- * 
+ *
  * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
  * @link http://phpmanufaktur.de
  * @copyright 2011
@@ -25,6 +25,7 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.calendar.php')) {
   $params[monthlyCalendar::param_group] = (isset($group)) ? $group : '';
   $params[monthlyCalendar::param_action] = (isset($action)) ? $action : monthlyCalendar::action_show_month;
   $params[monthlyCalendar::param_preset] = (isset($preset)) ? $preset : 1;
+  $params[monthlyCalendar::param_link_month] = (isset($link_month) && (strtolower($link_month) == 'true')) ? true : false;
   $calendar->setParams($params);
   return $calendar->action();
 }

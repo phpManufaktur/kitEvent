@@ -2,7 +2,7 @@
 
 /**
  * kitEvent
- * 
+ *
  * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
  * @link http://phpmanufaktur.de
  * @copyright 2011
@@ -36,7 +36,7 @@ function kit_event_error_handler($level, $message, $file, $line) {
 	echo sprintf(	'<div style="margin:5px 15px;padding:10px;border:1px solid #000;color:#000;background-color:#ffd;">'.
 								'<table width="99%%"><colgroup><col width="120" /><col width="*" /></colgroup>'.
 								'<tr><td>Type</td><td style="font-weight:bold;color:red;">%s</td></tr><tr><td>Message</td><td style="color:red;">%s</td></tr>'.
-								'<tr><td style="vertical-align:top;">Line:File</td><td><b>%s</b> : <i>%s</i></td></tr></table></div>', 
+								'<tr><td style="vertical-align:top;">Line:File</td><td><b>%s</b> : <i>%s</i></td></tr></table></div>',
 								$type, $message, $line, $file);
 }
 // Prompt all errors and use own error_handler
@@ -47,7 +47,7 @@ if (KIT_DEBUG == true) {
 
 // include GENERAL language file
 if(!file_exists(WB_PATH .'/modules/kit_tools/languages/' .LANGUAGE .'.php')) {
-	require_once(WB_PATH .'/modules/kit_tools/languages/DE.php'); // Vorgabe: DE verwenden 
+	require_once(WB_PATH .'/modules/kit_tools/languages/DE.php'); // Vorgabe: DE verwenden
 }
 else {
 	require_once(WB_PATH .'/modules/kit_tools/languages/' .LANGUAGE .'.php');
@@ -55,7 +55,7 @@ else {
 
 // include language file
 if(!file_exists(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.php')) {
-	require_once(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/DE.php'); // Vorgabe: DE verwenden 
+	require_once(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/DE.php'); // Vorgabe: DE verwenden
 	define('KIT_EVT_LANGUAGE', 'DE'); // die Konstante gibt an in welcher Sprache KIT Event aktuell arbeitet
 }
 else {
@@ -64,12 +64,28 @@ else {
 }
 
 if (!class_exists('dbconnectle')) 				require_once(WB_PATH.'/modules/dbconnect_le/include.php');
-if (!class_exists('Dwoo')) 								require_once(WB_PATH.'/modules/dwoo/include.php');
 if (!class_exists('kitToolsLibrary'))   	require_once(WB_PATH.'/modules/kit_tools/class.tools.php');
+
+if (!class_exists('Dwoo')) {
+  require_once WB_PATH.'/modules/dwoo/include.php';
+}
+
+// set cache and compile path for the template engine
+$cache_path = WB_PATH.'/temp/cache';
+if (!file_exists($cache_path)) mkdir($cache_path, 0755, true);
+$compiled_path = WB_PATH.'/temp/compiled';
+if (!file_exists($compiled_path)) mkdir($compiled_path, 0755, true);
+
+// init the template engine
+global $parser;
+if (!is_object($parser)) $parser = new Dwoo($compiled_path, $cache_path);
+
+// load extensions for the template engine
+$loader = $parser->getLoader();
+$loader->addDirectory(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/htt/plugins/');
 
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.event.php');
 
-global $parser;
 global $dbEvent;
 global $dbEventCfg;
 global $dbEventGroup;
@@ -77,7 +93,6 @@ global $dbEventItem;
 global $dbEventOrder;
 global $kitLibrary;
 
-if (!is_object($parser)) $parser = new Dwoo();
 if (!is_object($dbEvent)) $dbEvent = new dbEvent();
 if (!is_object($dbEventCfg)) $dbEventCfg = new dbEventCfg();
 if (!is_object($dbEventGroup)) $dbEventGroup = new dbEventGroup();
