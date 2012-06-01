@@ -1,18 +1,12 @@
 {*
-  kitEvent
-
-  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
-  @link http://phpmanufaktur.de
-  @copyright 2011
-  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
-  @version $Id$
-
-  Dieses Template wird eingebunden um die detailierten Informationen zu dem
-  jeweiligen Termin anzuzeigen.
-
-  Verfügbare Variablen:
-  - siehe Beschreibung bei frontend.event.teaser.htt -
-
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ *
+ * Please use {dump()} to get a list of all available template variables!
  *}
 <div class="evt_detail">
   <h2>{$event.headline}</h2>

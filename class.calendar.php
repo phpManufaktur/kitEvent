@@ -3,32 +3,46 @@
 /**
  * kitEvent
  *
- * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
- * @link http://phpmanufaktur.de
- * @copyright 2011
- * @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
- * @version $Id$
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
  */
 
-// prevent this file from being accessed directly
-if (!defined('WB_PATH')) die('invalid call of ' . $_SERVER['SCRIPT_NAME']);
+// include class.secure.php to protect this file and the whole CMS!
+if (defined('WB_PATH')) {
+  if (defined('LEPTON_VERSION')) include (WB_PATH . '/framework/class.secure.php');
+}
+else {
+  $oneback = "../";
+  $root = $oneback;
+  $level = 1;
+  while (($level < 10) && (!file_exists($root . '/framework/class.secure.php'))) {
+    $root .= $oneback;
+    $level += 1;
+  }
+  if (file_exists($root . '/framework/class.secure.php')) {
+    include ($root . '/framework/class.secure.php');
+  }
+  else {
+    trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
+  }
+}
+// end include class.secure.php
 
 require_once (WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/initialize.php');
 
 class monthlyCalendar {
-
   const request_action = 'act';
   const request_event = 'evt';
   const request_year = 'y';
   const request_month = 'm';
   const request_day = 'd';
   const request_event_id = 'id';
-
   const action_show_month = 'month';
   const action_default = 'def';
   const action_show_list = 'list';
   const action_order = 'ord';
-
   const event_day = 'day';
   const event_month = 'month';
 
@@ -140,39 +154,42 @@ class monthlyCalendar {
     }
     return $result;
   } // getTemplate()
-  
-	public function action() {
-		
-		/**
-     * to prevent cross site scripting XSS it is important to look also to 
-     * $_REQUESTs which are needed by other KIT addons. Addons which need
+
+  public function action() {
+
+    /**
+     * to prevent cross site scripting XSS it is important to look also to
+     * $_REQUESTs which are needed by other KIT addons.
+     * Addons which need
      * a $_REQUEST with HTML must set this key in $_SESSION['KIT_HTML_REQUEST']
      */
     $html_allowed = array();
-		if (isset($_SESSION['KIT_HTML_REQUEST'])) $html_allowed = $_SESSION['KIT_HTML_REQUEST'];
-		$html = array();
-		foreach ($html as $key) $html_allowed[] = $key;
-		$_SESSION['KIT_HTML_REQUEST'] = $html_allowed;
-  	foreach ($_REQUEST as $key => $value) {
-  		if (!in_array($key, $html_allowed)) {
-   			$_REQUEST[$key] = $this->xssPrevent($value);
-  		} 
-  	}
-  	
-  	$action = (isset($this->params[self::param_action])) ? $this->params[self::param_action] : self::action_show_month;
-  	if (isset($_REQUEST[self::request_action])) $action = $_REQUEST[self::request_action];
-  	
-  	switch ($action):
-		case self::action_show_list:
-			$result = $this->showList();
-			break;
-		case self::action_show_month:
-  	default:
-			$result = $this->showCalendar();  		
-  		break;
-  	endswitch;
-		if ($this->isError()) $result = $this->getError();
-		return $result;	
+    if (isset($_SESSION['KIT_HTML_REQUEST'])) $html_allowed = $_SESSION['KIT_HTML_REQUEST'];
+    $html = array();
+    foreach ($html as $key)
+      $html_allowed[] = $key;
+    $_SESSION['KIT_HTML_REQUEST'] = $html_allowed;
+    foreach ($_REQUEST as $key => $value) {
+      if (!in_array($key, $html_allowed)) {
+        $_REQUEST[$key] = $this->xssPrevent($value);
+      }
+    }
+
+    $action = (isset($this->params[self::param_action])) ? $this->params[self::param_action] : self::action_show_month;
+    if (isset($_REQUEST[self::request_action])) $action = $_REQUEST[self::request_action];
+
+    switch ($action) :
+      case self::action_show_list :
+        $result = $this->showList();
+        break;
+      case self::action_show_month :
+      default :
+        $result = $this->showCalendar();
+        break;
+    endswitch
+    ;
+    if ($this->isError()) $result = $this->getError();
+    return $result;
   } // action()
 
   private function getEvents($month, $year, $group = '', $is_sheet = true) {
@@ -185,6 +202,7 @@ class monthlyCalendar {
     if (!empty($group)) {
       // ID der angegebenen Gruppe ermitteln
       $SQL = sprintf("SELECT %s FROM %s WHERE %s='%s' AND %s='%s'", dbEventGroup::field_id, $dbEventGroup->getTableName(), dbEventGroup::field_name, $group, dbEventGroup::field_status, dbEventGroup::status_active);
+      $groups = array();
       if (!$dbEventGroup->sqlExec($SQL, $groups)) {
         $this->setError($dbEventGroup->getError());
         return false;
@@ -278,19 +296,19 @@ class monthlyCalendar {
       $next_month = $month + 1;
       $next_year = $year;
     }
-		// navigation
-		$navigation = array(
-			'prev_link'					=> sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_show_month,	self::request_month, $prev_month,	self::request_year,	$prev_year),
-			'prev_hint'					=> event_hint_previous_month,
-			'prev_text'					=> event_cfg_cal_prev_month,
-			'month_year'				=> sprintf('%s %d', $month_name, $year),
-		  'month_link'       => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->response_link, self::request_event, self::event_month, self::request_month, $month, self::request_year, $year),
-			'next_link'					=> sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_show_month,	self::request_month,	$next_month,	self::request_year,	$next_year),
-			'next_hint'					=> event_hint_next_month,
-			'next_text'					=> event_cfg_cal_next_month
-		)
+    // navigation
+    $navigation = array(
+      'prev_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_show_month, self::request_month, $prev_month, self::request_year, $prev_year),
+      'prev_hint' => event_hint_previous_month,
+      'prev_text' => event_cfg_cal_prev_month,
+      'month_year' => sprintf('%s %d', $month_name, $year),
+      'month_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->response_link, self::request_event, self::event_month, self::request_month, $month, self::request_year, $year),
+      'next_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_show_month, self::request_month, $next_month, self::request_year, $next_year),
+      'next_hint' => event_hint_next_month,
+      'next_text' => event_cfg_cal_next_month
+    );
 
-    ;
+
 
     $head = array(
       '0' => $this->getDayOfWeekName(0, 2, true),

@@ -1,38 +1,13 @@
 {*
-  kitEvent
-
-  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
-  @link http://phpmanufaktur.de
-  @copyright 2011
-  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
-  @version $Id: backend.about.htt 8 2011-03-23 11:49:27Z phpmanufaktur $
-
-  Dieses Template wird eingebunden um die Events zu einem bestimmten Tag anzuzeigen.
-
-  Verfügbare Variablen:
-
-  - siehe auch Beschreibung bei frontend.event.teaser.htt -
-
-  $order.title
-  $order.first_name
-  $order.last_name
-  $order.company
-  $order.street
-  $order.zip
-  $order.city
-  $order.email
-  $order.phone
-  $order.best_time
-  $order.message
-  $order.confirm_datetime
-  $order.confirm_timestamp
-  $order.free_1
-  $order.free_2
-  $order.free_3
-  $order.free_4
-  $order.free_5
-
-*}
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ *
+ * Please use {dump()} to get a list of all available template variables!
+ *}
 Sehr geehrter Kunde,
 
 vielen Dank für Ihr Interesse an unserer Veranstaltung {$event.headline} am {$event.start.date} um {$event.start.time} Uhr.

@@ -1,32 +1,12 @@
 {*
-  kitEvent
-
-  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
-  @link http://phpmanufaktur.de
-  @copyright 2011
-  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
-  @version $Id$
-
-  Dieses Template wird eingebunden um die Events zu einem bestimmten Tag anzuzeigen.
-
-  Verfügbare Variablen:
-
-  - siehe auch Beschreibung bei frontend.event.teaser.htt -
-
-  $day.date
- 	$day.day
- 	$day.day_zero
- 	$day.day_name
- 	$day.day_name_2
- 	$day.month_name
- 	$day.month_name_3
- 	$day.month
- 	$day.month_zero
- 	$day.year
- 	$day.year_2
- 	$day.week
- 	$day.link_start
-
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ *
+ * Please use {dump()} to get a list of all available template variables!
  *}
 <div id="evt_view_day">
   <h2>Übersicht über die Veranstaltungen am {$day.date}</h2>

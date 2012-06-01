@@ -2,13 +2,33 @@
 
 /**
  * kitEvent
- * 
- * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
- * @link http://phpmanufaktur.de
- * @copyright 2011
- * @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
- * @version $Id$
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
  */
+
+// include class.secure.php to protect this file and the whole CMS!
+if (defined('WB_PATH')) {
+  if (defined('LEPTON_VERSION')) include (WB_PATH . '/framework/class.secure.php');
+}
+else {
+  $oneback = "../";
+  $root = $oneback;
+  $level = 1;
+  while (($level < 10) && (!file_exists($root . '/framework/class.secure.php'))) {
+    $root .= $oneback;
+    $level += 1;
+  }
+  if (file_exists($root . '/framework/class.secure.php')) {
+    include ($root . '/framework/class.secure.php');
+  }
+  else {
+    trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
+  }
+}
+// end include class.secure.php
 
 if ('á' != "\xc3\xa1") {
 	// important: language files must be saved as UTF-8 (without BOM)
@@ -52,7 +72,7 @@ define('event_error_evt_invalid',									'<p>Es wurde ein ungültiges Event ang
 define('event_error_evt_params_missing',					'<p>Es wurden nicht alle erforderlichen Parameter übergeben!</p>');
 define('event_error_evt_unspecified',							'<p>Die Ansicht <b>%s</b> ist nicht spezifiert und kann deshalb nicht angezeigt werden!</p>');
 define('event_error_file_create',									'<p>Die Datei <b>%s</b> konnte nicht geschrieben werden!</p>');
-define('event_error_group_invalid',								'<p>Die Gruppe <b>%s</b> wurde nicht gefunden, prüfen Sie die Parameter!</p>'); 
+define('event_error_group_invalid',								'<p>Die Gruppe <b>%s</b> wurde nicht gefunden, prüfen Sie die Parameter!</p>');
 define('event_error_id_invalid',									'<p>Der Datensatz mit der <b>ID %03d</b> wurde nicht gefunden!</p>');
 define('event_error_must_fields_missing',					'<p>Fataler Fehler: die Pflichtfelder für das Formular sind nicht definiert!</p>');
 define('event_error_preset_not_exists',						'<p>Das Presetverzeichnis <b>%s</b> existiert nicht, die erforderlichen Templates können nicht geladen werden!</p>');
@@ -99,10 +119,10 @@ define('event_label_event',												'Veranstaltung');
 define('event_label_event_costs',									'Kosten pro Teilnehmer (<i>-1 = Kostenfrei</i>)');
 define('event_label_event_date_from',							'Datum: Beginn des Event');
 define('event_label_event_date_to',								'Datum: Ende des Event');
-define('event_label_event_group',									'Event Gruppe'); 
+define('event_label_event_group',									'Event Gruppe');
 define('event_label_event_link',									'Ergänzender Link');
 define('event_label_event_location',							'Veranstaltungsort');
-define('event_label_perma_link',									'Permanent Link (permaLink)'); 
+define('event_label_perma_link',									'Permanent Link (permaLink)');
 define('event_label_event_title',									'Schlagzeile für das Event');
 define('event_label_event_time_start',						'Uhrzeit: Beginn des Event');
 define('event_label_event_time_end',							'Uhrzeit: Ende des Event');

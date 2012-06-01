@@ -2,21 +2,38 @@
 
 /**
  * kitEvent
- * 
- * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
- * @link http://phpmanufaktur.de
- * @copyright 2011
- * @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
- * @version $Id$
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
  */
 
-// prevent this file from being accessed directly
-if (!defined('WB_PATH')) die('invalid call of '.$_SERVER['SCRIPT_NAME']);
+// include class.secure.php to protect this file and the whole CMS!
+if (defined('WB_PATH')) {
+  if (defined('LEPTON_VERSION')) include (WB_PATH . '/framework/class.secure.php');
+}
+else {
+  $oneback = "../";
+  $root = $oneback;
+  $level = 1;
+  while (($level < 10) && (!file_exists($root . '/framework/class.secure.php'))) {
+    $root .= $oneback;
+    $level += 1;
+  }
+  if (file_exists($root . '/framework/class.secure.php')) {
+    include ($root . '/framework/class.secure.php');
+  }
+  else {
+    trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
+  }
+}
+// end include class.secure.php
 
 // include dbConnect
 if (!class_exists('dbConnectLE')) require_once(WB_PATH.'/modules/dbconnect_le/include.php');
 
-class dbDroplets extends dbConnectLE { 
+class dbDroplets extends dbConnectLE {
 
 	const field_id							= 'id';
 	const field_name						= 'name';
@@ -26,7 +43,7 @@ class dbDroplets extends dbConnectLE {
 	const field_modified_by			= 'modified_by';
 	const field_active					= 'active';
 	const field_comments				= 'comments';
-	
+
 	public function __construct() {
 		parent::__construct();
 		$this->setTableName('mod_droplets');
@@ -38,24 +55,24 @@ class dbDroplets extends dbConnectLE {
 		$this->addFieldDefinition(self::field_modified_by, "INT(11) NOT NULL DEFAULT '0'");
 		$this->addFieldDefinition(self::field_active, "INT(11) NOT NULL DEFAULT '0'");
 		$this->addFieldDefinition(self::field_comments, "TEXT NOT NULL DEFAULT ''");
-		$this->checkFieldDefinitions();	
+		$this->checkFieldDefinitions();
 	} // __construct()
-	
+
 } // class dbDroplets
 
 
 class checkDroplets {
-	
+
 	var $droplet_path	= '';
 	var $error = '';
-	
+
 	public function __construct() {
 		$this->droplet_path = WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/droplets/' ;
 	} // __construct()
-		
+
 	/**
     * Set $this->error to $error
-    * 
+    *
     * @param STR $error
     */
   public function setError($error) {
@@ -64,7 +81,7 @@ class checkDroplets {
 
   /**
     * Get Error from $this->error;
-    * 
+    *
     * @return STR $this->error
     */
   public function getError() {
@@ -73,23 +90,23 @@ class checkDroplets {
 
   /**
     * Check if $this->error is empty
-    * 
+    *
     * @return BOOL
     */
   public function isError() {
     return (bool) !empty($this->error);
   } // isError
-	
+
 	public function insertDropletsIntoTable() {
 		global $admin;
 		// Read droplets from directory
-		$folder = opendir($this->droplet_path.'.'); 
+		$folder = opendir($this->droplet_path.'.');
 		$names = array();
 		while (false !== ($file = readdir($folder))) {
 			if (basename(strtolower($file)) != 'index.php') {
 				$ext = strtolower(substr($file,-4));
 				if ($ext	==	".php") {
-					$names[count($names)] = $file; 
+					$names[count($names)] = $file;
 				}
 			}
 		}
@@ -144,12 +161,12 @@ class checkDroplets {
 						$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbDroplets->getError()));
 						return false;
 					}
-				}				
-			}  
+				}
+			}
 		}
 		return true;
 	} // insertDropletsIntoTable()
-	
+
 	public function getDropletCodeFromFile($dropletfile) {
 		$data = "";
 		$filename = $this->droplet_path.$dropletfile;
@@ -157,10 +174,10 @@ class checkDroplets {
 			$filehandle = fopen ($filename, "r");
 			$data = fread ($filehandle, filesize ($filename));
 			fclose($filehandle);
-		}	
+		}
 		return $data;
 	} // getDropletCodeFromFile()
-	
+
 } // checkDroplets
 
 

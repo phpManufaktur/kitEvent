@@ -1,11 +1,10 @@
 /**
  * kitEvent
- * 
+ *
  * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
- * @link http://phpmanufaktur.de
- * @copyright 2011-2012
+ * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
  * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
- * @version $Id: backend.js 15 2011-10-10 06:47:27Z phpmanufaktur $
  */
 
 function execOnChange(target_url, select_id) { 

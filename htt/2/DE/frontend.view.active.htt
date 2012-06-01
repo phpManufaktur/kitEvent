@@ -1,15 +1,12 @@
 {*
-  kitEvent
-
-  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
-  @link http://phpmanufaktur.de
-  @copyright 2011
-  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
-  @version $Id: backend.about.htt 8 2011-03-23 11:49:27Z phpmanufaktur $
-
-  Dieses Template wird aufgerufen um die aktuellen Events des Anbieters
-  anzuzeigen. Abhängig von der Konfiguration werden entweder die zusammgefassten
-  oder die ausführlichen Informationen zu den vorhandenen Terminen angezeigt.
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ *
+ * Please use {dump()} to get a list of all available template variables!
  *}
 <div id="evt_view_active">
   <h2>Aktuelle Workshops und Termine</h2>

@@ -1,51 +1,12 @@
 {*
-  kitEvent
-
-  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
-  @link http://phpmanufaktur.de
-  @copyright 2011
-  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
-  @version $Id$
-
-  Dieses Template wird eingebunden um die Events zu einem bestimmten Tag anzuzeigen.
-
-  Verfügbare Variablen:
-
-  - siehe auch Beschreibung bei frontend.event.teaser.htt -
-
-  $request.title
-  $request.first_name
-  $request.last_name
-  $request.company
-  $request.street
-  $request.zip
-  $request.city
-  $request.email
-  $request.phone
-  $request.best_time
-  $request.message
-  $request.confirm_order
-  $request.confirm_terms
-  $request.free_1
-  $request.free_2
-  $request.free_3
-  $request.free_4
-  $request.free_5
-  $request.captcha
-
-  Es gibt darüber hinaus eine Reihe von Variablen, die für das Funktionieren des
-  Formulars unentbehrlich sind und nicht entfernt/geändert werden dürfen:
-
-  $form_name
-  $form_action
-  $action_name
-  $action_value
-  $event_name
-  $event_value
-  $must_fields_name
-  $define_free_fields
-  $response
-
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ *
+ * Please use {dump()} to get a list of all available template variables!
  *}
 <div id="evt_order">
   <form name="{$form_name}" action="{$form_action}" method="post">

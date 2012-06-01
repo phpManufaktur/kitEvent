@@ -1,16 +1,34 @@
 <?php
+
 /**
  * kitEvent
- * 
- * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
- * @link http://phpmanufaktur.de
- * @copyright 2011
- * @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
- * @version $Id$
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
  */
 
-// prevent this file from being accessed directly
-if (!defined('WB_PATH')) die('invalid call of '.$_SERVER['SCRIPT_NAME']);
+// include class.secure.php to protect this file and the whole CMS!
+if (defined('WB_PATH')) {
+  if (defined('LEPTON_VERSION')) include (WB_PATH . '/framework/class.secure.php');
+}
+else {
+  $oneback = "../";
+  $root = $oneback;
+  $level = 1;
+  while (($level < 10) && (!file_exists($root . '/framework/class.secure.php'))) {
+    $root .= $oneback;
+    $level += 1;
+  }
+  if (file_exists($root . '/framework/class.secure.php')) {
+    include ($root . '/framework/class.secure.php');
+  }
+  else {
+    trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
+  }
+}
+// end include class.secure.php
 
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/initialize.php');
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.frontend.php');
@@ -20,7 +38,7 @@ if (!function_exists('kit_event_droplet_search')) {
 		global $dbEvent;
 		global $dbEventItem;
 		global $parser;
-		
+
 		$SQL = sprintf( "SELECT * FROM %s,%s WHERE %s.%s=%s.%s AND %s='%s' ORDER BY %s DESC",
 										$dbEvent->getTableName(),
 										$dbEventItem->getTableName(),
@@ -41,7 +59,7 @@ if (!function_exists('kit_event_droplet_search')) {
 		$tpl_title = new Dwoo_Template_File($htt_path.'search.result.title.htt');
 		$tpl_description = new Dwoo_Template_File($htt_path.'search.result.description.htt');
 	  $frontend = new eventFrontend();
-		
+
 		foreach ($events as $event) {
 	    $frontend->getEventData($event[dbEvent::field_id], $event_data, $parser_data);
 			$result[] = array(
@@ -49,9 +67,9 @@ if (!function_exists('kit_event_droplet_search')) {
 				'params'				=> http_build_query(array(eventFrontend::request_action 			=> eventFrontend::action_event,
 																									eventFrontend::request_event				=> eventFrontend::view_id,
 																									eventFrontend::request_event_id			=> $event[dbEvent::field_id],
-																									eventFrontend::request_event_detail => 1)), 
+																									eventFrontend::request_event_detail => 1)),
 				'title'					=> $parser->get($tpl_title, array('date_time' => sprintf('%s %s', date(event_cfg_datetime_str, strtotime($event[dbEvent::field_event_date_from])), event_text_hour),
-																													'title'			=> $event[dbEventItem::field_title])), 
+																													'title'			=> $event[dbEventItem::field_title])),
 				'description'		=> $parser->get($tpl_description, array('description' => strip_tags($event[dbEventItem::field_desc_short]),
 	                                                              'event'       => $parser_data)),
 				'text'					=> strip_tags($event[dbEventItem::field_desc_short]).' '.strip_tags($event[dbEventItem::field_desc_long]),
@@ -59,15 +77,15 @@ if (!function_exists('kit_event_droplet_search')) {
 				'modified_by'		=> 1 // admin
 			);
 		}
-		return  $result; 
-	} // kit_event_droplet_search()	
+		return  $result;
+	} // kit_event_droplet_search()
 }
 
 if (!function_exists('kit_event_droplet_header')) {
 	function kit_event_droplet_header($page_id) {
 		global $dbEvent;
 		global $dbEventItem;
-		
+
 		$result = array(
 			'title'				=> '',
 			'description'	=> '',
@@ -77,7 +95,7 @@ if (!function_exists('kit_event_droplet_header')) {
 		if ((isset($_REQUEST[eventFrontend::request_action]) && ($_REQUEST[eventFrontend::request_action] == eventFrontend::action_event)) &&
 				(isset($_REQUEST[eventFrontend::request_event]) && ($_REQUEST[eventFrontend::request_event] == eventFrontend::view_id)) &&
 				(isset($_REQUEST[eventFrontend::request_event_id])) &&
-				(isset($_REQUEST[eventFrontend::request_event_detail]) && ($_REQUEST[eventFrontend::request_event_detail] == 1))) { 
+				(isset($_REQUEST[eventFrontend::request_event_detail]) && ($_REQUEST[eventFrontend::request_event_detail] == 1))) {
 			$event_id = $_REQUEST[eventFrontend::request_event_id];
 			$SQL = sprintf( "SELECT * FROM %s, %s WHERE %s.%s=%s.%s AND %s.%s='%s'",
 											$dbEvent->getTableName(),
@@ -101,9 +119,9 @@ if (!function_exists('kit_event_droplet_header')) {
 					'description'	=> isset($event[dbEventItem::field_desc_short]) ? substr(strip_tags($event[dbEventItem::field_desc_short]), 0, 180) : '',
 					'keywords'		=> '' // noch nicht unterstuetzt...
 				);
-			}			
+			}
 		}
-		
+
 		return $result;
 	} // kit_event_droplet_header
 }

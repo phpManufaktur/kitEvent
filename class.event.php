@@ -2,16 +2,33 @@
 
 /**
  * kitEvent
- * 
- * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
- * @link http://phpmanufaktur.de
- * @copyright 2011
- * @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
- * @version $Id$
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
  */
 
-// prevent this file from being accessed directly
-if (!defined('WB_PATH')) die('invalid call of '.$_SERVER['SCRIPT_NAME']);
+// include class.secure.php to protect this file and the whole CMS!
+if (defined('WB_PATH')) {
+  if (defined('LEPTON_VERSION')) include (WB_PATH . '/framework/class.secure.php');
+}
+else {
+  $oneback = "../";
+  $root = $oneback;
+  $level = 1;
+  while (($level < 10) && (!file_exists($root . '/framework/class.secure.php'))) {
+    $root .= $oneback;
+    $level += 1;
+  }
+  if (file_exists($root . '/framework/class.secure.php')) {
+    include ($root . '/framework/class.secure.php');
+  }
+  else {
+    trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
+  }
+}
+// end include class.secure.php
 
 // include dbConnectLE
 if (!class_exists('dbConnectLE')) require_once(WB_PATH.'/modules/dbconnect_le/include.php');
@@ -20,7 +37,7 @@ class dbEvent extends dbConnectLE {
 
 	const field_id									= 'evt_id';
 	const field_event_item					= 'item_id';
-	const field_event_group					= 'group_id';			
+	const field_event_group					= 'group_id';
 	const field_event_date_from			= 'evt_event_date_from';
 	const field_event_date_to				= 'evt_event_date_to';
 	const field_publish_date_from		= 'evt_publish_date_from';
@@ -33,20 +50,20 @@ class dbEvent extends dbConnectLE {
 	const field_qrcode_image				= 'evt_qrcode_image';
 	const field_status							= 'evt_status';
 	const field_timestamp						= 'evt_timestamp';
-	
+
 	const status_active							= 1;
 	const status_locked							= 0;
-	const status_deleted						= -1; 
+	const status_deleted						= -1;
 	const status_archived						= 2;
-	
+
 	public $status_array = array(
 		self::status_active			=> event_status_active,
 		self::status_locked			=> event_status_locked,
-		self::status_deleted		=> event_status_deleted 
+		self::status_deleted		=> event_status_deleted
 	);
-	
+
 	private $createTables 		= false;
-  
+
   public function __construct($createTables = false) {
   	$this->createTables = $createTables;
   	parent::__construct();
@@ -64,7 +81,7 @@ class dbEvent extends dbConnectLE {
   	$this->addFieldDefinition(self::field_perma_link, "VARCHAR(128) NOT NULL DEFAULT ''");
   	$this->addFieldDefinition(self::field_ical_file, "VARCHAR(32) NOT NULl DEFAULT ''");
   	$this->addFieldDefinition(self::field_qrcode_image, "VARCHAR(32) NOT NULl DEFAULT ''");
-  	$this->addFieldDefinition(self::field_status, "TINYINT NOT NULL DEFAULT '".self::status_active."'"); 
+  	$this->addFieldDefinition(self::field_status, "TINYINT NOT NULL DEFAULT '".self::status_active."'");
   	$this->addFieldDefinition(self::field_timestamp, "TIMESTAMP");
   	$this->setIndexFields(array(self::field_event_item, self::field_event_group));
   	$this->checkFieldDefinitions();
@@ -77,12 +94,12 @@ class dbEvent extends dbConnectLE {
   		}
   	}
   } // __construct()
-	
+
 } // class dbEvent
 
 
 class dbEventItem extends dbConnectLE {
-	
+
 	const field_id									= 'item_id';
 	const field_title								= 'item_title';
 	const field_desc_short					= 'item_desc_short';
@@ -91,16 +108,16 @@ class dbEventItem extends dbConnectLE {
 	const field_location						= 'item_location';
 	const field_costs								= 'item_costs';
 	const field_timestamp						= 'item_timestamp';
-	
+
 	private $createTables 		= false;
-  
+
   public function __construct($createTables = false) {
   	$this->createTables = $createTables;
   	parent::__construct();
   	$this->setTableName('mod_kit_event_item');
   	$this->addFieldDefinition(self::field_id, "INT(11) NOT NULL AUTO_INCREMENT", true);
   	$this->addFieldDefinition(self::field_title, "VARCHAR(255) NOT NULL DEFAULT ''");
-  	$this->addFieldDefinition(self::field_desc_short, "TEXT NOT NULL DEFAULT ''", false, false, true); 
+  	$this->addFieldDefinition(self::field_desc_short, "TEXT NOT NULL DEFAULT ''", false, false, true);
   	$this->addFieldDefinition(self::field_desc_long, "TEXT NOT NULL DEFAULT ''", false, false, true);
   	$this->addFieldDefinition(self::field_desc_link, "VARCHAR(255) NOT NULL DEFAULT ''");
   	$this->addFieldDefinition(self::field_location, "VARCHAR(255) NOT NULL DEFAULT ''");
@@ -116,11 +133,11 @@ class dbEventItem extends dbConnectLE {
   		}
   	}
   } // __construct()
-	
+
 } // class dbEventItem
 
 class dbEventGroup extends dbConnectLE {
-	
+
 	const field_id									= 'group_id';
 	const field_name								= 'group_name';
 	const field_redirect_page				= 'group_redirect_page';
@@ -128,29 +145,29 @@ class dbEventGroup extends dbConnectLE {
 	const field_desc								= 'group_desc';
 	const field_status							= 'group_status';
 	const field_timestamp						= 'group_timestamp';
-	
+
 	const status_active							= 1;
 	const status_locked							= 0;
 	const status_deleted						= -1;
-	
+
 	public $status_array = array(
 		self::status_active 	=> event_status_active,
 		self::status_locked		=> event_status_locked,
 		self::status_deleted	=> event_status_deleted
 	);
-	
+
 	private $createTables 		= false;
-  
+
   public function __construct($createTables = false) {
   	$this->createTables = $createTables;
   	parent::__construct();
   	$this->setTableName('mod_kit_event_group');
   	$this->addFieldDefinition(self::field_id, "INT(11) NOT NULL AUTO_INCREMENT", true);
   	$this->addFieldDefinition(self::field_name, "VARCHAR(64) NOT NULL DEFAULT ''");
-  	$this->addFieldDefinition(self::field_redirect_page, "VARCHAR(255) NOT NULL DEFAULT ''"); 
+  	$this->addFieldDefinition(self::field_redirect_page, "VARCHAR(255) NOT NULL DEFAULT ''");
   	$this->addFieldDefinition(self::field_perma_link_pattern, "VARCHAR(128) NOT NULL DEFAULT ''");
   	$this->addFieldDefinition(self::field_desc, "VARCHAR(255) NOT NULL DEFAULT ''");
-  	$this->addFieldDefinition(self::field_status, "TINYINT NOT NULL DEFAULT '".self::status_active."'"); 
+  	$this->addFieldDefinition(self::field_status, "TINYINT NOT NULL DEFAULT '".self::status_active."'");
   	$this->addFieldDefinition(self::field_timestamp, "TIMESTAMP");
   	$this->checkFieldDefinitions();
   	// Tabelle erstellen
@@ -162,11 +179,11 @@ class dbEventGroup extends dbConnectLE {
   		}
   	}
   } // __construct()
-	
+
 } // class dbEventGroup
 
 class dbEventOrder extends dbConnectLE {
-	
+
 	const field_id						= 'ord_id';
 	const field_event_id			= 'evt_id';
 	const field_order_date		= 'ord_date';
@@ -189,9 +206,9 @@ class dbEventOrder extends dbConnectLE {
 	const field_free_4				= 'ord_free_4';
 	const field_free_5				= 'ord_free_5';
 	const field_timestamp			= 'ord_timestamp';
-	
+
 	private $createTables 		= false;
-  
+
   public function __construct($createTables = false) {
   	$this->createTables = $createTables;
   	parent::__construct();
@@ -228,11 +245,11 @@ class dbEventOrder extends dbConnectLE {
   		}
   	}
   } // __construct()
-	
+
 } // class dbEventOrder
 
 class dbEventCfg extends dbConnectLE {
-	
+
 	const field_id						= 'cfg_id';
 	const field_name					= 'cfg_name';
 	const field_type					= 'cfg_type';
@@ -242,10 +259,10 @@ class dbEventCfg extends dbConnectLE {
 	const field_status				= 'cfg_status';
 	const field_update_by			= 'cfg_update_by';
 	const field_update_when		= 'cfg_update_when';
-	
+
 	const status_active				= 1;
 	const status_deleted			= 0;
-	
+
 	const type_undefined			= 0;
 	const type_array					= 7;
   const type_boolean				= 1;
@@ -255,7 +272,7 @@ class dbEventCfg extends dbConnectLE {
   const type_path						= 5;
   const type_string					= 6;
   const type_url						= 8;
-  
+
   public $type_array = array(
   	self::type_undefined		=> '-UNDEFINED-',
   	self::type_array				=> 'ARRAY',
@@ -267,10 +284,10 @@ class dbEventCfg extends dbConnectLE {
   	self::type_string				=> 'STRING',
   	self::type_url					=> 'URL'
   );
-  
+
   private $createTables 		= false;
   private $message					= '';
-    
+
   const cfgEventExec				= 'cfgEventExec';
   const cfgICalDir					= 'cfgICalDir';
   const cfgICalExec					= 'cfgICalExec';
@@ -280,8 +297,8 @@ class dbEventCfg extends dbConnectLE {
   const cfgQRCodeSize				= 'cfgQRCodeSize';
   const cfgQRCodeECLevel		= 'cfgQRCodeECLevel';
   const cfgQRCodeMargin			= 'cfgQRCodeMargin';
-  const cfgQRCodeContent		= 'cfgQRCodeContent'; 
-  
+  const cfgQRCodeContent		= 'cfgQRCodeContent';
+
   public $config_array = array(
   	array('event_label_cfg_exec', self::cfgEventExec, self::type_boolean, '1', 'event_desc_cfg_exec'),
   	array('event_label_cfg_ical_dir', self::cfgICalDir, self::type_string, 'kit_event', 'event_desc_cfg_ical_dir'),
@@ -292,9 +309,9 @@ class dbEventCfg extends dbConnectLE {
   	array('event_label_cfg_qrcode_size', self::cfgQRCodeSize, self::type_integer, '3', 'event_desc_cfg_qrcode_size'),
   	array('event_label_cfg_qrcode_eclevel', self::cfgQRCodeECLevel, self::type_integer, '2', 'event_desc_cfg_qrcode_eclevel'),
   	array('event_label_cfg_qrcode_margin', self::cfgQRCodeMargin, self::type_integer, '2', 'event_desc_cfg_qrcode_margin'),
-  	array('event_label_cfg_qrcode_content', self::cfgQRCodeContent, self::type_integer, '1', 'event_desc_cfg_qrcode_content')  	
-  );  
-  
+  	array('event_label_cfg_qrcode_content', self::cfgQRCodeContent, self::type_integer, '1', 'event_desc_cfg_qrcode_content')
+  );
+
   public function __construct($createTables = false) {
   	$this->createTables = $createTables;
   	parent::__construct();
@@ -325,14 +342,14 @@ class dbEventCfg extends dbConnectLE {
   	}
   	date_default_timezone_set(event_cfg_time_zone);
   } // __construct()
-  
+
   public function setMessage($message) {
     $this->message = $message;
   } // setMessage()
 
   /**
     * Get Message from $this->message;
-    * 
+    *
     * @return STR $this->message
     */
   public function getMessage() {
@@ -341,21 +358,21 @@ class dbEventCfg extends dbConnectLE {
 
   /**
     * Check if $this->message is empty
-    * 
+    *
     * @return BOOL
     */
   public function isMessage() {
     return (bool) !empty($this->message);
   } // isMessage
-  
+
   /**
    * Aktualisiert den Wert $new_value des Datensatz $name
-   * 
+   *
    * @param $new_value STR - Wert, der uebernommen werden soll
    * @param $id INT - ID des Datensatz, dessen Wert aktualisiert werden soll
-   * 
+   *
    * @return BOOL Ergebnis
-   * 
+   *
    */
   public function setValueByName($new_value, $name) {
   	$where = array();
@@ -371,7 +388,7 @@ class dbEventCfg extends dbConnectLE {
   	}
   	return $this->setValue($new_value, $config[0][self::field_id]);
   } // setValueByName()
-  
+
   /**
    * Haengt einen Slash an das Ende des uebergebenen Strings
    * wenn das letzte Zeichen noch kein Slash ist
@@ -381,9 +398,9 @@ class dbEventCfg extends dbConnectLE {
    */
   public function addSlash($path) {
   	$path = substr($path, strlen($path)-1, 1) == "/" ? $path : $path."/";
-  	return $path;  
+  	return $path;
   }
-  
+
   /**
    * Wandelt einen String in einen Float Wert um.
    * Geht davon aus, dass Dezimalzahlen mit ',' und nicht mit '.'
@@ -405,7 +422,7 @@ class dbEventCfg extends dbConnectLE {
 		$int = intval($string);
 		return $int;
   }
-  
+
 	/**
 	 * Ueberprueft die uebergebene E-Mail Adresse auf logische Gueltigkeit
 	 *
@@ -420,13 +437,13 @@ class dbEventCfg extends dbConnectLE {
 		else {
 			return false; }
 	}
-  
+
   /**
    * Aktualisiert den Wert $new_value des Datensatz $id
-   * 
+   *
    * @param $new_value STR - Wert, der uebernommen werden soll
    * @param $id INT - ID des Datensatz, dessen Wert aktualisiert werden soll
-   * 
+   *
    * @return BOOL Ergebnis
    */
   public function setValue($new_value, $id) {
@@ -451,7 +468,7 @@ class dbEventCfg extends dbConnectLE {
   		foreach ($worker as $item) {
   			$data[] = trim($item);
   		};
-  		$value = implode(",", $data);  			
+  		$value = implode(",", $data);
   		break;
   	case self::type_boolean:
   		$value = (bool) $new_value;
@@ -463,7 +480,7 @@ class dbEventCfg extends dbConnectLE {
   		}
   		else {
   			$this->setMessage(sprintf(event_msg_invalid_email, $new_value));
-  			return false;			
+  			return false;
   		}
   		break;
   	case self::type_float:
@@ -492,12 +509,12 @@ class dbEventCfg extends dbConnectLE {
   	}
   	return true;
   } // setValue()
-  
+
   /**
    * Gibt den angeforderten Wert zurueck
-   * 
-   * @param $name - Bezeichner 
-   * 
+   *
+   * @param $name - Bezeichner
+   *
    * @return WERT entsprechend des TYP
    */
   public function getValue($name) {
@@ -539,7 +556,7 @@ class dbEventCfg extends dbConnectLE {
   	endswitch;
   	return $result;
   } // getValue()
-  
+
   public function checkConfig() {
   	foreach ($this->config_array as $item) {
   		$where = array();
@@ -567,7 +584,7 @@ class dbEventCfg extends dbConnectLE {
   	}
   	return true;
   }
-	  
+
 } // class dbEventCfg
 
 
