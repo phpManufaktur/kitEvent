@@ -248,7 +248,13 @@ class eventFrontend {
   	if ($this->isError()) return $this->getError();
   	$html_allowed = array();
   	foreach ($_REQUEST as $key => $value) {
-  		if (!in_array($key, $html_allowed)) {
+  	  if (stripos($key, 'amp;') == 0) {
+        // fix the problem, that the server does not proper rewrite &amp; to &
+        $key = substr($key, 4);
+        $_REQUEST[$key] = $value;
+        unset($_REQUEST['amp;'.$key]);
+      }
+      if (!in_array($key, $html_allowed)) {
    			$_REQUEST[$key] = $this->xssPrevent($value);
   		}
   	}
