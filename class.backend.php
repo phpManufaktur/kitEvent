@@ -196,6 +196,12 @@ class eventBackend {
       dbEventItem::field_desc_short
     );
     foreach ($_REQUEST as $key => $value) {
+      if (stripos($key, 'amp;') == 0) {
+        // fix the problem, that the server does not proper rewrite &amp; to &
+        $key = substr($key, 4);
+        $_REQUEST[$key] = $value;
+        unset($_REQUEST['amp;'.$key]);
+      }
       if (!in_array($key, $html_allowed)) {
         $_REQUEST[$key] = $this->xssPrevent($value);
       }
@@ -589,7 +595,7 @@ class eventBackend {
       'costs' => array(
         'name' => dbEventItem::field_costs,
         'label' => event_label_event_costs,
-        'value' => sprintf(event_cfg_currency, number_format($event[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator))
+        'value' => sprintf(event_cfg_currency, number_format((float) $event[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator))
       ),
       'group' => array(
         'name' => dbEvent::field_event_group,
