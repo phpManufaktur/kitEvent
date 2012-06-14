@@ -33,7 +33,7 @@ else {
 $module_directory     = 'kit_event';
 $module_name          = 'kitEventCalendar';
 $module_function      = 'tool';
-$module_version       = '0.28';
+$module_version       = '0.29';
 $module_status        = 'Beta';
 $module_platform      = '2.8';
 $module_author        = 'Ralf Hertsch, Berlin (Germany)';

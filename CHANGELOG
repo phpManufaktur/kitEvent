@@ -4,6 +4,10 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+0.29 - 2012-06-14
+
+* removed WebsiteBaker version check
+
 0.28 - 2012-06-01
 
 * fixed - xssPrevent() is too grabby, reduced to own requests
