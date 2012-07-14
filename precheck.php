@@ -4,7 +4,7 @@
  * kitEvent
  *
  * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
- * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @link https://addons.phpmanufaktur.de/kitEvent
  * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
  * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
  */
@@ -31,38 +31,84 @@ else {
 // end include class.secure.php
 
 // Checking Requirements
+global $database;
 
-$PRECHECK['PHP_VERSION'] = array('VERSION' => '5.2.0', 'OPERATOR' => '>=');
-$PRECHECK['WB_ADDONS'] = array(
-	'dbconnect_le'	=> array('VERSION' => '0.64', 'OPERATOR' => '>='),
-	'dwoo' => array('VERSION' => '0.10', 'OPERATOR' => '>='),
-	'droplets' => array('VERSION' => '1.0', 'OPERATOR' => '>='),
-	'kit_tools' => array('VERSION' => '0.12', 'OPERATOR' => '>='),
-	'perma_link' => array('VERSION' => '0.10', 'OPERATOR' => '>=')
+$checked = true;
+
+// check PHP version
+$PRECHECK['PHP_VERSION'] = array(
+    'VERSION' => '5.2.0',
+    'OPERATOR' => '>='
 );
 
-if (file_exists(WB_PATH.'/modules/kit/info.php')) {
-	$PRECHECK['WB_ADDONS']['kit'] = array('VERSION' => '0.35', 'OPERATOR' => '>=');
-}
+// modified precheck array
+$check = array(
+    'dbConnect_LE' => array(
+        'directory' => 'dbconnect_le',
+        'version' => '0.68',
+        'problem' => 'dbConnect_LE => <b><a href="https://addons.phpmanufaktur.de/download.php?file=dbConnect_LE" target="_blank">Download actual version</a></b>'
+        ),
+    'Dwoo' => array(
+        'directory' => 'dwoo',
+        'version' => '0.13',
+        'problem' => 'Dwoo => <b><a href="https://addons.phpmanufaktur.de/download.php?file=Dwoo" target="_blank">Download actual version</a></b>'
+        ),
+    'dropletsExtension' => array(
+        'directory' => 'droplets_extension',
+        'version' => '0.18',
+        'problem' => 'dropletsExtension => <b><a href="https://addons.phpmanufaktur.de/download.php?file=dropletsExtension" target="_blank">Download actual version</a></b>'
+        ),
+    'kitTools' => array(
+        'directory' => 'kit_tools',
+        'version' => '0.16',
+        'problem' => 'kitTools => <b><a href="https://addons.phpmanufaktur.de/download.php?file=kitTools" target="_blank">Download actual version</a></b>'
+        ),
+    'permaLink' => array(
+        'directory' => 'perma_link',
+        'version' => '0.15',
+        'problem' => 'permaLink => <b><a href="https://addons.phpmanufaktur.de/download.php?file=permaLink" target="_blank">Download actual version</a></b>'
+        ),
+    );
 
 // this check is important - the early versions of kitEvent can't be upgraded!
 if (file_exists(WB_PATH.'/modules/kit_event/info.php')) {
-	$PRECHECK['WB_ADDONS']['kit_event'] = array('VERSION' => '0.25', 'OPERATOR' => '>=');
+  $check['kitEvent'] = array(
+      'directory' => 'kit_event',
+      'version' => '0.25',
+      'problem' => 'Sorry, cannot upgrade kitEvent versions earlier than <b>0.25</b>!<br />Please uninstall kitEvent and try again!'
+      );
 }
 
-global $database;
-$sql = "SELECT `value` FROM `".TABLE_PREFIX."settings` WHERE `name`='default_charset'";
-$result = $database->query($sql);
-if ($result) {
-	$data = $result->fetchRow(MYSQL_ASSOC);
-	$PRECHECK['CUSTOM_CHECKS'] = array(
-		'Default Charset' => array(
-			'REQUIRED' => 'utf-8',
-			'ACTUAL' => $data['value'],
-			'STATUS' => ($data['value'] === 'utf-8')
-		)
-	);
+$versionSQL = "SELECT `version` FROM `".TABLE_PREFIX."addons` WHERE `directory`='%s'";
+
+foreach ($check as $name => $addon) {
+  // loop throug the addons and check the versions
+  $version = $database->get_one(sprintf($versionSQL, $addon['directory']), MYSQL_ASSOC);
+  if (false === ($status = version_compare(!empty($version) ? $version : '0', $addon['version'], '>='))) {
+    $checked = false;
+    $key = $addon['problem'];
+  }
+  else
+    $key = $name;
+  $PRECHECK['CUSTOM_CHECKS'][$key] = array(
+      'REQUIRED' => $addon['version'],
+      'ACTUAL' => !empty($version) ? $version : '- not installed -',
+      'STATUS' => $status
+  );
 }
 
+// check default charset
+$SQL = "SELECT `value` FROM `".TABLE_PREFIX."settings` WHERE `name`='default_charset'";
+$charset = $database->get_one($SQL, MYSQL_ASSOC);
+if ($charset != 'utf-8') {
+  $checked = false;
+  $key = 'This addon needs UTF-8 as default charset!';
+}
+else
+  $key = 'UTF-8';
 
-?>
+$PRECHECK['CUSTOM_CHECKS'][$key] = array(
+    'REQUIRED' => 'utf-8',
+    'ACTUAL' => $charset,
+    'STATUS' => ($charset == 'utf-8')
+);

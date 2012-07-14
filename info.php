@@ -4,7 +4,7 @@
  * kitEvent
  *
  * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
- * @link https://addons.phpmanufaktur.de/de/addons/kitevent.php
+ * @link https://addons.phpmanufaktur.de/kitEvent
  * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
  * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
  */
@@ -33,7 +33,7 @@ else {
 $module_directory     = 'kit_event';
 $module_name          = 'kitEventCalendar';
 $module_function      = 'tool';
-$module_version       = '0.29';
+$module_version       = '0.30';
 $module_status        = 'Beta';
 $module_platform      = '2.8';
 $module_author        = 'Ralf Hertsch, Berlin (Germany)';

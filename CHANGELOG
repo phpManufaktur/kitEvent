@@ -4,6 +4,11 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+0.30 - 2012-07-14
+
+* added check for DropletsExtension to precheck.php
+* changed precheck.php
+
 0.29 - 2012-06-14
 
 * removed WebsiteBaker version check
