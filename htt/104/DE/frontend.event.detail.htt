@@ -1,0 +1,55 @@
+{*
+  INTERNET USERGROUP BERLIN ONLY!
+ *}
+<div class="evt_detail" itemscope itemtype="http://data-vocabulary.org/Event">
+  <div class="column_cal_sheet">
+    <div class="evt_cal_sheet_img">
+      <div class="evt_cal_sheet_month">{$event.start.month_name}</div>
+      {if $event.start.day_name == "Sonntag"}
+        <div class="evt_cal_sheet_day_holiday">{$event.start.day}</div>
+      {else}
+        <div class="evt_cal_sheet_day">{$event.start.day}</div>
+      {/if}
+      <div class="evt_cal_sheet_day_name">{$event.start.day_name}</div>
+    </div>
+    {if $event.qr_code.is_active == 1}
+    <div class="evt_qrcode">
+      <img src="{$event.qr_code.image.src}" width="{$event.qr_code.image.width}" height="{$event.qr_code.image.height}" alt="{$event.qr_code.image.text}" title="{$event.qr_code.image.text}" itemprop="photo" />
+    </div>
+    {/if}
+  </div>
+  <div class="column_cal_content">
+    <div class="evt_cal_group_desc"><span itemprop="summary">{$event.group.description}</span></div>
+    <div class="evt_cal_headline">{$event.headline}</div>
+    
+    <div class="evt_cal_description" itemprop="description">{$event.description.long}</div>
+    
+    <div class="evt_cal_sheet_label">Termin</div>
+    <div class="evt_cal_sheet_value"><time itemprop="startDate" datetime="{$event.start.iso}">{$event.start.day_name}, <b>{$event.start.date}</b> von <b>{$event.start.time}</b></time> - <time itemprop="endDate" datetime="{$event.start.iso}"><b>{$event.end.time} Uhr</b></time></div>
+    <div class="evt_cal_sheet_clear"></div>
+
+    <div class="evt_cal_sheet_label">Ort</div>
+    <div class="evt_cal_sheet_value"><span itemprop="location" itemscope itemtype="http://data-vocabulary.org/​Organization"><a href="http://www.stz-pankow.de/index.php?id=9" target="_blank">​<span itemprop="name">Stadtteilzentrum Pankow (STZ)</span></a>, <span itemprop="address" itemscope itemtype="http://data-vocabulary.org/Address"><span itemprop="street-address">Schönholzer Str. 10</span>, <span itemprop="locality">13187 Berlin</span></span></span></div>
+    <div class="evt_cal_sheet_clear"></div>
+    
+    <div class="evt_cal_sheet_label">Zielgruppe</div>
+    <div class="evt_cal_sheet_value">Interessierte, Einsteiger, Anwender und Professionelle</div>
+    <div class="evt_cal_sheet_clear"></div>
+    
+    <div class="evt_cal_sheet_label">Teilnehmer</div>
+    <div class="evt_cal_sheet_value">max. <b><span itemprop="offerCount">{$event.participants.max}</span></b></div>
+    <div class="evt_cal_sheet_clear"></div>
+    
+    <div class="evt_cal_sheet_label">Kosten</div>
+    <div class="evt_cal_sheet_value"><b><span itemprop="lowPrice">{$event.costs.format.currency}</span><span itemprop="currency" content="EUR" /></b> <i>(für die Raummiete, Beamer, Getränke etc.)</i></div>
+    <div class="evt_cal_sheet_clear"></div>
+    
+    <div class="evt_cal_sheet_label">Anmeldung</div>
+    <div class="evt_cal_sheet_value">bis zum <b>{date_format($event.deadline.date, "%d.%m.%Y")}</b>, <b><a href="https://usergroup.phpmanufaktur.de/de/workshops.php?act=ord&id={$event.id}">Anmeldeformular</a></b></div>
+    <div class="evt_cal_sheet_clear"></div>
+    
+    <div class="evt_cal_sheet_label"></div>
+    <div class="evt_cal_sheet_value" style="text-align: right;">{if count_characters($event.link.ical) > 0}[<a href="{$event.link.ical}">iCal</a>]  {/if}{if count_characters($event.link.permanent) > 0}[<a href="{$event.link.permanent}" itemscope itemtype="http://data-vocabulary.org/Event">URL</a>]{/if}</div>
+    <div class="evt_cal_sheet_clear"></div>
+  </div>
+</div>

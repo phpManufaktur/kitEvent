@@ -1,0 +1,70 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+ * @link http://phpmanufaktur.de
+ * @copyright 2011
+ * @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+ * @version $Id: calendar.htt 12 2011-03-25 18:52:08Z phpmanufaktur $
+ *}
+<div class="cms_container">
+  <table width="100%">
+    {if $show_weeks == 1}
+    <colgroup>
+      <col width="9%" />
+      <col width="13%" />
+      <col width="13%" />
+      <col width="13%" />
+      <col width="13%" />
+      <col width="13%" />
+      <col width="13%" />
+      <col width="13%" />
+    </colgroup>
+    {else}
+    <colgroup>
+      <col width="14%" />
+      <col width="14%" />
+      <col width="14%" /> 
+      <col width="14%" />
+      <col width="14%" />
+      <col width="15%" />
+      <col width="15%" />
+    </colgroup>
+    {/if}
+    {if $show_navigation == 1}
+    <tr class="cms_navigation">
+      {if $show_weeks == 1}<td class="cms_week"></td>{/if}
+      <td class="cms_month_prev"><a href="{$navigation.prev_link}" title="{$navigation.prev_hint}">{$navigation.prev_text}</a></td>
+      <td class="cms_month_name" colspan="5">{$navigation.month_year}</td>
+      <td class="cms_month_next"><a href="{$navigation.next_link}" title="{$navigation.next_hint}">{$navigation.next_text}</a></td>
+    </tr>
+    {else}
+    <tr class="cms_navigation">
+      {if $show_weeks == 1}<td class="cms_week"></td>{/if}
+      <td class="cms_month_name" colspan="7">{$navigation.month_year}</td>
+    </tr>
+    {/if}
+    <tr class="cms_head">
+      {if $show_weeks == 1}<td class="cms_head_week"></td>{/if}
+      <td class="cms_head_day">{$head.1}</td>
+      <td class="cms_head_day">{$head.2}</td>
+      <td class="cms_head_day">{$head.3}</td>
+      <td class="cms_head_day">{$head.4}</td>
+      <td class="cms_head_day">{$head.5}</td>
+      <td class="cms_head_saturday">{$head.6}</td>
+      <td class="cms_head_sunday">{$head.0}</td>
+    </tr>
+    {foreach $month week}
+    <tr>
+      {if $show_weeks == 1}<td class="cms_week">{$week.week}</td>{/if}
+      <td class="{$week.1.type|default:'cms_day'}">{if isset($week.1.link)}<a href="{$week.1.link}" title="{$week.1.hint}">{$week.1.date}</a>{else}{$week.1.date}{/if}</td>
+      <td class="{$week.2.type|default:'cms_day'}">{if isset($week.2.link)}<a href="{$week.2.link}" title="{$week.2.hint}">{$week.2.date}</a>{else}{$week.2.date}{/if}</td>
+      <td class="{$week.3.type|default:'cms_day'}">{if isset($week.3.link)}<a href="{$week.3.link}" title="{$week.3.hint}">{$week.3.date}</a>{else}{$week.3.date}{/if}</td>
+      <td class="{$week.4.type|default:'cms_day'}">{if isset($week.4.link)}<a href="{$week.4.link}" title="{$week.4.hint}">{$week.4.date}</a>{else}{$week.4.date}{/if}</td>
+      <td class="{$week.5.type|default:'cms_day'}">{if isset($week.5.link)}<a href="{$week.5.link}" title="{$week.5.hint}">{$week.5.date}</a>{else}{$week.5.date}{/if}</td>
+      <td class="{$week.6.type|default:'cms_day_saturday'}">{if isset($week.6.link)}<a href="{$week.6.link}" title="{$week.6.hint}">{$week.6.date}</a>{else}{$week.6.date}{/if}</td>
+      <td class="{$week.0.type|default:'cms_day_sunday'}">{if isset($week.0.link)}<a href="{$week.0.link}" title="{$week.0.hint}">{$week.0.date}</a>{else}{$week.0.date}{/if}</td>
+    </tr>
+    {/foreach}
+  </table>
+</div>

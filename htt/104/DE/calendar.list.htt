@@ -1,0 +1,65 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+ * @link http://phpmanufaktur.de
+ * @copyright 2011
+ * @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+ * @version $Id: calendar.list.htt 14 2011-03-26 16:02:17Z phpmanufaktur $
+ *}
+ {*
+    In diesem Template zur Verfügung stehende Variablen/Platzhalter:
+
+    $date.event.headline          Schlagzeile/Titel des Event
+    $date.event.desc_short        Kurzbeschreibung des Event
+    $date.event.desc_long         Langbeschreibung des Event
+    $date.event.desc_link         URL auf weitere Informationen zu dem Event
+    $date.event.location          Ort des Event
+    $date.event.costs             Kosten/Gebühren des Event (ohne Währungsangabe)
+
+    $date.start_day               Start Tag des Event
+    $date.start_day_zero          dto. mit führender Null
+    $date.start_day_name          Wochentag, ausgeschrieben
+    $date.start_day_name_2        Wochentag, erste 2 Zeichen
+    $date.start_month             Monat (Zahl)
+    $date.start_month_zero        dto. mit führender Null
+    $date.start_month_name        Monatsname, ausgeschrieben
+    $date.start_month_name_3      Monatsname, erste 3 Zeichen
+    $date.start_year              Jahr
+    $date.start_time              Start Uhrzeit
+
+    $date.end_day                 - siehe $date.start_ ... -
+    $date.end_day_zero
+    $date.end_day_name
+    $date.end_day_name_2
+    $date.end_month
+    $date.end_month_zero
+    $date.end_month_name
+    $date.end_month_name_3
+    $date.end_year
+    $date.end_time
+
+    $date.participants_max        max. Anzahl der Teilnehmer
+    $date.participants_total      bis jetzt angemeldete Teilnehmer
+    $date.participants_free       verfügbare Plätze
+
+    $date.deadline                Datum (DD.MM.YYYY) des Meldeschluß
+
+    $date.group_name              Gruppenbezeichner
+    $date.group_desc              Gruppenbeschreibung
+
+    $date.link_order              Link auf das Anmeldeformular
+    $date.link_day                Link auf die Tagesübersicht
+
+  *}
+ <div class="cms_list_container">
+   {foreach $dates date}
+     {if $date.start_day !== $date.end_day}
+       {* wird angezeigt, wenn sich der Termin über mehrere Tage erstreckt... *}
+       <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_zero}.{$date.start_month_zero}./{$date.end_day_zero}.{$date.end_month_zero}.{$date.end_year}</a></div>
+     {else}
+       {* wird für Termine verwendet, die am gleichen Tag beginnen und enden... *}
+       <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_zero}.{$date.start_month_zero}.{$date.start_year}</a></div>
+     {/if}
+   {/foreach}
+ </div>

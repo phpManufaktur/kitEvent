@@ -1,0 +1,25 @@
+{*
+  kitEvent
+
+  @author Ralf Hertsch (ralf.hertsch@phpmanufaktur.de)
+  @link http://phpmanufaktur.de
+  @copyright 2011
+  @license GNU GPL (http://www.gnu.org/licenses/gpl.html)
+  @version $Id: backend.about.htt 8 2011-03-23 11:49:27Z phpmanufaktur $
+
+  Dieses Template wird aufgerufen um die aktuellen Events des Anbieters
+  anzuzeigen. Abhängig von der Konfiguration werden entweder die zusammgefassten
+  oder die ausführlichen Informationen zu den vorhandenen Terminen angezeigt.
+ *}
+<div id="evt_view_active">
+  <h2>Die nächsten Termine der Internet Usergroup Berlin</h2>
+  <div class="evt_view_event">
+    {foreach $events event}
+      {if $show_details == 1}
+        {include('frontend.event.detail.htt')}
+      {else}
+        {include('frontend.event.teaser.htt')}
+      {/if}
+    {/foreach}
+  </div>
+</div>

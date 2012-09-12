@@ -1,0 +1,7 @@
+<div id="evt_confirm">
+  <h2>Anmeldung erhalten</h2>
+  <p>Vielen Dank für Ihre Anmeldung zu dem Treffen der Internet Usergroup Berlin am {$event.start.date}!</p>
+  <p>Sie haben eine automatische Bestätigung an Ihre E-Mail Adresse <b>{$order.email}</b> erhalten.</p>
+  <p><i>Team phpManufaktur</i></p>
+  <p><a href="{$event.link.start}">zurück zur Übersicht ...</a></p>
+</div> 
