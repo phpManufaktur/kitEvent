@@ -317,6 +317,7 @@ class eventFrontend {
  			'week'							=> date('W', $date),
 			'publish_date'			=> date(event_cfg_date_str, $publish),
 			'publish_timestamp'	=> $publish,
+  	  'iso'               => date('c', $date)
  		);
  		return $dates;
   } // getStartEndDates()
