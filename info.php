@@ -31,15 +31,15 @@ else {
 // end include class.secure.php
 
 $module_directory     = 'kit_event';
-$module_name          = 'kitEventCalendar';
+$module_name          = 'kitEvent';
 $module_function      = 'tool';
 $module_version       = '0.30';
 $module_status        = 'Beta';
 $module_platform      = '2.8';
 $module_author        = 'Ralf Hertsch, Berlin (Germany)';
 $module_license       = 'GNU General Public License';
-$module_description   = 'KIT Event calendar extension';
-$module_home          = 'http://phpmanufaktur.de/kit_event';
+$module_description   = 'kitEvent is calendar extension for KeepInTouch (KIT)';
+$module_home          = 'https://addons.phpmanufaktur.de/name/kitEvent';
 $module_guid          = 'B8FE1F1C-D11D-45C2-8F1C-ED52A20346EE';
 
 ?>
