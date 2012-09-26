@@ -1,0 +1,24 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div class="evt_view_id">
+  {if $show_details == 1}
+    {include('frontend.event.detail.dwoo')}
+  {else}
+    {include('frontend.event.teaser.dwoo')}
+  {/if}
+  <div class="evt_back_overview"><a href="{$event.link_start}">Zurück zu Workshops und Termine...</a></div>
+  <div class="evt_price_info">Alle Preisangaben verstehen sich brutto, einschließlich der gesetzlichen Umsatzssteuer von z.Zt. 19%.</div>
+</div>

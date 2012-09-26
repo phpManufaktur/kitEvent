@@ -1,0 +1,36 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div class="order_detail">
+  <p>{$title}<br />
+  {$first_name} {$last_name}<br />
+  {$company}<br />
+  {$street}<br />
+  {$zip} {$city}</p>
+  <p>{$label_email} <a href="mailto:{$email}">{$email}</a></p>
+  <p>{$label_phone} {$phone} <i>{$best_time}</i></p>
+  <p>&nbsp;</p>
+  <p>{$label_event}: {$event}</p>
+  <p>{$label_event_date}: {$event_date}</p>
+  <p>{$label_declared} {$declared}</p>
+  <p>{$label_message}:</p>
+  <p>{$message}</p>
+  <p>{$label_free_1}: {$free_1}</p>
+  <p>{$label_free_2}: {$free_2}</p>
+  <p>{$label_free_3}: {$free_3}</p>
+  <p>{$label_free_4}: {$free_4}</p>
+  <p>{$label_free_5}: {$free_5}</p>
+  <p><a href="{$back_link}">{$back_text}</a></p>
+</div>

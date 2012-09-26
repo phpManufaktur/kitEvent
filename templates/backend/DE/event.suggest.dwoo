@@ -1,0 +1,44 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<form name="{$form_name}" action="{$form_action}" method="post">
+  <input type="hidden" name="{$action_name}" value="{$action_value}" />
+  <h2>{$header}</h2>
+  <div class="intro">{$intro}</div>
+  <table width="100%">
+    <colgroup>
+      <col width="30%" />
+      <col width="70%" />
+    </colgroup>
+    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr>
+      <td class="label_{$suggest_request}">{$suggest_label}</td>
+      <td class="value_{$suggest_request}">
+        <select name="{$suggest_request}">
+        {foreach $suggest_options option}
+        <option value="{$option.value}">{$option.text}</option>
+        {/foreach}
+        </select>
+      </td>
+    </tr>
+    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr>
+      <td colspan="2">
+        <input type="submit" value="{$btn_ok}" />&nbsp;
+        <input type="button" value="{$btn_abort}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
+      </td>
+    </tr>
+  </table>
+</form>

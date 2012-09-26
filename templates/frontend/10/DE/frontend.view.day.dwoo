@@ -1,0 +1,34 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="evt_view_day">
+  <h2>Übersicht über Workshops &amp; Termine am {$day.date}</h2>
+  {if isset($events)}
+    {foreach $events event}
+      {if $show_details == 1}
+        {include('frontend.event.detail.dwoo')}
+      {else}
+        {include('frontend.event.teaser.dwoo')}
+      {/if}
+    {/foreach}
+  {else}
+    {* es liegen keine Termine für diesen Tag vor *}
+    <h2>Veranstaltungen</h2>
+    <p>Sorry, für den {$day.date} sind leider keine Veranstaltungen geplant.</p>
+    <p>Bitte besuchen Sie uns morgen wieder!</p>
+  {/if}
+  <div class="evt_back_overview"><a href="{$day.link_start}">Zurück zu Workshops &amp; Termine...</a></div>
+  <div class="evt_price_info">Alle Preisangaben verstehen sich brutto, einschließlich der gesetzlichen Umsatzssteuer von z.Zt. 19%.</div>
+</div>

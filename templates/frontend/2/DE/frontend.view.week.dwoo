@@ -1,0 +1,45 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="evt_view_week">
+  <h2>Übersicht über die Veranstaltungen in der {$week.week}. Kalenderwoche</h2>
+  <p>Woche: {$week.week_zero}</p>
+  <p>Jahr: {$week.year}</p>
+  <p>Monat: {$week.month}</p>
+  <p>Monat: {$week.month_zero}</p>
+  <p>Monat: {$week.month_name}</p>
+  <p>Montag: {$week.monday}</p>
+  <p>Montag: {$week.monday_zero}</p>
+  <p>Sonntag: {$week.sunday}</p>
+  <p>Sonntag: {$week.sunday_zero}</p>
+  <p><a href="{$week.link_prev_week}">Vorherige Woche</a></p>
+  <p><a href="{$week.link_next_week}">Nächste Woche</a></p>
+  {if isset($events)}
+    <p>Veranstaltungen:</p>
+    {foreach $events event}
+      {if $show_details == 1}
+        {include('frontend.event.detail.dwoo')}
+      {else}
+        {include('frontend.event.teaser.dwoo')}
+      {/if}
+    {/foreach}
+  {else}
+    {* es liegen keine Termine für diese Woche vor *}
+    <h2>Veranstaltungen</h2>
+    <p>Sorry, für die {$week.week}. Kalenderwoche sind leider keine Veranstaltungen geplant.</p>
+    <p>Bitte besuchen Sie uns nächste Woche wieder!</p>
+  {/if}
+  <p><a href="{$week.link_start}">Zur Übersicht...</a></p>
+</div>

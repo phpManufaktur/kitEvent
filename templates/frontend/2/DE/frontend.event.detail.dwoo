@@ -1,0 +1,163 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div class="evt_detail"> 
+  <table width="100%">
+    <colgroup>
+      <col width="150" />
+      <col width="*" />
+      <col width="25" />
+    </colgroup> 
+    <tr>
+      <td class="evt_cal_sheet">
+        {*
+         * Auf der linken Seite wird ein Kalenderblatt mit dem Wochentag, dem Datum sowie
+         * dem Monat angezeigt. Das Datum wird sn Sonntagen anders formatiert.
+        *}
+        <div class="evt_cal_sheet_img">
+          <div class="evt_cal_sheet_month">{$event.start.month_name}</div>
+          {if $event.start.day_name == "Sonntag"}
+            <div class="evt_cal_sheet_day_holiday">{$event.start.day}</div>
+          {else}
+            <div class="evt_cal_sheet_day">{$event.start.day}</div>
+          {/if}
+          <div class="evt_cal_sheet_day_name">{$event.start.day_name}</div>
+        </div>
+        {if $event.qr_code.is_active == 1}
+        <div class="evt_qrcode">
+          <img src="{$event.qr_code.image.src}" width="{$event.qr_code.image.width}" height="{$event.qr_code.image.height}" alt="{$event.qr_code.image.text}" title="{$event.qr_code.image.text}" />
+        </div>
+        {/if}
+      </td>
+      <td class="evt_cal_content">
+        {*
+         * Der eigentliche Inhalt der Veranstaltung.
+         * Es werden die Gruppenbeschreibung, die Schlagzeile, die vollständige
+         * Beschreibung der Veranstaltung sowie die zusätzlichen Angaben
+         * ausgegeben.
+         *}
+        <div class="evt_cal_group_desc">{$event.group.description}</div>
+        <div class="evt_cal_headline">{$event.headline}</div>
+        {$event.description.long}
+        {*
+         * Die Angaben zu Termin, Zielgruppe, Anzahl Teilnehmer etc. sind von der Gruppe
+         * abhängig. Für Termine der phpManufaktur sowie der Usergroup wird eine
+         * Tabelle angezeigt und verschiedene Felder bereits vorbelegt.
+        *}
+        {if $event.group.name == "WBUG" || $event.group.name == "phpManufaktur" }
+          <table width="100%">
+            <colgroup>
+              <col width="90" />
+              <col width="*" />
+            </colgroup>
+            <tr>
+              <td class="evt_cal_sheet_table_label">Termin</td>
+              <td class="evt_cal_sheet_table_value">{$event.start.day_name}, <b>{$event.start.date}</b> von <b>{$event.start.time} - {$event.end.time} Uhr</b></td>
+            </tr>
+            {* Die Angaben zur Usergroup und Veranstaltungen der phpManufaktur unterscheiden sich ein wenig... *}
+            {if $event.group.name == "WBUG"}
+              <tr>
+                <td class="evt_cal_sheet_table_label">Ort</td>
+                <td class="evt_cal_sheet_table_value"><a href="http://www.stz-pankow.de/index.php?id=9">Stadtteilzentrum Pankow (STZ), Schönholzer Str. 10</a></td>
+              </tr>
+              <tr>
+                <td class="evt_cal_sheet_table_label">Zielgruppe</td>
+                <td class="evt_cal_sheet_table_value">Interessierte, Einsteiger, Anwender und Professionelle</td>
+              </tr>
+              <tr>
+                <td class="evt_cal_sheet_table_label"></td>
+                <td class="evt_cal_sheet_table_value"><b>Keine Voraussetzungen</b>, bitte bringen Sie Ihren Laptop oder Ihr Netbook mit, es steht WLAN zur Verfügung</td>
+              </tr>
+              <tr>
+                <td class="evt_cal_sheet_table_label">Information</td>
+                <td class="evt_cal_sheet_table_value">Erfahren Sie mehr über die <a href="{$event.link.description}">WebsiteBaker Usergroup Berlin</a>!</td>
+              </tr>
+              <tr>
+                <td class="evt_cal_sheet_table_label">Teilnehmer</td>
+                <td class="evt_cal_sheet_table_value">max. <b>{$event.participants.max}</b></td>
+              </tr>
+              <tr>
+                <td class="evt_cal_sheet_table_label">Kosten</td>
+                <td class="evt_cal_sheet_table_value"><b>{$event.costs.format.float} &euro;</b> <i>(für die Raummiete, Beamer, Getränke etc.)</i></td>
+              </tr>
+              <tr>
+                <td class="evt_cal_sheet_table_label">Anmeldung</td>
+                <td class="evt_cal_sheet_table_value">bis zum <b>{date_format($event.deadline.date, "%d.%m.%Y")}</b>, <b><a href="{$event.link.register}">Anmeldeformular</a></b></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td class="evt_tool_btn">
+                  {if count_characters($event.link.ical) > 0}[<a href="{$event.link.ical}">iCal</a>]  {/if}{if count_characters($event.link.permanent) > 0}[<a href="{$event.link.permanent}">URL</a>]{/if}
+                </td>
+              </tr>
+            {else}
+              <tr>
+                <td class="evt_cal_sheet_table_label">Ort</td>
+                <td class="evt_cal_sheet_table_value"><a href="http://phpmanufaktur.de/cms/kontakt/impressum.php">phpManufaktur</a>, Stockholmer Str. 31, 13359 Berlin</td>
+              </tr>
+              <tr>
+                <td class="evt_cal_sheet_table_label">Zielgruppe</td>
+                <td class="evt_cal_sheet_table_value">Professionelle Anwender, Webdesigner, Agenturen</td>
+              </tr>
+              <tr>
+                <td class="evt_cal_sheet_table_label"></td>
+                <td class="evt_cal_sheet_table_value">Grundkenntnisse in XHTML, CSS, Erfahrung im Umgang mit WebsiteBaker. Bitte bringen Sie einen Laptop oder ein Netbook mit, es LAN/WLAN zur Verfügung.</td>
+              </tr>
+              <tr>
+                <td class="evt_cal_sheet_table_label">Teilnehmer</td>
+                <td class="evt_cal_sheet_table_value">mind. <b>2</b>, max. <b>{$event.participants.max}</b> Teilnehmer</td>
+              </tr>
+              <tr>
+                <td class="evt_cal_sheet_table_label">Kosten</td>
+                <td class="evt_cal_sheet_table_value"><b>{$event.costs} &euro;</b></td>
+              </tr>
+              {* automatische Berechnung der Gebühr bei Buchung als Einzelkurs... *}
+              <tr>
+                <td class="evt_cal_sheet_table_label"></td>
+                <td class="evt_cal_sheet_table_value"><i>Sie können diesen Workshop auch als <b>Einzelkurs</b> buchen, Sie zahlen in diesem Fall <b>{math "$event.costs*2"},00 &euro;</b>.</i></td>
+              </tr>
+              <tr>
+                <td class="evt_cal_sheet_table_label">Anmeldung_</td>
+                <td class="evt_cal_sheet_table_value">bis zum <b>{date_format($event.deadline.date, "%d.%m.%Y")}</b>, <b><a href="{$event.link.register}">Anmeldeformular</a></b></td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+                <td>
+                  <a href="{$event.link_permanent}">PERMANENT</a>
+                </td>
+              </tr>
+            {/if}
+          </table>
+        {else}
+          {* bei allen anderen Veranstaltungen keine weiteren Angaben... *}
+        {/if}
+      </td>
+        {*
+         * Es wird der Gruppen Bezeichner genutzt um auf der rechten Seite einen
+         * farbigen Streifen sowie einen beschreibenden Schriftzug passend zu
+         * der jeweiligen Gruppe auszugeben.
+         *}
+      {if $event.group.name == "WBUG"}
+        <td class="evt_cal_group_wbug"></td>
+      {elseif $event.group.name == "phpManufaktur"}
+        <td class="evt_cal_group_phpmanufaktur"></td>
+      {elseif $event.group.name == "Extern"}
+        <td class="evt_cal_group_extern"></td>
+      {else}
+        <td class="evt_cal_group_none"></td>
+      {/if}
+    </tr>
+  </table>
+</div>

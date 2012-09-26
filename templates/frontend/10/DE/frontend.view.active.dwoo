@@ -1,0 +1,27 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="evt_view_active">
+  <h2>Die nächsten Termine der Internet Usergroup Berlin</h2>
+  <div class="evt_view_event">
+    {foreach $events event}
+      {if $show_details == 1}
+        {include('frontend.event.detail.dwoo')}
+      {else}
+        {include('frontend.event.teaser.dwoo')}
+      {/if}
+    {/foreach}
+  </div>
+</div>

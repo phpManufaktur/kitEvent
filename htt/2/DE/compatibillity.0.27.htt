@@ -1,4 +1,0 @@
-{$event.group_name = $event.group.name}
-{$event.group_desc = $event.group.description}
-{$event.deadline_date = date_format($event.deadline.date, "%d.%m.%Y")}
-{$event.deadline_timestamp = $event.deadline.date}

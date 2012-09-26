@@ -1,0 +1,39 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="evt_view_month">
+  <h2>Übersicht über die Veranstaltungen im {$month.month_name}</h2>
+  <p>Jahr: {$month.year}</p>
+  <p>Monat: {$month.month}</p>
+  <p>Monat: {$month.month_zero}</p>
+  <p><a href="{$month.link_prev_month}">{$month.prev_month_name}</a></p>
+  <p><a href="{$month.link_next_month}">{$month.next_month_name}</a></p>
+  {if isset($events)}
+    <p>Veranstaltungen:</p>
+    {foreach $events event}
+      {if $show_details == 1}
+        {include('frontend.event.detail.dwoo')}
+      {else}
+        {include('frontend.event.teaser.dwoo')}
+      {/if}
+    {/foreach}
+  {else}
+    {* es liegen keine Termine für diesen Monat vor *}
+    <h2>Veranstaltungen</h2>
+    <p>Sorry, für den {$month.month_name} sind leider keine Veranstaltungen geplant.</p>
+    <p>Bitte besuchen Sie uns nächsten Monat wieder!</p>
+  {/if}
+  <p><a href="{$month.link.start}">Zur Übersicht...</a></p>
+</div>

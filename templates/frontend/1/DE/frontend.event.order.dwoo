@@ -1,0 +1,105 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="evt_order">
+  <form name="{$form_name}" action="{$form_action}" method="post">
+    <input type="hidden" name="{$action_name}" value="{$action_value}" />
+    <input type="hidden" name="{$event_name}" value="{$event_value}" />
+    {*
+      Im Feld {$must_fields_name} legen Sie unter "value" die Pflichtfelder fest.
+      Trennen Sie die Felder durch ein Komma, moegliche Eingaben sind:
+      email,captcha,first_name,last_name,street,zip,city,phone,terms_and_conditions
+      "email" wird hier nur zur Vollstaendigkeit eingetragen, die E-Mail Adresse wird
+      grundsaetzlich eingefordert! "captcha" dient dem Schutz vor unerwuenschten Zusendungen.
+    *}
+    <input type="hidden" name="{$must_fields_name}" value="{$request.captcha.name},{$request.email.name},{$request.confirm_terms.name}" />
+    {*
+      Definieren Sie hier die Bezeichner für die zusätzlichen Felder 
+      {$request.free_1} .. {$request.free_5}. Diese Bezeichner werden im Backend 
+      bei der Auswertung verwendet. Der erste Eintrag bezieht sich auf 
+      {$request.free_1}, der zweite auf {$request.free_2} usw.
+    *}
+    <input type="hidden" name="{$define_free_fields}" value="Freies Feld 1,Zusätzliches Feld 2" />
+    <div>Titel der Veranstaltung: {$event.headline}</div>
+    <div>ID: {$event.id}</div>
+    <div>Gruppenbezeichner: {$event.group.name}</div>
+    <div>Gruppenbeschreibung: {$event.group.description}</div>
+    <div>Beginn, Datum: {$event.start.date}</div>
+    <div>Beginn, Datum und Uhrzeit: {$event.start.datetime}</div>
+    <div>Beginn, Uhrzeit: {$event.start.time}</div>
+    <div>Beginn, Tag: {$event.start.day}</div>
+    <div>Beginn, Wochentag: {$event.start.day_name}</div>
+    <div>Beginn, Monat: {$event.start.month}</div>
+    <div>Ende, Datum: {$event.end.date}</div>
+    <div>Ende, Datum und Uhrzeit: {$event.end.datetime}</div>
+    <div>Ende, Uhrzeit: {$event.end.time}</div>
+    <div>Veröffentlichung, Beginn: {$event.start.publish_date}</div>
+    <div>Veröffentlichung, Ende: {$event.end.publish_date}</div>
+    <div>Max. Teilnehmer: {$event.participants.max}</div>
+    <div>Gemeldete Teilnehmer: {$event.participants.total}</div>
+    <div>Freie Plätze: {$event.participants.free}</div>
+    <div>Anmeldeschluß: {date_format($event.deadline.date,'%d.%m.%Y')}</div>
+    <div>Kurzbeschreibung:</ br>{$event.description.short}</div>
+    <div>Langbeschreibung:</ br>{$event.description.long}</div>
+    {if count_characters($event.link.description)}<div><a href="{$event.link.description}">Ergänzender Link...</a></div>{/if}
+    <div>Veranstaltungsort: {$event.location}</div>
+    <div>Kosten: {$event.costs.format.currency}</div>
+    {*
+      Ab hier folgen die Formularfelder
+     *}
+    {if isset($response)}
+      {*
+        entfernen Sie den Block $response nicht, er ermöglicht es dem Programm
+        Mitteilungen auszugeben!
+       *}
+      <div class="message">{$response}</div>
+    {/if}
+    <div>
+      <select name="{$request.title.name}">
+        {foreach $request.title.value option}
+        <option value="{$option.value}"{if isset($option.selected)} selected="selected"{/if}>{$option.text}</option>
+        {/foreach}
+      </select>
+    </div>
+    <div>Vorname: <input type="text" name="{$request.first_name.name}" value="{$request.first_name.value}" /></div>
+    <div>Nachname: <input type="text" name="{$request.last_name.name}" value="{$request.last_name.value}" /></div>
+    <div>Firma/Institution: <input type="text" name="{$request.company.name}" value="{$request.company.value}" /></div>
+    <div>Straße: <input type="text" name="{$request.street.name}" value="{$request.street.value}" /></div>
+    <div>PLZ: <input type="text" name="{$request.zip.name}" value="{$request.zip.value}" /></div>
+    <div>Stadt: <input type="text" name="{$request.city.name}" value="{$request.city.value}" /></div>
+    <div>E-Mail: <input type="text" name="{$request.email.name}" value="{$request.email.value}" /></div>
+    <div>Telefon: <input type="text" name="{$request.phone.name}" value="{$request.phone.value}" /></div>
+    <div>Beste Zeit für Rückruf: <input type="text" name="{$request.best_time.name}" value="{$request.best_time.value}" /></div>
+    <div>Mitteilung/Anmerkung: 
+      <textarea name="{$request.message.name}">{$request.message.value}</textarea>
+    </div>
+    {*
+      Die Bezeichner, die für die zusätzlichen Felder im Backend verwendet werden
+      sollen, definieren sie im Formularkopf unter {$define_free_fields}
+    *}
+    <div>Freies Feld 1: <input type="text" name="{$request.free_1.name}" value="{$request.free_1.value}" /></div>
+    <div>Freies Feld 2: <input type="text" name="{$request.free_2.name}" value="{$request.free_2.value}" /></div>
+    <div>Freies Feld 3: <input type="text" name="{$request.free_3.name}" value="{$request.free_3.value}" /></div>
+    <div>Freies Feld 4: <input type="text" name="{$request.free_4.name}" value="{$request.free_4.value}" /></div>
+    <div>Freies Feld 5: <input type="text" name="{$request.free_5.name}" value="{$request.free_5.value}" /></div>   
+    <div><input type="checkbox" name="{$request.confirm_order.name}" value="1"{if isset($request.confirm_order.value)} checked="checked"{/if} /> hiermit melde ich mich an</div>
+    <div><input type="checkbox" name="{$request.confirm_terms.name}" value="1"{if isset($request.confirm_terms.value)} checked="checked"{/if} />AGB/Datenschutz gelesen</div>
+    <div>
+      {* Ausgabe des CAPTCHA Spamschutz *}
+      {$request.captcha.print}
+    </div>
+    <div><input type="submit" value="Anmelden" /> <input type="button" value="Abbruch" onclick="javascript: window.location = '{$event.link_start}'; return false;" /></div>
+  </form>
+</div>

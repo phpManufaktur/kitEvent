@@ -1,0 +1,26 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+ <div class="cms_list_container">
+   {foreach $dates date}
+     {if $date.start_day !== $date.end_day}
+       {* wird angezeigt, wenn sich der Termin über mehrere Tage erstreckt... *}
+       <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_zero}.{$date.start_month_zero}./{$date.end_day_zero}.{$date.end_month_zero}.{$date.end_year}</a></div>
+     {else}
+       {* wird für Termine verwendet, die am gleichen Tag beginnen und enden... *}
+       <div class="cms_list_date"><a href="{$date.link_order}">{$date.start_day_zero}.{$date.start_month_zero}.{$date.start_year}</a></div>
+     {/if}
+   {/foreach}
+ </div>
