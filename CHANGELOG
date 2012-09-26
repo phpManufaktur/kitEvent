@@ -8,6 +8,11 @@ http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
 * added additional placeholder for ISO date format
 * added template /10 with sample for event micro data
+* extended code cleanup at all classes and files
+* moved all templates from /htt to /templates, separate by frontend, enable
+  custom templates for the backend and for the search results
+* changed license from GNU GPL to MIT license (MIT)
+* updated all header informations  
 
 0.30 - 2012-07-14
 
@@ -21,7 +26,8 @@ http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 0.28 - 2012-06-01
 
 * fixed - xssPrevent() is too grabby, reduced to own requests
-* changed: introduce $_SESSION['KIT_HTML_REQUEST'] to mark fields which should not processed by xssPrevent()
+* changed: introduce $_SESSION['KIT_HTML_REQUEST'] to mark fields which should 
+  not processed by xssPrevent()
 * moved repository from SVN to GitHub
 * updated all header informations
 * added CHANGELOG
@@ -36,11 +42,13 @@ http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
 0.26 - 2011-05-22
 
-* Added interaction with droplets_extension, enabling full WebsiteBaker search and adding header information on detail page (title, description, keywords)
+* Added interaction with droplets_extension, enabling full WebsiteBaker search 
+  and adding header information on detail page (title, description, keywords)
 
 0.25 - 2011-03-26
 
-* New BETA Release, start adding and changing basic function which are not compatible to the previous releases
+* New BETA Release, start adding and changing basic function which are not 
+  compatible to the previous releases
 
 0.11 - 0.24 - 2011-03-25
 
