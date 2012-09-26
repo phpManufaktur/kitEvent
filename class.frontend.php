@@ -36,68 +36,68 @@ require_once(WB_PATH.'/framework/class.wb.php');
 require_once(WB_PATH.'/modules/droplets_extension/interface.php');
 
 class eventFrontend {
-	const request_action				= 'act';
-	const request_event					= 'evt';
-	const request_year					= 'y';
-	const request_month					= 'm';
-	const request_day						= 'd';
-	const request_event_id			= 'id';
-	const request_event_detail	= 'det';
-	const request_free_fields		= 'ff';
-	const request_perma_link		= 'perl';
+	const REQUEST_ACTION				= 'kea';
+	const REQUEST_EVENT					= 'evt';
+	const REQUEST_YEAR					= 'y';
+	const REQUEST_MONTH					= 'm';
+	const REQUEST_DAY						= 'd';
+	const REQUEST_EVENT_ID			= 'id';
+	const REQUEST_EVENT_DETAIL	= 'det';
+	const REQUEST_FREE_FIELDS		= 'ff';
+	const REQUEST_PERMA_LINK		= 'perl';
 
-	const request_must_fields	= 'mf';
+	const REQUEST_MUST_FIELDS	= 'mf';
 
-	const request_title				= 'title';
-	const request_first_name	= 'fn';
-	const request_last_name		= 'ln';
-	const request_company			= 'com';
-	const request_street			= 'str';
-	const request_zip					= 'zip';
-	const request_city				= 'cty';
-	const request_email				= 'eml';
-	const request_phone				= 'phn';
-	const request_best_time		= 'bt';
-	const request_confirm			= 'con';
-	const request_terms				= 'trm';
-	const request_privacy			= 'prv';
-	const request_message			= 'msg';
-	const request_captcha			= 'cpt';
+	const REQUEST_TITLE				= 'title';
+	const REQUEST_FIRST_NAME	= 'fn';
+	const REQUEST_LAST_NAME		= 'ln';
+	const REQUEST_COMPANY			= 'com';
+	const REQUEST_STREET			= 'str';
+	const REQUEST_ZIP					= 'zip';
+	const REQUEST_CITY				= 'cty';
+	const REQUEST_EMAIL				= 'eml';
+	const REQUEST_PHONE				= 'phn';
+	const REQUEST_BEST_TIME		= 'bt';
+	const REQUEST_CONFIRM			= 'con';
+	const REQUEST_TERMS				= 'trm';
+	const REQUEST_PRIVACY			= 'prv';
+	const REQUEST_MESSAGE			= 'msg';
+	const REQUEST_CAPTCHA			= 'cpt';
 
-	const action_default 			= 'def';
-	const action_day					= 'day';
-	const action_event				= 'evt';
-	const action_order				= 'ord';
-	const action_order_check	= 'chk';
+	const ACTION_DEFAULT 			= 'def';
+	const ACTION_DAY					= 'day';
+	const ACTION_EVENT				= 'evt';
+	const ACTION_ORDER				= 'ord';
+	const ACTION_ORDER_CHECK	= 'chk';
 
-	const param_view					= 'view';
-	const param_preset				= 'preset';
-	const param_detail				= 'detail';
-	const param_group					= 'group';
-	const param_event_id			= 'event_id';
-	const param_ignore_topics	= 'ignore_topics';
-	const param_response_id		= 'response_id'; // noch inaktiv!!!
-	const param_search				= 'search';
-	const param_header				= 'header';
-	const param_css						= 'css';
+	const PARAM_VIEW					= 'view';
+	const PARAM_PRESET				= 'preset';
+	const PARAM_DETAIL				= 'detail';
+	const PARAM_GROUP					= 'group';
+	const PARAM_EVENT_ID			= 'event_id';
+	const PARAM_IGNORE_TOPICS	= 'ignore_topics';
+	const PARAM_RESPONSE_ID		= 'response_id'; // noch inaktiv!!!
+	const PARAM_SEARCH				= 'search';
+	const PARAM_HEADER				= 'header';
+	const PARAM_CSS						= 'css';
 
-	const view_id							= 'id';
-	const view_day						= 'day';
-	const view_week						= 'week';
-	const view_month					= 'month';
-	const view_active					= 'active';
+	const VIEW_ID							= 'id';
+	const VIEW_DAY						= 'day';
+	const VIEW_WEEK						= 'week';
+	const VIEW_MONTH					= 'month';
+	const VIEW_ACTIVE					= 'active';
 
 	private $params = array(
-		self::param_view				=> self::view_active,
-		self::param_preset			=> 1,
-		self::param_detail			=> false,
-		self::param_group				=> '',
-		self::param_event_id		=> -1,
-		self::param_response_id => -1,
-		self::param_ignore_topics => false,
-		self::param_search			=> false,
-		self::param_header			=> false,
-		self::param_css					=> true
+		self::PARAM_VIEW				=> self::VIEW_ACTIVE,
+		self::PARAM_PRESET			=> 1,
+		self::PARAM_DETAIL			=> false,
+		self::PARAM_GROUP				=> '',
+		self::PARAM_EVENT_ID		=> -1,
+		self::PARAM_RESPONSE_ID => -1,
+		self::PARAM_IGNORE_TOPICS => false,
+		self::PARAM_SEARCH			=> false,
+		self::PARAM_HEADER			=> false,
+		self::PARAM_CSS					=> true
 	);
 
 	private $template_path;
@@ -109,7 +109,7 @@ class eventFrontend {
 		$_SESSION['FRONTEND'] = true;
 		$kitLibrary->getPageLinkByPageID(PAGE_ID, $url);
 		$this->page_link = $url;
-		$this->template_path = WB_PATH.'/modules/kit_event/htt/'.$this->params[self::param_preset].'/'.KIT_EVT_LANGUAGE.'/';
+		$this->template_path = WB_PATH.'/modules/kit_event/htt/'.$this->params[self::PARAM_PRESET].'/'.KIT_EVT_LANGUAGE.'/';
 		date_default_timezone_set(event_cfg_time_zone);
 	} // __construct();
 
@@ -119,9 +119,9 @@ class eventFrontend {
 
 	public function setParams($params = array()) {
 		$this->params = $params;
-		$this->template_path = WB_PATH.'/modules/kit_event/htt/'.$this->params[self::param_preset].'/'.KIT_EVT_LANGUAGE.'/';
+		$this->template_path = WB_PATH.'/modules/kit_event/htt/'.$this->params[self::PARAM_PRESET].'/'.KIT_EVT_LANGUAGE.'/';
 		if (!file_exists($this->template_path)) {
-			$this->setError(sprintf(event_error_preset_not_exists, '/modules/kit_event/htt/'.$this->params[self::param_preset].'/'.KIT_EVT_LANGUAGE.'/'));
+			$this->setError(sprintf(event_error_preset_not_exists, '/modules/kit_event/htt/'.$this->params[self::PARAM_PRESET].'/'.KIT_EVT_LANGUAGE.'/'));
 			return false;
 		}
 		return true;
@@ -258,26 +258,26 @@ class eventFrontend {
    			$_REQUEST[$key] = $this->xssPrevent($value);
   		}
   	}
-  	if ((isset($_REQUEST[self::request_perma_link]) && is_numeric($_REQUEST[self::request_perma_link])) || ($this->params[self::param_event_id] !== -1)) {
-  		$_REQUEST[self::request_action] = self::action_event;
-  		$_REQUEST[self::request_event] = self::view_id;
-  		$_REQUEST[self::request_event_id] = (isset($_REQUEST[self::request_perma_link]) && is_numeric($_REQUEST[self::request_perma_link])) ? $_REQUEST[self::request_perma_link] : $this->params[self::param_event_id];
-  		$_REQUEST[self::request_event_detail] = (isset($_REQUEST[self::request_event_detail])) ? $_REQUEST[self::request_event_detail] : $this->params[self::param_detail];
+  	if ((isset($_REQUEST[self::REQUEST_PERMA_LINK]) && is_numeric($_REQUEST[self::REQUEST_PERMA_LINK])) || ($this->params[self::PARAM_EVENT_ID] !== -1)) {
+  		$_REQUEST[self::REQUEST_ACTION] = self::ACTION_EVENT;
+  		$_REQUEST[self::REQUEST_EVENT] = self::VIEW_ID;
+  		$_REQUEST[self::REQUEST_EVENT_ID] = (isset($_REQUEST[self::REQUEST_PERMA_LINK]) && is_numeric($_REQUEST[self::REQUEST_PERMA_LINK])) ? $_REQUEST[self::REQUEST_PERMA_LINK] : $this->params[self::PARAM_EVENT_ID];
+  		$_REQUEST[self::REQUEST_EVENT_DETAIL] = (isset($_REQUEST[self::REQUEST_EVENT_DETAIL])) ? $_REQUEST[self::REQUEST_EVENT_DETAIL] : $this->params[self::PARAM_DETAIL];
   	}
-    isset($_REQUEST[self::request_action]) ? $action = $_REQUEST[self::request_action] : $action = self::action_default;
-    if (isset($_REQUEST[self::request_event])) $action = self::action_event;
+    isset($_REQUEST[self::REQUEST_ACTION]) ? $action = $_REQUEST[self::REQUEST_ACTION] : $action = self::ACTION_DEFAULT;
+    if (isset($_REQUEST[self::REQUEST_EVENT])) $action = self::ACTION_EVENT;
   	switch ($action):
-  	case self::action_order:
+  	case self::ACTION_ORDER:
   		$result = $this->orderEvent();
   		break;
-  	case self::action_order_check:
+  	case self::ACTION_ORDER_CHECK:
   		$result = $this->checkOrder();
   		break;
-  	case self::action_event:
+  	case self::ACTION_EVENT:
   		$result = $this->showEvent();
   		break;
   	default:
-  		$result = $this->showEvent($this->params[self::param_view]);
+  		$result = $this->showEvent($this->params[self::PARAM_VIEW]);
   		break;
   	endswitch;
 
@@ -442,8 +442,8 @@ class eventFrontend {
  			//'desc_long'								=> stripslashes($event_data[dbEventItem::field_desc_long]),
  			//'costs'										=> number_format($costs, 2, event_cfg_decimal_separator, event_cfg_thousand_separator),
  			//'link_desc'								=> stripslashes($event_data[dbEventItem::field_desc_link]),
- 			//'link_order'							=> sprintf('%s?%s=%s&%s=%s', $this->page_link, self::request_action, self::action_order, self::request_event_id, $event_id),
-  		//'link_detail'							=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_event, self::request_event_id, $event_id, self::request_event, self::view_id, self::request_event_detail, 1),
+ 			//'link_order'							=> sprintf('%s?%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_ORDER, self::REQUEST_EVENT_ID, $event_id),
+  		//'link_detail'							=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_EVENT, self::REQUEST_EVENT_ID, $event_id, self::REQUEST_EVENT, self::VIEW_ID, self::REQUEST_EVENT_DETAIL, 1),
   		//'link_start'							=> $this->page_link,
 
  			'headline'								=> $event_data[dbEventItem::field_title],
@@ -479,15 +479,15 @@ class eventFrontend {
  																			'register'			=> sprintf(	'%s%s%s',
  																		 															$this->page_link,
  																		 															(strpos($this->page_link, '?') === false) ? '?' : '&',
- 																		 															http_build_query(array(	self::request_action 		=> self::action_order,
- 																		 																											self::request_event_id 	=> $event_id))),
+ 																		 															http_build_query(array(	self::REQUEST_ACTION 		=> self::ACTION_ORDER,
+ 																		 																											self::REQUEST_EVENT_ID 	=> $event_id))),
  																		 	'detail'				=> sprintf(	'%s%s%s',
  																		 															$this->page_link,
  																		 															(strpos($this->page_link, '?') === false) ? '?' : '&',
- 																		 															http_build_query(array(	self::request_action 				=> self::action_event,
- 																		 																											self::request_event_id 			=> $event_id,
- 																		 																											self::request_event 				=> self::view_id,
- 																		 																											self::request_event_detail 	=> 1 ))),
+ 																		 															http_build_query(array(	self::REQUEST_ACTION 				=> self::ACTION_EVENT,
+ 																		 																											self::REQUEST_EVENT_ID 			=> $event_id,
+ 																		 																											self::REQUEST_EVENT 				=> self::VIEW_ID,
+ 																		 																											self::REQUEST_EVENT_DETAIL 	=> 1 ))),
  																			'start'					=> $this->page_link,
  																		 	'permanent'			=> (empty($event_data[dbEvent::field_perma_link])) ? '' : WB_URL.PAGES_DIRECTORY.'/'.$event_data[dbEvent::field_perma_link],
  																		 	'ical'					=> $ical_link
@@ -518,54 +518,54 @@ class eventFrontend {
   	global $dbEventOrder;
   	global $wb;
 
-  	if (!isset($_REQUEST[self::request_event_id]) && !isset($_REQUEST[dbEvent::field_id])) {
+  	if (!isset($_REQUEST[self::REQUEST_EVENT_ID]) && !isset($_REQUEST[dbEvent::field_id])) {
   		$this->setError(event_error_evt_invalid);
   		return false;
   	}
-  	$event_id = (isset($_REQUEST[self::request_event_id])) ? (int) $_REQUEST[self::request_event_id] : (int) $_REQUEST[dbEvent::field_id];
+  	$event_id = (isset($_REQUEST[self::REQUEST_EVENT_ID])) ? (int) $_REQUEST[self::REQUEST_EVENT_ID] : (int) $_REQUEST[dbEvent::field_id];
 
-  	if (!isset($_REQUEST[self::request_must_fields])) {
+  	if (!isset($_REQUEST[self::REQUEST_MUST_FIELDS])) {
   		$this->setError(event_error_must_fields_missing);
   		return false;
   	}
-  	$mf = strtolower($_REQUEST[self::request_must_fields]);
+  	$mf = strtolower($_REQUEST[self::REQUEST_MUST_FIELDS]);
   	$mf = str_replace(' ', '', $mf);
   	$must_fields = explode(',', $mf);
- 		if (!in_array(self::request_email, $must_fields)) $must_fields[] = self::request_email;
+ 		if (!in_array(self::REQUEST_EMAIL, $must_fields)) $must_fields[] = self::REQUEST_EMAIL;
   	$message = '';
   	foreach ($must_fields as $must_field) {
   		switch ($must_field):
-  		case self::request_captcha:
+  		case self::REQUEST_CAPTCHA:
 		  	if (!isset($_REQUEST['captcha']) || ($_REQUEST['captcha'] != $_SESSION['captcha'])) $message .= event_msg_captcha_invalid;
 				break;
-  		case self::request_city:
-  			if (!isset($_REQUEST[self::request_city]) || (strlen($_REQUEST[self::request_city]) < 4)) $message .= event_msg_must_city;
+  		case self::REQUEST_CITY:
+  			if (!isset($_REQUEST[self::REQUEST_CITY]) || (strlen($_REQUEST[self::REQUEST_CITY]) < 4)) $message .= event_msg_must_city;
   			break;
-  		case self::request_email:
-		  	if (!isset($_REQUEST[self::request_email]) || !$kitLibrary->validateEMail($_REQUEST[self::request_email])) {
-					$message .= sprintf(event_msg_invalid_email, $_REQUEST[self::request_email]);
+  		case self::REQUEST_EMAIL:
+		  	if (!isset($_REQUEST[self::REQUEST_EMAIL]) || !$kitLibrary->validateEMail($_REQUEST[self::REQUEST_EMAIL])) {
+					$message .= sprintf(event_msg_invalid_email, $_REQUEST[self::REQUEST_EMAIL]);
 				}
   			break;
-  		case self::request_first_name:
-  			if (!isset($_REQUEST[self::request_first_name]) || empty($_REQUEST[self::request_first_name])) $message .= event_msg_must_first_name;
+  		case self::REQUEST_FIRST_NAME:
+  			if (!isset($_REQUEST[self::REQUEST_FIRST_NAME]) || empty($_REQUEST[self::REQUEST_FIRST_NAME])) $message .= event_msg_must_first_name;
   			break;
-  		case self::request_last_name:
-  			if (!isset($_REQUEST[self::request_last_name]) || empty($_REQUEST[self::request_last_name])) $message .= event_msg_must_last_name;
+  		case self::REQUEST_LAST_NAME:
+  			if (!isset($_REQUEST[self::REQUEST_LAST_NAME]) || empty($_REQUEST[self::REQUEST_LAST_NAME])) $message .= event_msg_must_last_name;
   			break;
-			case self::request_phone:
-  			if (!isset($_REQUEST[self::request_phone]) || empty($_REQUEST[self::request_phone])) $message .= event_msg_must_phone;
+			case self::REQUEST_PHONE:
+  			if (!isset($_REQUEST[self::REQUEST_PHONE]) || empty($_REQUEST[self::REQUEST_PHONE])) $message .= event_msg_must_phone;
   			break;
-  		case self::request_street:
-  			if (!isset($_REQUEST[self::request_street]) || empty($_REQUEST[self::request_street])) $message .= event_msg_must_street;
+  		case self::REQUEST_STREET:
+  			if (!isset($_REQUEST[self::REQUEST_STREET]) || empty($_REQUEST[self::REQUEST_STREET])) $message .= event_msg_must_street;
   			break;
-  		case self::request_terms:
-  			if (!isset($_REQUEST[self::request_terms])) $message .= event_msg_must_terms_and_conditions;
+  		case self::REQUEST_TERMS:
+  			if (!isset($_REQUEST[self::REQUEST_TERMS])) $message .= event_msg_must_terms_and_conditions;
   			break;
-  		case self::request_privacy:
-  			if (!isset($_REQUEST[self::request_privacy])) $message .= event_msg_must_data_privacy;
+  		case self::REQUEST_PRIVACY:
+  			if (!isset($_REQUEST[self::REQUEST_PRIVACY])) $message .= event_msg_must_data_privacy;
   			break;
-  		case self::request_zip:
-  			if (!isset($_REQUEST[self::request_zip]) || empty($_REQUEST[self::request_zip])) $message .= event_msg_must_zip;
+  		case self::REQUEST_ZIP:
+  			if (!isset($_REQUEST[self::REQUEST_ZIP]) || empty($_REQUEST[self::REQUEST_ZIP])) $message .= event_msg_must_zip;
   			break;
   		endswitch;
   	}
@@ -575,23 +575,23 @@ class eventFrontend {
   	}
 
 		// ok - Daten sichern und Bestaetigungsmails versenden
-		$free_fields = (isset($_REQUEST[self::request_free_fields])) ? explode(',', $_REQUEST[self::request_free_fields]) : array();
+		$free_fields = (isset($_REQUEST[self::REQUEST_FREE_FIELDS])) ? explode(',', $_REQUEST[self::REQUEST_FREE_FIELDS]) : array();
 
   	$orderData = array(
-  		dbEventOrder::field_best_time			=> (isset($_REQUEST[self::request_best_time])) ? $_REQUEST[self::request_best_time] : '',
-  		dbEventOrder::field_city					=> (isset($_REQUEST[self::request_city])) ? $_REQUEST[self::request_city] : '',
-  		dbEventOrder::field_company				=> (isset($_REQUEST[self::request_company])) ? $_REQUEST[self::request_company] : '',
-  		dbEventOrder::field_confirm_order	=> (isset($_REQUEST[self::request_confirm])) ? date('Y-m-d H:i:s') : '0000-00-00 00:00:00',
-  		dbEventOrder::field_email					=> strtolower($_REQUEST[self::request_email]),
+  		dbEventOrder::field_best_time			=> (isset($_REQUEST[self::REQUEST_BEST_TIME])) ? $_REQUEST[self::REQUEST_BEST_TIME] : '',
+  		dbEventOrder::field_city					=> (isset($_REQUEST[self::REQUEST_CITY])) ? $_REQUEST[self::REQUEST_CITY] : '',
+  		dbEventOrder::field_company				=> (isset($_REQUEST[self::REQUEST_COMPANY])) ? $_REQUEST[self::REQUEST_COMPANY] : '',
+  		dbEventOrder::field_confirm_order	=> (isset($_REQUEST[self::REQUEST_CONFIRM])) ? date('Y-m-d H:i:s') : '0000-00-00 00:00:00',
+  		dbEventOrder::field_email					=> strtolower($_REQUEST[self::REQUEST_EMAIL]),
   		dbEventOrder::field_event_id			=> $event_id,
-  		dbEventOrder::field_first_name		=> (isset($_REQUEST[self::request_first_name])) ? $_REQUEST[self::request_first_name] : '',
-  		dbEventOrder::field_last_name			=> (isset($_REQUEST[self::request_last_name])) ? $_REQUEST[self::request_last_name] : '',
-  		dbEventOrder::field_message				=> (isset($_REQUEST[self::request_message])) ? $_REQUEST[self::request_message] : '',
+  		dbEventOrder::field_first_name		=> (isset($_REQUEST[self::REQUEST_FIRST_NAME])) ? $_REQUEST[self::REQUEST_FIRST_NAME] : '',
+  		dbEventOrder::field_last_name			=> (isset($_REQUEST[self::REQUEST_LAST_NAME])) ? $_REQUEST[self::REQUEST_LAST_NAME] : '',
+  		dbEventOrder::field_message				=> (isset($_REQUEST[self::REQUEST_MESSAGE])) ? $_REQUEST[self::REQUEST_MESSAGE] : '',
   		dbEventOrder::field_order_date		=> date('Y-m-d H:i:s'),
-  		dbEventOrder::field_phone					=> (isset($_REQUEST[self::request_phone])) ? $_REQUEST[self::request_phone] : '',
-  		dbEventOrder::field_street				=> (isset($_REQUEST[self::request_street])) ? $_REQUEST[self::request_street] : '',
-  		dbEventOrder::field_title					=> (isset($_REQUEST[self::request_title])) ? $_REQUEST[self::request_title] : '',
-  		dbEventOrder::field_zip						=> (isset($_REQUEST[self::request_zip])) ? $_REQUEST[self::request_zip] : '',
+  		dbEventOrder::field_phone					=> (isset($_REQUEST[self::REQUEST_PHONE])) ? $_REQUEST[self::REQUEST_PHONE] : '',
+  		dbEventOrder::field_street				=> (isset($_REQUEST[self::REQUEST_STREET])) ? $_REQUEST[self::REQUEST_STREET] : '',
+  		dbEventOrder::field_title					=> (isset($_REQUEST[self::REQUEST_TITLE])) ? $_REQUEST[self::REQUEST_TITLE] : '',
+  		dbEventOrder::field_zip						=> (isset($_REQUEST[self::REQUEST_ZIP])) ? $_REQUEST[self::REQUEST_ZIP] : '',
   		dbEventOrder::field_free_1				=> (isset($_REQUEST[dbEventOrder::field_free_1])) ? (isset($free_fields[0])) ? $free_fields[0].'|'.$_REQUEST[dbEventOrder::field_free_1] : '|'.$_REQUEST[dbEventOrder::field_free_1] : '',
   		dbEventOrder::field_free_2				=> (isset($_REQUEST[dbEventOrder::field_free_2])) ? (isset($free_fields[1])) ? $free_fields[1].'|'.$_REQUEST[dbEventOrder::field_free_2] : '|'.$_REQUEST[dbEventOrder::field_free_2] : '',
   		dbEventOrder::field_free_3				=> (isset($_REQUEST[dbEventOrder::field_free_3])) ? (isset($free_fields[2])) ? $free_fields[2].'|'.$_REQUEST[dbEventOrder::field_free_3] : '|'.$_REQUEST[dbEventOrder::field_free_3] : '',
@@ -689,11 +689,11 @@ class eventFrontend {
   	global $dbEventItem;
   	global $dbEventGroup;
 
-  	if (!isset($_REQUEST[self::request_event_id]) && !isset($_REQUEST[dbEvent::field_id])) {
+  	if (!isset($_REQUEST[self::REQUEST_EVENT_ID]) && !isset($_REQUEST[dbEvent::field_id])) {
   		$this->setError(event_error_evt_invalid);
   		return false;
   	}
-  	$event_id = (isset($_REQUEST[self::request_event_id])) ? (int) $_REQUEST[self::request_event_id] : (int) $_REQUEST[dbEvent::field_id];
+  	$event_id = (isset($_REQUEST[self::REQUEST_EVENT_ID])) ? (int) $_REQUEST[self::REQUEST_EVENT_ID] : (int) $_REQUEST[dbEvent::field_id];
 
   	if (!$this->getEventData($event_id, $event, $parser_data)) return false;
 
@@ -708,27 +708,27 @@ class eventFrontend {
  			$title_values[] = array(
  				'value'			=> $title,
  				'text'			=> $title,
- 				'selected'	=> (isset($_REQUEST[self::request_title]) && ($_REQUEST[self::request_title] == $title)) ? 1 : NULL
+ 				'selected'	=> (isset($_REQUEST[self::REQUEST_TITLE]) && ($_REQUEST[self::REQUEST_TITLE] == $title)) ? 1 : NULL
  			);
  		}
- 		$request['title']['name'] = self::request_title;
+ 		$request['title']['name'] = self::REQUEST_TITLE;
  		$request['title']['value'] = $title_values;
 
  		// Eingabefelder erzeugen
  		$input_array = array(
- 			'first_name'		=> self::request_first_name,
- 			'last_name'			=> self::request_last_name,
- 			'company'				=> self::request_company,
- 			'street'				=> self::request_street,
- 			'zip'						=> self::request_zip,
- 			'city'					=> self::request_city,
- 			'email'					=> self::request_email,
- 			'phone'					=> self::request_phone,
- 			'best_time'			=> self::request_best_time,
- 			'message'				=> self::request_message,
- 			'confirm_order'	=> self::request_confirm,
- 			'confirm_terms'	=> self::request_terms,
- 			'confirm_privacy' => self::request_privacy,
+ 			'first_name'		=> self::REQUEST_FIRST_NAME,
+ 			'last_name'			=> self::REQUEST_LAST_NAME,
+ 			'company'				=> self::REQUEST_COMPANY,
+ 			'street'				=> self::REQUEST_STREET,
+ 			'zip'						=> self::REQUEST_ZIP,
+ 			'city'					=> self::REQUEST_CITY,
+ 			'email'					=> self::REQUEST_EMAIL,
+ 			'phone'					=> self::REQUEST_PHONE,
+ 			'best_time'			=> self::REQUEST_BEST_TIME,
+ 			'message'				=> self::REQUEST_MESSAGE,
+ 			'confirm_order'	=> self::REQUEST_CONFIRM,
+ 			'confirm_terms'	=> self::REQUEST_TERMS,
+ 			'confirm_privacy' => self::REQUEST_PRIVACY,
  			'free_1'				=> dbEventOrder::field_free_1,
  			'free_2'				=> dbEventOrder::field_free_2,
  			'free_3'				=> dbEventOrder::field_free_3,
@@ -744,17 +744,17 @@ class eventFrontend {
 			call_captcha();
 			$call_captcha = ob_get_contents();
 		ob_end_clean();
-		$request['captcha']['name'] = self::request_captcha;
+		$request['captcha']['name'] = self::REQUEST_CAPTCHA;
 		$request['captcha']['print'] = $call_captcha;
  		$data = array(
  			'form_name'								=> 'event_order',
  			'form_action'							=> $this->page_link,
- 			'action_name'							=> self::request_action,
- 			'action_value'						=> self::action_order_check,
+ 			'action_name'							=> self::REQUEST_ACTION,
+ 			'action_value'						=> self::ACTION_ORDER_CHECK,
  			'event_name'							=> dbEvent::field_id,
  			'event_value'							=> $event_id,
- 			'must_fields_name'				=> self::request_must_fields,
- 			'define_free_fields'			=> self::request_free_fields,
+ 			'must_fields_name'				=> self::REQUEST_MUST_FIELDS,
+ 			'define_free_fields'			=> self::REQUEST_FREE_FIELDS,
  			'event'										=> $parser_data,
 			'response'								=> ($this->isMessage()) ? $this->getMessage() : NULL,
  			'request'									=> $request,
@@ -764,38 +764,38 @@ class eventFrontend {
   } // orderEvent()
 
  	public function showEvent($show_view=-1) {
- 		if (!isset($_REQUEST[self::request_event]) && ($show_view == -1)) {
+ 		if (!isset($_REQUEST[self::REQUEST_EVENT]) && ($show_view == -1)) {
  			$this->setError(event_error_evt_invalid);
  			return false;
  		}
- 		$event_view = (isset($_REQUEST[self::request_event])) ? strtolower(trim($_REQUEST[self::request_event])) : $show_view;
+ 		$event_view = (isset($_REQUEST[self::REQUEST_EVENT])) ? strtolower(trim($_REQUEST[self::REQUEST_EVENT])) : $show_view;
  		$event_view = trim(strtolower($event_view));
 
  		// Register Droplet for the WebsiteBaker Search Function
- 		if (function_exists('is_registered_droplet_search') && ($this->params[self::param_search] && !is_registered_droplet_search('kit_event', PAGE_ID))) {
+ 		if (function_exists('is_registered_droplet_search') && ($this->params[self::PARAM_SEARCH] && !is_registered_droplet_search('kit_event', PAGE_ID))) {
 	 		register_droplet_search('kit_event', PAGE_ID, 'kit_event');
  		}
- 		if (function_exists('is_registered_droplet_header') && ($this->params[self::param_header] && !is_registered_droplet_header('kit_event', PAGE_ID))) {
+ 		if (function_exists('is_registered_droplet_header') && ($this->params[self::PARAM_HEADER] && !is_registered_droplet_header('kit_event', PAGE_ID))) {
 	 		register_droplet_header('kit_event', PAGE_ID, 'kit_event');
  		}
- 		if (function_exists('is_registered_droplet_css') && ($this->params[self::param_css] && !is_registered_droplet_css('kit_event', PAGE_ID))) {
+ 		if (function_exists('is_registered_droplet_css') && ($this->params[self::PARAM_CSS] && !is_registered_droplet_css('kit_event', PAGE_ID))) {
 	 		register_droplet_css('kit_event', PAGE_ID, 'kit_event', 'frontend.css');
  		}
 
  		switch ($event_view):
- 		case self::view_id:
+ 		case self::VIEW_ID:
  			$result = $this->viewEventID();
  			break;
- 		case self::view_day:
+ 		case self::VIEW_DAY:
  			$result = $this->viewEventDay();
  			break;
- 		case self::view_month:
+ 		case self::VIEW_MONTH:
  			$result = $this->viewEventMonth();
  			break;
- 		case self::view_week:
+ 		case self::VIEW_WEEK:
  			$result = $this->viewEventWeek();
  			break;
- 		case self::view_active:
+ 		case self::VIEW_ACTIVE:
  			$result = $this->viewEventActive();
  			break;
  		default:
@@ -807,8 +807,8 @@ class eventFrontend {
  	}
 
  	public function viewEventID($event_id=-1, $show_details=true) {
- 		$show_details = (isset($_REQUEST[self::request_event_detail])) ? (bool) $_REQUEST[self::request_event_detail] : $show_details;
- 		$event_id = (isset($_REQUEST[self::request_event_id])) ? (int) $_REQUEST[self::request_event_id] : $event_id;
+ 		$show_details = (isset($_REQUEST[self::REQUEST_EVENT_DETAIL])) ? (bool) $_REQUEST[self::REQUEST_EVENT_DETAIL] : $show_details;
+ 		$event_id = (isset($_REQUEST[self::REQUEST_EVENT_ID])) ? (int) $_REQUEST[self::REQUEST_EVENT_ID] : $event_id;
  		if (!$this->getEventData($event_id, $event_data, $parser_data)) return false;
  		$data = array(
  			'show_details' 	=> ($show_details) ? 1 : 0,
@@ -825,16 +825,16 @@ class eventFrontend {
  		global $dbEvent;
  		global $dbEventGroup;
 
- 		if (!isset($_REQUEST[self::request_day]) || !isset($_REQUEST[self::request_month]) || !isset($_REQUEST[self::request_year])) {
+ 		if (!isset($_REQUEST[self::REQUEST_DAY]) || !isset($_REQUEST[self::REQUEST_MONTH]) || !isset($_REQUEST[self::REQUEST_YEAR])) {
  			// keine Parameter gesetzt - aktuelles Datum verwenden!
  			$month = date('n');
  			$day = date('j');
  			$year = date('Y');
  		}
  		else {
-	 		$month = (int) $_REQUEST[self::request_month];
-	 		$day = (int) $_REQUEST[self::request_day];
-	 		$year = (int) $_REQUEST[self::request_year];
+	 		$month = (int) $_REQUEST[self::REQUEST_MONTH];
+	 		$day = (int) $_REQUEST[self::REQUEST_DAY];
+	 		$year = (int) $_REQUEST[self::REQUEST_YEAR];
  		}
 
  		$search_date_from = date('Y-m-d H:i:s', mktime(23,59,59,$month,$day-1,$year));
@@ -861,7 +861,7 @@ class eventFrontend {
  		);
 
  		$filter_group = '';
- 		$group = (isset($_REQUEST[self::param_group]) && !empty($_REQUEST[self::param_group])) ? $_REQUEST[self::param_group] : $this->params[self::param_group];
+ 		$group = (isset($_REQUEST[self::PARAM_GROUP]) && !empty($_REQUEST[self::PARAM_GROUP])) ? $_REQUEST[self::PARAM_GROUP] : $this->params[self::PARAM_GROUP];
  		if (!empty($group)) {
  			$where = array(dbEventGroup::field_name => $group);
  			$groups = array();
@@ -895,7 +895,7 @@ class eventFrontend {
  			if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data)) return false;
  			$event_items[] = $parser_data;
  		}
- 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
+ 		$show_details = (isset($_REQUEST[self::PARAM_VIEW])) ? (bool) $_REQUEST[self::PARAM_VIEW] : $this->params[self::PARAM_DETAIL];
  		$data = array(
  			'day'						=> $day,
  			'show_details'	=> ($show_details) ? 1 : 0,
@@ -908,14 +908,14 @@ class eventFrontend {
  		global $dbEvent;
  		global $dbEventGroup;
 
- 		if (!isset($_REQUEST[self::request_month]) || !isset($_REQUEST[self::request_year])) {
+ 		if (!isset($_REQUEST[self::REQUEST_MONTH]) || !isset($_REQUEST[self::REQUEST_YEAR])) {
  			// keine Parameter gesetzt - aktuelles Datum verwenden!
  			$month = date('n');
  			$year = date('Y');
  		}
  		else {
-	 		$month = (int) $_REQUEST[self::request_month];
-	 		$year = (int) $_REQUEST[self::request_year];
+	 		$month = (int) $_REQUEST[self::REQUEST_MONTH];
+	 		$year = (int) $_REQUEST[self::REQUEST_YEAR];
  		}
  		$search_date_from = date('Y-m-d H:i:s', mktime(23,59,59,$month,0,$year));
  		$search_date_to = date('Y-m-d H:i:s', mktime(0,0,0,$month+1,1,$year));
@@ -957,27 +957,27 @@ class eventFrontend {
  			'link_start'						=> $this->page_link,
  			'link_prev_month'				=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s',
  																					$this->page_link,
- 																					self::request_action,
- 																					self::action_event,
- 																					self::request_event,
- 																					self::view_month,
- 																					self::request_month,
+ 																					self::REQUEST_ACTION,
+ 																					self::ACTION_EVENT,
+ 																					self::REQUEST_EVENT,
+ 																					self::VIEW_MONTH,
+ 																					self::REQUEST_MONTH,
  																					$prev_month+1,
- 																					self::request_year,
+ 																					self::REQUEST_YEAR,
  																					$prev_year),
  		  'link_next_month'				=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s',
  																					$this->page_link,
- 																					self::request_action,
- 																					self::action_event,
- 																					self::request_event,
- 																					self::view_month,
- 																					self::request_month,
+ 																					self::REQUEST_ACTION,
+ 																					self::ACTION_EVENT,
+ 																					self::REQUEST_EVENT,
+ 																					self::VIEW_MONTH,
+ 																					self::REQUEST_MONTH,
  																					$next_month+1,
- 																					self::request_year,
+ 																					self::REQUEST_YEAR,
  																					$next_year)
  		);
  		$filter_group = '';
- 		$group = (isset($_REQUEST[self::param_group]) && !empty($_REQUEST[self::param_group])) ? $_REQUEST[self::param_group] : $this->params[self::param_group];
+ 		$group = (isset($_REQUEST[self::PARAM_GROUP]) && !empty($_REQUEST[self::PARAM_GROUP])) ? $_REQUEST[self::PARAM_GROUP] : $this->params[self::PARAM_GROUP];
  		if (!empty($group)) {
  			$where = array(dbEventGroup::field_name => $group);
  			$groups = array();
@@ -1012,7 +1012,7 @@ class eventFrontend {
  			if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data)) return false;
  			$event_items[] = $parser_data;
  		}
- 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
+ 		$show_details = (isset($_REQUEST[self::PARAM_VIEW])) ? (bool) $_REQUEST[self::PARAM_VIEW] : $this->params[self::PARAM_DETAIL];
  		$data = array(
  			'show_details'		=> ($show_details) ? 1 : 0,
  			'month'						=> $data_month,
@@ -1025,16 +1025,16 @@ class eventFrontend {
  		global $dbEvent;
  		global $dbEventGroup;
 
- 		if (!isset($_REQUEST[self::request_day]) || !isset($_REQUEST[self::request_month]) || !isset($_REQUEST[self::request_year])) {
+ 		if (!isset($_REQUEST[self::REQUEST_DAY]) || !isset($_REQUEST[self::REQUEST_MONTH]) || !isset($_REQUEST[self::REQUEST_YEAR])) {
  			// keine Parameter gesetzt - aktuelles Datum verwenden!
  			$month = date('n');
  			$day = date('j');
  			$year = date('Y');
  		}
  		else {
-	 		$month = (int) $_REQUEST[self::request_month];
-	 		$day = (int) $_REQUEST[self::request_day];
-	 		$year = (int) $_REQUEST[self::request_year];
+	 		$month = (int) $_REQUEST[self::REQUEST_MONTH];
+	 		$day = (int) $_REQUEST[self::REQUEST_DAY];
+	 		$year = (int) $_REQUEST[self::REQUEST_YEAR];
  		}
  		$start = $this->getMondayOfWeekDate(mktime(0,0,0,$month,$day,$year));
  		$monday = date('j', $start);
@@ -1065,33 +1065,33 @@ class eventFrontend {
  			'month_name_3'		=> substr($months[date('n')-1], 1, 3),
  			'link_prev_week'	=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s',
  																		$this->page_link,
- 																		self::request_action,
- 																		self::action_event,
- 																		self::request_event,
- 																		self::view_week,
- 																		self::request_month,
+ 																		self::REQUEST_ACTION,
+ 																		self::ACTION_EVENT,
+ 																		self::REQUEST_EVENT,
+ 																		self::VIEW_WEEK,
+ 																		self::REQUEST_MONTH,
  																		date('n', $prev_date),
- 																		self::request_day,
+ 																		self::REQUEST_DAY,
  																		date('j', $prev_date),
- 																		self::request_year,
+ 																		self::REQUEST_YEAR,
  																		date('Y', $prev_date)),
  			'link_next_week'	=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s',
  																		$this->page_link,
- 																		self::request_action,
- 																		self::action_event,
- 																		self::request_event,
- 																		self::view_week,
- 																		self::request_month,
+ 																		self::REQUEST_ACTION,
+ 																		self::ACTION_EVENT,
+ 																		self::REQUEST_EVENT,
+ 																		self::VIEW_WEEK,
+ 																		self::REQUEST_MONTH,
  																		date('n', $next_date),
- 																		self::request_day,
+ 																		self::REQUEST_DAY,
  																		date('j', $next_date),
- 																		self::request_year,
+ 																		self::REQUEST_YEAR,
  																		date('Y', $next_date)),
  			'link_start'			=> $this->page_link,
  		);
 
  		$filter_group = '';
- 		$group = (isset($_REQUEST[self::param_group]) && !empty($_REQUEST[self::param_group])) ? $_REQUEST[self::param_group] : $this->params[self::param_group];
+ 		$group = (isset($_REQUEST[self::PARAM_GROUP]) && !empty($_REQUEST[self::PARAM_GROUP])) ? $_REQUEST[self::PARAM_GROUP] : $this->params[self::PARAM_GROUP];
  		if (!empty($group)) {
  			$where = array(dbEventGroup::field_name => $group);
  			$groups = array();
@@ -1126,7 +1126,7 @@ class eventFrontend {
  			if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data)) return false;
  			$event_items[] = $parser_data;
  		}
- 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
+ 		$show_details = (isset($_REQUEST[self::PARAM_VIEW])) ? (bool) $_REQUEST[self::PARAM_VIEW] : $this->params[self::PARAM_DETAIL];
  		$data = array(
  			'show_details'	=> ($show_details) ? 1 : 0,
  			'events'				=> (count($events) > 0) ? $event_items : NULL,
@@ -1144,7 +1144,7 @@ class eventFrontend {
  		$months = explode(',', event_cfg_month_names);
 
  		$filter_group = '';
- 		$group = (isset($_REQUEST[self::param_group]) && !empty($_REQUEST[self::param_group])) ? $_REQUEST[self::param_group] : $this->params[self::param_group];
+ 		$group = (isset($_REQUEST[self::PARAM_GROUP]) && !empty($_REQUEST[self::PARAM_GROUP])) ? $_REQUEST[self::PARAM_GROUP] : $this->params[self::PARAM_GROUP];
  		if (!empty($group)) {
  			$where = array(dbEventGroup::field_name => $group);
  			$groups = array();
@@ -1183,7 +1183,7 @@ class eventFrontend {
  			if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data)) return false;
  			$event_items[] = $parser_data;
  		}
- 		$show_details = (isset($_REQUEST[self::param_view])) ? (bool) $_REQUEST[self::param_view] : $this->params[self::param_detail];
+ 		$show_details = (isset($_REQUEST[self::PARAM_VIEW])) ? (bool) $_REQUEST[self::PARAM_VIEW] : $this->params[self::PARAM_DETAIL];
  		$data = array(
  			'events' 				=> $event_items,
  			'show_details'	=> ($show_details) ? 1 : 0

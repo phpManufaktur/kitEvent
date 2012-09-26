@@ -33,50 +33,53 @@ else {
 require_once (WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/initialize.php');
 
 class monthlyCalendar {
-  const request_action = 'act';
-  const request_event = 'evt';
-  const request_year = 'y';
-  const request_month = 'm';
-  const request_day = 'd';
-  const request_event_id = 'id';
-  const action_show_month = 'month';
-  const action_default = 'def';
-  const action_show_list = 'list';
-  const action_order = 'ord';
-  const event_day = 'day';
-  const event_month = 'month';
+
+  const REQUEST_ACTION = 'kea';
+  const REQUEST_EVENT = 'evt';
+  const REQUEST_YEAR = 'y';
+  const REQUEST_MONTH = 'm';
+  const REQUEST_DAY = 'd';
+  const REQUEST_EVENT_ID = 'id';
+
+  const ACTION_SHOW_MONTH = 'month';
+  const ACTION_DEFAULT = 'def';
+  const ACTION_SHOW_LIST = 'list';
+  const ACTION_ORDER = 'ord';
+
+  const EVENT_DAY = 'day';
+  const EVENT_MONTH = 'month';
 
   private $error = '';
   private $template_path = '';
   private $page_link;
   private $response_link;
 
-  const param_show_weeks = 'show_weeks';
-  const param_inactive_days = 'inactive_days';
-  const param_navigation = 'navigation';
-  const param_show_today = 'show_today';
-  const param_response_id = 'response_id';
-  const param_ignore_topics = 'ignore_topics';
-  const param_select_month = 'month';
-  const param_select_year = 'year';
-  const param_group = 'group';
-  const param_action = 'action';
-  const param_preset = 'preset';
-  const param_link_month = 'link_month';
+  const PARAM_SHOW_WEEKS = 'show_weeks';
+  const PARAM_INACTIVE_DAYS = 'inactive_days';
+  const PARAM_NAVIGATION = 'navigation';
+  const PARAM_SHOW_TODAY = 'show_today';
+  const PARAM_RESPONSE_ID = 'response_id';
+  const PARAM_IGNORE_TOPICS = 'ignore_topics';
+  const PARAM_SELECT_MONTH = 'month';
+  const PARAM_SELECT_YEAR = 'year';
+  const PARAM_GROUP = 'group';
+  const PARAM_ACTION = 'action';
+  const PARAM_PRESET = 'preset';
+  const PARAM_LINK_MONTH = 'link_month';
 
   private $params = array(
-    self::param_show_weeks => true,
-    self::param_inactive_days => true,
-    self::param_navigation => true,
-    self::param_show_today => true,
-    self::param_response_id => -1,
-    self::param_ignore_topics => false,
-    self::param_select_month => 0,
-    self::param_select_year => 0,
-    self::param_group => '',
-    self::param_action => self::action_show_month,
-    self::param_preset => 1,
-    self::param_link_month => false
+    self::PARAM_SHOW_WEEKS => true,
+    self::PARAM_INACTIVE_DAYS => true,
+    self::PARAM_NAVIGATION => true,
+    self::PARAM_SHOW_TODAY => true,
+    self::PARAM_RESPONSE_ID => -1,
+    self::PARAM_IGNORE_TOPICS => false,
+    self::PARAM_SELECT_MONTH => 0,
+    self::PARAM_SELECT_YEAR => 0,
+    self::PARAM_GROUP => '',
+    self::PARAM_ACTION => self::ACTION_SHOW_MONTH,
+    self::PARAM_PRESET => 1,
+    self::PARAM_LINK_MONTH => false
   );
 
   public function __construct() {
@@ -92,9 +95,9 @@ class monthlyCalendar {
 
   public function setParams($params = array()) {
     $this->params = $params;
-    $this->template_path = WB_PATH . '/modules/kit_event/htt/' . $this->params[self::param_preset] . '/' . KIT_EVT_LANGUAGE . '/';
+    $this->template_path = WB_PATH . '/modules/kit_event/htt/' . $this->params[self::PARAM_PRESET] . '/' . KIT_EVT_LANGUAGE . '/';
     if (!file_exists($this->template_path)) {
-      $this->setError(sprintf(event_error_preset_not_exists, '/modules/kit_event/htt/' . $this->params[self::param_preset] . '/' . KIT_EVT_LANGUAGE . '/'));
+      $this->setError(sprintf(event_error_preset_not_exists, '/modules/kit_event/htt/' . $this->params[self::PARAM_PRESET] . '/' . KIT_EVT_LANGUAGE . '/'));
       return false;
     }
   } // setParams()
@@ -175,14 +178,14 @@ class monthlyCalendar {
       }
     }
 
-    $action = (isset($this->params[self::param_action])) ? $this->params[self::param_action] : self::action_show_month;
-    if (isset($_REQUEST[self::request_action])) $action = $_REQUEST[self::request_action];
+    $action = (isset($this->params[self::PARAM_ACTION])) ? $this->params[self::PARAM_ACTION] : self::ACTION_SHOW_MONTH;
+    if (isset($_REQUEST[self::REQUEST_ACTION])) $action = $_REQUEST[self::REQUEST_ACTION];
 
     switch ($action) :
-      case self::action_show_list :
+      case self::ACTION_SHOW_LIST :
         $result = $this->showList();
         break;
-      case self::action_show_month :
+      case self::ACTION_SHOW_MONTH :
       default :
         $result = $this->showCalendar();
         break;
@@ -235,49 +238,49 @@ class monthlyCalendar {
     global $kitLibrary;
     global $parser;
 
-    if (($this->params[self::param_select_month] > 0) && ($this->params[self::param_select_month] < 13)) {
-      $month = $this->params[self::param_select_month];
+    if (($this->params[self::PARAM_SELECT_MONTH] > 0) && ($this->params[self::PARAM_SELECT_MONTH] < 13)) {
+      $month = $this->params[self::PARAM_SELECT_MONTH];
     }
-    elseif ($this->params[self::param_select_month] < 0) {
-      $month = date('n') + $this->params[self::param_select_month];
+    elseif ($this->params[self::PARAM_SELECT_MONTH] < 0) {
+      $month = date('n') + $this->params[self::PARAM_SELECT_MONTH];
     }
-    elseif (($this->params[self::param_select_month] > 100) && ($this->params[self::param_select_month] < 112)) {
-      $month = date('n') + ($this->params[self::param_select_month] - 100);
+    elseif (($this->params[self::PARAM_SELECT_MONTH] > 100) && ($this->params[self::PARAM_SELECT_MONTH] < 112)) {
+      $month = date('n') + ($this->params[self::PARAM_SELECT_MONTH] - 100);
     }
     else {
       $month = date('n');
     }
 
-    if ($this->params[self::param_select_year] == 0) {
+    if ($this->params[self::PARAM_SELECT_YEAR] == 0) {
       // 0 == use actual year
       $year = date('Y');
     }
-    elseif ($this->params[self::param_select_year] < 0) {
+    elseif ($this->params[self::PARAM_SELECT_YEAR] < 0) {
       // substract value from actual year
-      $year = date('Y') + $this->params[self::param_select_year];
+      $year = date('Y') + $this->params[self::PARAM_SELECT_YEAR];
     }
-    elseif (($this->params[self::param_select_year] > 0) && ($this->params[self::param_select_year] < 100)) {
-      $year = date('Y') + $this->params[self::param_select_year];
+    elseif (($this->params[self::PARAM_SELECT_YEAR] > 0) && ($this->params[self::PARAM_SELECT_YEAR] < 100)) {
+      $year = date('Y') + $this->params[self::PARAM_SELECT_YEAR];
     }
     else {
-      $year = $this->params[self::param_select_year];
+      $year = $this->params[self::PARAM_SELECT_YEAR];
     }
 
-    if (isset($_REQUEST[self::request_month])) $month = $_REQUEST[self::request_month];
-    if (isset($_REQUEST[self::request_year])) $year = $_REQUEST[self::request_year];
+    if (isset($_REQUEST[self::REQUEST_MONTH])) $month = $_REQUEST[self::REQUEST_MONTH];
+    if (isset($_REQUEST[self::REQUEST_YEAR])) $year = $_REQUEST[self::REQUEST_YEAR];
 
     $last_day_of_month = date('j', mktime(0, 0, 0, $month + 1, 0, $year));
     $month_name = $this->getMonthName($month);
 
-    if ($this->params[self::param_response_id] > 0) {
-      $kitLibrary->getUrlByPageID($this->params[self::param_response_id], $this->response_link, $this->params[self::param_ignore_topics]);
+    if ($this->params[self::PARAM_RESPONSE_ID] > 0) {
+      $kitLibrary->getUrlByPageID($this->params[self::PARAM_RESPONSE_ID], $this->response_link, $this->params[self::PARAM_IGNORE_TOPICS]);
     }
     else {
       $this->response_link = $this->page_link;
     }
 
     // Events einlesen
-    $events = $this->getEvents($month, $year, $this->params[self::param_group]);
+    $events = $this->getEvents($month, $year, $this->params[self::PARAM_GROUP]);
 
     // Parameter fuer die Navigation
     if (($month - 1) == 0) {
@@ -298,12 +301,12 @@ class monthlyCalendar {
     }
     // navigation
     $navigation = array(
-      'prev_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_show_month, self::request_month, $prev_month, self::request_year, $prev_year),
+      'prev_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_SHOW_MONTH, self::REQUEST_MONTH, $prev_month, self::REQUEST_YEAR, $prev_year),
       'prev_hint' => event_hint_previous_month,
       'prev_text' => event_cfg_cal_prev_month,
       'month_year' => sprintf('%s %d', $month_name, $year),
-      'month_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->response_link, self::request_event, self::event_month, self::request_month, $month, self::request_year, $year),
-      'next_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_show_month, self::request_month, $next_month, self::request_year, $next_year),
+      'month_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->response_link, self::REQUEST_EVENT, self::EVENT_MONTH, self::REQUEST_MONTH, $month, self::REQUEST_YEAR, $year),
+      'next_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_SHOW_MONTH, self::REQUEST_MONTH, $next_month, self::REQUEST_YEAR, $next_year),
       'next_hint' => event_hint_next_month,
       'next_text' => event_cfg_cal_next_month
     );
@@ -330,7 +333,7 @@ class monthlyCalendar {
     $complete = false;
 
     // should indicate the actual day?
-    $check_today = ($this->params[self::param_show_today] && (mktime(0, 0, 0, $month, 1, $year) == mktime(0, 0, 0, date('n'), 1, date('Y')))) ? true : false;
+    $check_today = ($this->params[self::PARAM_SHOW_TODAY] && (mktime(0, 0, 0, $month, 1, $year) == mktime(0, 0, 0, date('n'), 1, date('Y')))) ? true : false;
 
     $mon = array();
     while ($i < 50) {
@@ -347,7 +350,7 @@ class monthlyCalendar {
           $start = false;
         }
         else {
-          if ($this->params[self::param_inactive_days]) {
+          if ($this->params[self::PARAM_INACTIVE_DAYS]) {
             $x = $dow - ($start_day_of_week - 1);
             $week[$dow]['date'] = date('j', mktime(0, 0, 0, $month, $x, $year));
             $week[$dow]['type'] = 'cms_day_inactive';
@@ -366,7 +369,7 @@ class monthlyCalendar {
         if (in_array($i, $events)) {
           // es gibt eine oder mehrere Veranstaltungen
           $week[$dow]['date'] = $i;
-          $week[$dow]['link'] = sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->response_link, self::request_event, self::event_day, self::request_month, $month, self::request_day, $i, self::request_year, $year);
+          $week[$dow]['link'] = sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->response_link, self::REQUEST_EVENT, self::EVENT_DAY, self::REQUEST_MONTH, $month, self::REQUEST_DAY, $i, self::REQUEST_YEAR, $year);
           $week[$dow]['hint'] = event_hint_click_for_detail;
           $week[$dow]['type'] = 'cms_day_event';
         }
@@ -376,7 +379,7 @@ class monthlyCalendar {
           $week[$dow]['type'] = ($check_today && ($i == date('j'))) ? 'cms_day_today' : '';
         }
       }
-      elseif ($this->params[self::param_inactive_days]) {
+      elseif ($this->params[self::PARAM_INACTIVE_DAYS]) {
         $week[$dow]['date'] = date('j', mktime(0, 0, 0, $month, $i, $year));
         $week[$dow]['type'] = 'cms_day_inactive';
       }
@@ -391,9 +394,9 @@ class monthlyCalendar {
 
     // show complete calendar sheet
     $data = array(
-      'show_weeks' => ($this->params[self::param_show_weeks]) ? 1 : 0,
-      'show_navigation' => ($this->params[self::param_navigation]) ? 1 : 0,
-      'link_month' => (int) $this->params[self::param_link_month],
+      'show_weeks' => ($this->params[self::PARAM_SHOW_WEEKS]) ? 1 : 0,
+      'show_navigation' => ($this->params[self::PARAM_NAVIGATION]) ? 1 : 0,
+      'link_month' => (int) $this->params[self::PARAM_LINK_MONTH],
       'navigation' => $navigation,
       'head' => $head,
       'month' => $mon
@@ -435,43 +438,43 @@ class monthlyCalendar {
     global $dbEventItem;
     global $dbEventGroup;
 
-    if (($this->params[self::param_select_month] > 0) && ($this->params[self::param_select_month] < 12)) {
-      $month = $this->params[self::param_select_month];
+    if (($this->params[self::PARAM_SELECT_MONTH] > 0) && ($this->params[self::PARAM_SELECT_MONTH] < 12)) {
+      $month = $this->params[self::PARAM_SELECT_MONTH];
     }
-    elseif ($this->params[self::param_select_month] < 0) {
-      $month = date('n') + $this->params[self::param_select_month];
+    elseif ($this->params[self::PARAM_SELECT_MONTH] < 0) {
+      $month = date('n') + $this->params[self::PARAM_SELECT_MONTH];
     }
-    elseif (($this->params[self::param_select_month] > 100) && ($this->params[self::param_select_month] < 112)) {
-      $month = date('n') + ($this->params[self::param_select_month] - 100);
+    elseif (($this->params[self::PARAM_SELECT_MONTH] > 100) && ($this->params[self::PARAM_SELECT_MONTH] < 112)) {
+      $month = date('n') + ($this->params[self::PARAM_SELECT_MONTH] - 100);
     }
     else {
       $month = date('n');
     }
 
-    if ($this->params[self::param_select_year] == 0) {
+    if ($this->params[self::PARAM_SELECT_YEAR] == 0) {
       // 0 == use actual year
       $year = date('Y');
     }
-    elseif ($this->params[self::param_select_year] < 0) {
+    elseif ($this->params[self::PARAM_SELECT_YEAR] < 0) {
       // substract value from actual year
-      $year = date('Y') + $this->params[self::param_select_year];
+      $year = date('Y') + $this->params[self::PARAM_SELECT_YEAR];
     }
-    elseif (($this->params[self::param_select_year] > 0) && ($this->params[self::param_select_year] < 100)) {
-      $year = date('Y') + $this->params[self::param_select_year];
+    elseif (($this->params[self::PARAM_SELECT_YEAR] > 0) && ($this->params[self::PARAM_SELECT_YEAR] < 100)) {
+      $year = date('Y') + $this->params[self::PARAM_SELECT_YEAR];
     }
     else {
-      $year = $this->params[self::param_select_year];
+      $year = $this->params[self::PARAM_SELECT_YEAR];
     }
 
-    if ($this->params[self::param_response_id] > 0) {
-      $kitLibrary->getUrlByPageID($this->params[self::param_response_id], $this->response_link, $this->params[self::param_ignore_topics]);
+    if ($this->params[self::PARAM_RESPONSE_ID] > 0) {
+      $kitLibrary->getUrlByPageID($this->params[self::PARAM_RESPONSE_ID], $this->response_link, $this->params[self::PARAM_IGNORE_TOPICS]);
     }
     else {
       $this->response_link = $this->page_link;
     }
 
     // Events einlesen
-    $events = $this->getEvents($month, $year, $this->params[self::param_group], false);
+    $events = $this->getEvents($month, $year, $this->params[self::PARAM_GROUP], false);
 
     $items = array();
     foreach ($events as $event) {
@@ -541,8 +544,8 @@ class monthlyCalendar {
         'group_name' => $eventGroup[dbEventGroup::field_name],
         'group_desc' => $eventGroup[dbEventGroup::field_desc],
 
-        'link_order' => sprintf('%s?%s=%s&%s=%s', $this->response_link, self::request_action, self::action_order, self::request_event_id, $event[dbEvent::field_id]),
-        'link_day' => sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->response_link, self::request_event, self::event_day, self::request_month, $month, self::request_day, date('j', $start_date), self::request_year, $year)
+        'link_order' => sprintf('%s?%s=%s&%s=%s', $this->response_link, self::REQUEST_ACTION, self::ACTION_ORDER, self::REQUEST_EVENT_ID, $event[dbEvent::field_id]),
+        'link_day' => sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->response_link, self::REQUEST_EVENT, self::EVENT_DAY, self::REQUEST_MONTH, $month, self::REQUEST_DAY, date('j', $start_date), self::REQUEST_YEAR, $year)
       );
     }
 

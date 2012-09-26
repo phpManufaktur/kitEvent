@@ -38,12 +38,14 @@ require_once (WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/include/qr
 require_once (WB_PATH . '/framework/functions-utf8.php');
 
 class eventBackend {
-  const request_action = 'act';
+
+  const request_action = 'kea';
   const request_items = 'its';
   const request_time_start = 'ets';
   const request_time_end = 'ete';
   const request_suggestion = 'sgg';
   const request_show_all = 'sa';
+
   const action_about = 'abt';
   const action_config = 'cfg';
   const action_config_check = 'cfgc';
@@ -55,6 +57,7 @@ class eventBackend {
   const action_list = 'lst';
   const action_messages = 'msg';
   const action_messages_detail = 'msgd';
+
   private $tab_navigation_array = array(
     self::action_list => event_tab_list,
     self::action_edit => event_tab_edit,
@@ -63,6 +66,7 @@ class eventBackend {
     self::action_config => event_tab_config,
     self::action_about => event_tab_about
   );
+
   private $page_link = '';
   private $img_url = '';
   private $template_path = '';
