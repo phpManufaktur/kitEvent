@@ -80,6 +80,7 @@ class eventFrontend {
 	const PARAM_SEARCH				= 'search';
 	const PARAM_HEADER				= 'header';
 	const PARAM_CSS						= 'css';
+	const PARAM_DEBUG         = 'debug';
 
 	const VIEW_ID							= 'id';
 	const VIEW_DAY						= 'day';
@@ -97,19 +98,20 @@ class eventFrontend {
 		self::PARAM_IGNORE_TOPICS => false,
 		self::PARAM_SEARCH			=> false,
 		self::PARAM_HEADER			=> false,
-		self::PARAM_CSS					=> true
+		self::PARAM_CSS					=> true,
+	  self::PARAM_DEBUG => false
 	);
 
-	private $template_path;
-	private $page_link;
+	private static $template_path;
+	private static $page_link;
 
 	public function __construct() {
 		global $kitLibrary;
 		$url = '';
 		$_SESSION['FRONTEND'] = true;
 		$kitLibrary->getPageLinkByPageID(PAGE_ID, $url);
-		$this->page_link = $url;
-		$this->template_path = WB_PATH.'/modules/kit_event/htt/'.$this->params[self::PARAM_PRESET].'/'.KIT_EVT_LANGUAGE.'/';
+		self::$page_link = $url;
+		self::$template_path = WB_PATH.'/modules/kit_event/templates/frontend/';
 		date_default_timezone_set(event_cfg_time_zone);
 	} // __construct();
 
@@ -119,11 +121,6 @@ class eventFrontend {
 
 	public function setParams($params = array()) {
 		$this->params = $params;
-		$this->template_path = WB_PATH.'/modules/kit_event/htt/'.$this->params[self::PARAM_PRESET].'/'.KIT_EVT_LANGUAGE.'/';
-		if (!file_exists($this->template_path)) {
-			$this->setError(sprintf(event_error_preset_not_exists, '/modules/kit_event/htt/'.$this->params[self::PARAM_PRESET].'/'.KIT_EVT_LANGUAGE.'/'));
-			return false;
-		}
 		return true;
 	} // setParams()
 
@@ -228,17 +225,56 @@ class eventFrontend {
 	  return $request;
   } // xssPrevent()
 
-  public function getTemplate($template, $template_data) {
+  /**
+   * Execute the desired template and return the completed template
+   *
+   */
+  protected function getTemplate($template, $template_data) {
   	global $parser;
+  	
+  	$template_path = self::$template_path.$this->params[self::PARAM_PRESET].'/'.KIT_EVT_LANGUAGE.'/'.$template;
+  	if (!file_exists($template_path)) {
+  		// template does not exist - fallback to default language!
+  		$template_path = self::$template_path.$this->params[self::PARAM_PRESET].'/DE/'.$template;
+  		if (!file_exists($template_path)) {
+  			// template does not exists - fallback to the default preset!
+  			$template_path = self::$template_path.'1/'.KIT_EVT_LANGUAGE.'/'.$template;
+  			if (!file_exists($template_path)) {
+  				// template does not exists - fallback to the default preset and the default language
+  				$template_path = self::$template_path.'1/DE/'.$template;
+  				if (!file_exists($template_path)) {
+  					// template does not exists in any possible path - give up!
+  					$this->setError(sprintf(event_error_template_error, $template, "$template_path nicht gefunden!"));
+//  					$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->translate('Error: The template {{ template }} does not exists in any of the possible paths!', array(
+//  							'template',	$template))));
+  					return false;
+  				}
+  			}
+  		}
+  	}
+  
+  	// add the template_path to the $template_data (for debugging purposes)
+  	if (!isset($template_data['template_path']))
+  		$template_data['template_path'] = $template_path;
+  	// add the debug flag to the $template_data
+  	if (!isset($template_data['DEBUG']))
+  		$template_data['DEBUG'] = (int) $this->params[self::PARAM_DEBUG];
+  
   	try {
-  		$result = $parser->get($this->template_path.$template, $template_data);
-  	} catch (Exception $e) {
-  		$this->setError(sprintf(event_error_template_error, $template, $e->getMessage()));
+  		// try to execute the template with Dwoo
+  		$result = $parser->get($template_path, $template_data);
+  	}
+  	catch (Exception $e) {
+  		// prompt the Dwoo error
+  		$this->setError('DWOO ERROR');
+//  		$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->translate('Error executing template <b>{{ template }}</b>:<br />{{ error }}', array(
+//  				'template' => $template,
+//  				'error' => $e->getMessage()))));
   		return false;
   	}
   	return $result;
   } // getTemplate()
-
+  
   /**
    * Action Handler der class.frontend.php
    * Diese Funktion wird generell von aussen aufgerufen und steuert die Klasse.
@@ -431,21 +467,6 @@ class eventFrontend {
 
 
  		$event_parser = array(
- 			//'group_name'							=> $group_name,
- 			//'group_desc'							=> $group_desc,
- 			//'participants_max'				=> $participants_max,
- 			//'participants_total'			=> $event_data[dbEvent::field_participants_total],
- 			//'participants_free'				=> $participants_free,
-			//'deadline_date'						=> date(event_cfg_date_str, strtotime($event_data[dbEvent::field_deadline])),
- 			//'deadline_timestamp'			=> strtotime($event_data[dbEvent::field_deadline]),
- 		 	//'desc_short'							=> stripslashes($event_data[dbEventItem::field_desc_short]),
- 			//'desc_long'								=> stripslashes($event_data[dbEventItem::field_desc_long]),
- 			//'costs'										=> number_format($costs, 2, event_cfg_decimal_separator, event_cfg_thousand_separator),
- 			//'link_desc'								=> stripslashes($event_data[dbEventItem::field_desc_link]),
- 			//'link_order'							=> sprintf('%s?%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_ORDER, self::REQUEST_EVENT_ID, $event_id),
-  		//'link_detail'							=> sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_EVENT, self::REQUEST_EVENT_ID, $event_id, self::REQUEST_EVENT, self::VIEW_ID, self::REQUEST_EVENT_DETAIL, 1),
-  		//'link_start'							=> $this->page_link,
-
  			'headline'								=> $event_data[dbEventItem::field_title],
  			'id'											=> $event_data[dbEvent::field_id],
  			'group'										=> array(
@@ -477,18 +498,18 @@ class eventFrontend {
  			'link'										=> array(
  																			'description'		=> stripslashes($event_data[dbEventItem::field_desc_link]),
  																			'register'			=> sprintf(	'%s%s%s',
- 																		 															$this->page_link,
- 																		 															(strpos($this->page_link, '?') === false) ? '?' : '&',
+ 																		 															self::$page_link,
+ 																		 															(strpos(self::$page_link, '?') === false) ? '?' : '&',
  																		 															http_build_query(array(	self::REQUEST_ACTION 		=> self::ACTION_ORDER,
  																		 																											self::REQUEST_EVENT_ID 	=> $event_id))),
  																		 	'detail'				=> sprintf(	'%s%s%s',
- 																		 															$this->page_link,
- 																		 															(strpos($this->page_link, '?') === false) ? '?' : '&',
+ 																		 															self::$page_link,
+ 																		 															(strpos(self::$page_link, '?') === false) ? '?' : '&',
  																		 															http_build_query(array(	self::REQUEST_ACTION 				=> self::ACTION_EVENT,
  																		 																											self::REQUEST_EVENT_ID 			=> $event_id,
  																		 																											self::REQUEST_EVENT 				=> self::VIEW_ID,
  																		 																											self::REQUEST_EVENT_DETAIL 	=> 1 ))),
- 																			'start'					=> $this->page_link,
+ 																			'start'					=> self::$page_link,
  																		 	'permanent'			=> (empty($event_data[dbEvent::field_perma_link])) ? '' : WB_URL.PAGES_DIRECTORY.'/'.$event_data[dbEvent::field_perma_link],
  																		 	'ical'					=> $ical_link
  																		),
@@ -656,7 +677,7 @@ class eventFrontend {
  			'event'		=> $event_parser
  		);
 
- 		if (false == ($body = $this->getTemplate('mail.confirm.participant.htt', $data))) return false;
+ 		if (false == ($body = $this->getTemplate('mail.confirm.participant.dwoo', $data))) return false;
   	if (!$wb->mail(SERVER_EMAIL, $orderData[dbEventOrder::field_email], $event[dbEventItem::field_title], $body)) {
 			$this->setError(sprintf(event_error_send_email, $orderData[dbEventOrder::field_email]));
 			return false;
@@ -671,13 +692,13 @@ class eventFrontend {
 	  }
 
 	  // E-Mail an Seitenbetreiber
-	  if (false == ($body = $this->getTemplate('mail.confirm.admin.htt', $data))) return false;
+	  if (false == ($body = $this->getTemplate('mail.confirm.admin.dwoo', $data))) return false;
 		if (!$wb->mail(SERVER_EMAIL, SERVER_EMAIL, $event[dbEventItem::field_title], $body)) {
 			$this->setError(sprintf(event_error_send_email, $orderData[dbEventOrder::field_email]));
 			return false;
 	  }
 
-  	return $this->getTemplate('frontend.event.order.confirm.htt', $data);
+  	return $this->getTemplate('frontend.event.order.confirm.dwoo', $data);
   } // checkOrder()
 
   /**
@@ -748,7 +769,7 @@ class eventFrontend {
 		$request['captcha']['print'] = $call_captcha;
  		$data = array(
  			'form_name'								=> 'event_order',
- 			'form_action'							=> $this->page_link,
+ 			'form_action'							=> self::$page_link,
  			'action_name'							=> self::REQUEST_ACTION,
  			'action_value'						=> self::ACTION_ORDER_CHECK,
  			'event_name'							=> dbEvent::field_id,
@@ -760,7 +781,7 @@ class eventFrontend {
  			'request'									=> $request,
  		);
 
-  	return $this->getTemplate('frontend.event.order.htt', $data);
+  	return $this->getTemplate('frontend.event.order.dwoo', $data);
   } // orderEvent()
 
  	public function showEvent($show_view=-1) {
@@ -814,7 +835,7 @@ class eventFrontend {
  			'show_details' 	=> ($show_details) ? 1 : 0,
  			'event'					=> $parser_data
  		);
- 		return $this->getTemplate('frontend.view.id.htt', $data);
+ 		return $this->getTemplate('frontend.view.id.dwoo', $data);
  	} // viewEventID()
 
  	/**
@@ -857,7 +878,7 @@ class eventFrontend {
  			'year'					=> date('Y', $dt),
  			'year_2'				=> date('y', $dt),
  			'week'					=> date('W', $dt),
- 			'link_start'		=> $this->page_link
+ 			'link_start'		=> self::$page_link
  		);
 
  		$filter_group = '';
@@ -901,7 +922,7 @@ class eventFrontend {
  			'show_details'	=> ($show_details) ? 1 : 0,
  			'events'				=> (count($events) > 0) ? $event_items : NULL
  		);
- 		return $this->getTemplate('frontend.view.day.htt', $data);
+ 		return $this->getTemplate('frontend.view.day.dwoo', $data);
  	} // viewEventDay()
 
  	public function viewEventMonth() {
@@ -954,9 +975,9 @@ class eventFrontend {
  			'next_month_zero'				=> sprintf('%02d', $next_month),
  			'next_month_name'				=> $months[$next_month],
  			'next_month_name_3'			=> substr($months[$next_month], 1, 3),
- 			'link_start'						=> $this->page_link,
+ 			'link_start'						=> self::$page_link,
  			'link_prev_month'				=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s',
- 																					$this->page_link,
+ 																					self::$page_link,
  																					self::REQUEST_ACTION,
  																					self::ACTION_EVENT,
  																					self::REQUEST_EVENT,
@@ -966,7 +987,7 @@ class eventFrontend {
  																					self::REQUEST_YEAR,
  																					$prev_year),
  		  'link_next_month'				=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s',
- 																					$this->page_link,
+ 																					self::$page_link,
  																					self::REQUEST_ACTION,
  																					self::ACTION_EVENT,
  																					self::REQUEST_EVENT,
@@ -1018,7 +1039,7 @@ class eventFrontend {
  			'month'						=> $data_month,
  			'events'					=> (count($events) > 0) ? $event_items : NULL
  		);
-		return $this->getTemplate('frontend.view.month.htt', $data);
+		return $this->getTemplate('frontend.view.month.dwoo', $data);
  	} // viewEventMonth()
 
  	public function viewEventWeek() {
@@ -1064,7 +1085,7 @@ class eventFrontend {
  			'month_name'			=> $months[date('n')-1],
  			'month_name_3'		=> substr($months[date('n')-1], 1, 3),
  			'link_prev_week'	=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s',
- 																		$this->page_link,
+ 																		self::$page_link,
  																		self::REQUEST_ACTION,
  																		self::ACTION_EVENT,
  																		self::REQUEST_EVENT,
@@ -1076,7 +1097,7 @@ class eventFrontend {
  																		self::REQUEST_YEAR,
  																		date('Y', $prev_date)),
  			'link_next_week'	=> sprintf(	'%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s',
- 																		$this->page_link,
+ 																		self::$page_link,
  																		self::REQUEST_ACTION,
  																		self::ACTION_EVENT,
  																		self::REQUEST_EVENT,
@@ -1087,7 +1108,7 @@ class eventFrontend {
  																		date('j', $next_date),
  																		self::REQUEST_YEAR,
  																		date('Y', $next_date)),
- 			'link_start'			=> $this->page_link,
+ 			'link_start'			=> self::$page_link,
  		);
 
  		$filter_group = '';
@@ -1132,7 +1153,7 @@ class eventFrontend {
  			'events'				=> (count($events) > 0) ? $event_items : NULL,
  			'week'					=> $week
  		);
- 		return $this->getTemplate('frontend.view.week.htt', $data);
+ 		return $this->getTemplate('frontend.view.week.dwoo', $data);
  	} // viewEventWeek()
 
  	public function viewEventActive() {
@@ -1188,7 +1209,7 @@ class eventFrontend {
  			'events' 				=> $event_items,
  			'show_details'	=> ($show_details) ? 1 : 0
  		);
- 		return $this->getTemplate('frontend.view.active.htt', $data);
+ 		return $this->getTemplate('frontend.view.active.dwoo', $data);
  	} // viewEventActive
 
 } // class eventFrontend

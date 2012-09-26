@@ -39,43 +39,43 @@ require_once (WB_PATH . '/framework/functions-utf8.php');
 
 class eventBackend {
 
-  const request_action = 'kea';
-  const request_items = 'its';
-  const request_time_start = 'ets';
-  const request_time_end = 'ete';
-  const request_suggestion = 'sgg';
-  const request_show_all = 'sa';
+  const REQUEST_ACTION = 'kea';
+  const REQUEST_ITEMS = 'its';
+  const REQUEST_TIME_START = 'ets';
+  const REQUEST_TIME_END = 'ete';
+  const REQUEST_SUGGESTION = 'sgg';
+  const REQUEST_SHOW_ALL = 'sa';
 
-  const action_about = 'abt';
-  const action_config = 'cfg';
-  const action_config_check = 'cfgc';
-  const action_default = 'def';
-  const action_edit = 'edt';
-  const action_edit_check = 'edtc';
-  const action_group = 'grp';
-  const action_group_check = 'grpc';
-  const action_list = 'lst';
-  const action_messages = 'msg';
-  const action_messages_detail = 'msgd';
+  const ACTION_ABOUT = 'abt';
+  const ACTION_CONFIG = 'cfg';
+  const ACTION_CONFIG_CHECK = 'cfgc';
+  const ACTION_DEFAULT = 'def';
+  const ACTION_EDIT = 'edt';
+  const ACTION_EDIT_CHECK = 'edtc';
+  const ACTION_GROUP = 'grp';
+  const ACTION_GROUP_CHECK = 'grpc';
+  const ACTION_LIST = 'lst';
+  const ACTION_MESSAGES = 'msg';
+  const ACTION_MESSAGES_DETAIL = 'msgd';
 
   private $tab_navigation_array = array(
-    self::action_list => event_tab_list,
-    self::action_edit => event_tab_edit,
-    self::action_group => event_tab_group,
-    self::action_messages => event_tab_messages,
-    self::action_config => event_tab_config,
-    self::action_about => event_tab_about
+    self::ACTION_LIST => event_tab_list,
+    self::ACTION_EDIT => event_tab_edit,
+    self::ACTION_GROUP => event_tab_group,
+    self::ACTION_MESSAGES => event_tab_messages,
+    self::ACTION_CONFIG => event_tab_config,
+    self::ACTION_ABOUT => event_tab_about
   );
 
   private $page_link = '';
   private $img_url = '';
-  private $template_path = '';
+  private static $template_path = '';
   private $error = '';
   private $message = '';
 
   public function __construct() {
     $this->page_link = ADMIN_URL . '/admintools/tool.php?tool=kit_event';
-    $this->template_path = WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/htt/';
+    self::$template_path = WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/templates/backend/';
     $this->img_url = WB_URL . '/modules/' . basename(dirname(__FILE__)) . '/images/';
     date_default_timezone_set(event_cfg_time_zone);
   } // __construct()
@@ -167,16 +167,43 @@ class eventBackend {
     }
     return -1;
   } // getVersion()
-  public function getTemplate($template, $template_data) {
-    global $parser;
-    try {
-      $result = $parser->get($this->template_path . $template, $template_data);
-    } catch (Exception $e) {
-      $this->setError(sprintf(event_error_template_error, $template, $e->getMessage()));
-      return false;
-    }
-    return $result;
+  
+  /**
+   * Get the template, set the data and return the compiled result
+   *
+   * @param string $template the name of the template
+   * @param array $template_data
+   * @param boolean $trigger_error raise a trigger error on problems
+   * @return boolean|Ambigous <string, mixed>
+   */
+  protected function getTemplate($template, $template_data, $trigger_error=false) {
+  	global $parser;
+  	
+  	// check if a language depending template exists
+  	$template_path = (file_exists(self::$template_path.LANGUAGE.'/'.$template)) ? self::$template_path.LANGUAGE.'/' : self::$template_path.'DE/';
+  	// check if a custom template exists ...
+  	$load_template = (file_exists($template_path.'custom.'.$template)) ? $template_path.'custom.'.$template : $template_path.$template;
+  	try {
+  		$result = $parser->get($load_template, $template_data);
+  	}
+  	catch (Exception $e) {
+  		$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+  				/*
+  				$this->lang->translate('Error executing the template <b>{{ template }}</b>: {{ error }}',
+  						array(
+  								'template' => basename($load_template),
+  								'error' => $e->getMessage())
+  				)
+  				*/
+  				$e->getMessage()
+  		));
+  		if ($trigger_error)
+  			trigger_error($this->getError(), E_USER_ERROR);
+  		return false;
+  	}
+  	return $result;
   } // getTemplate()
+  
 
   /**
    * Verhindert XSS Cross Site Scripting
@@ -210,38 +237,38 @@ class eventBackend {
         $_REQUEST[$key] = $this->xssPrevent($value);
       }
     }
-    isset($_REQUEST[self::request_action]) ? $action = $_REQUEST[self::request_action] : $action = self::action_default;
+    isset($_REQUEST[self::REQUEST_ACTION]) ? $action = $_REQUEST[self::REQUEST_ACTION] : $action = self::ACTION_DEFAULT;
     switch ($action) :
-      case self::action_about :
-        $this->show(self::action_about, $this->dlgAbout());
+      case self::ACTION_ABOUT :
+        $this->show(self::ACTION_ABOUT, $this->dlgAbout());
         break;
-      case self::action_config :
-        $this->show(self::action_config, $this->dlgConfig());
+      case self::ACTION_CONFIG :
+        $this->show(self::ACTION_CONFIG, $this->dlgConfig());
         break;
-      case self::action_config_check :
-        $this->show(self::action_config, $this->checkConfig());
+      case self::ACTION_CONFIG_CHECK :
+        $this->show(self::ACTION_CONFIG, $this->checkConfig());
         break;
-      case self::action_edit :
-        $this->show(self::action_edit, $this->dlgEditEvent());
+      case self::ACTION_EDIT :
+        $this->show(self::ACTION_EDIT, $this->dlgEditEvent());
         break;
-      case self::action_edit_check :
-        $this->show(self::action_edit, $this->checkEditEvent());
+      case self::ACTION_EDIT_CHECK :
+        $this->show(self::ACTION_EDIT, $this->checkEditEvent());
         break;
-      case self::action_group :
-        $this->show(self::action_group, $this->dlgEditGroup());
+      case self::ACTION_GROUP :
+        $this->show(self::ACTION_GROUP, $this->dlgEditGroup());
         break;
-      case self::action_group_check :
-        $this->show(self::action_group, $this->checkEditGroup());
+      case self::ACTION_GROUP_CHECK :
+        $this->show(self::ACTION_GROUP, $this->checkEditGroup());
         break;
-      case self::action_messages :
-        $this->show(self::action_messages, $this->dlgMessages());
+      case self::ACTION_MESSAGES :
+        $this->show(self::ACTION_MESSAGES, $this->dlgMessages());
         break;
-      case self::action_messages_detail :
-        $this->show(self::action_messages, $this->dlgMessageDetail());
+      case self::ACTION_MESSAGES_DETAIL :
+        $this->show(self::ACTION_MESSAGES, $this->dlgMessageDetail());
         break;
-      case self::action_list :
+      case self::ACTION_LIST :
       default :
-        $this->show(self::action_list, $this->dlgList());
+        $this->show(self::ACTION_LIST, $this->dlgList());
         break;
     endswitch
     ;
@@ -262,7 +289,7 @@ class eventBackend {
     foreach ($this->tab_navigation_array as $key => $value) {
       $navigation[] = array(
         'active' => ($key == $action) ? 1 : 0,
-        'url' => sprintf('%s&%s=%s', $this->page_link, self::request_action, $key),
+        'url' => sprintf('%s&%s=%s', $this->page_link, self::REQUEST_ACTION, $key),
         'text' => $value
       );
     }
@@ -272,7 +299,7 @@ class eventBackend {
       'error' => ($this->isError()) ? 1 : 0,
       'content' => ($this->isError()) ? $this->getError() : $content
     );
-    echo $this->getTemplate('backend.body.htt', $data);
+    echo $this->getTemplate('body.dwoo', $data);
   } // show()
   public function dlgList() {
     global $dbEvent;
@@ -280,7 +307,7 @@ class eventBackend {
     global $dbEventGroup;
     global $parser;
 
-    if (isset($_REQUEST[self::request_show_all]) && ($_REQUEST[self::request_show_all] == 1)) {
+    if (isset($_REQUEST[self::REQUEST_SHOW_ALL]) && ($_REQUEST[self::REQUEST_SHOW_ALL] == 1)) {
       $SQL = sprintf("SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s!='%s' ORDER BY %s ASC", $dbEvent->getTableName(), $dbEventItem->getTableName(), $dbEvent->getTableName(), dbEvent::field_event_item, $dbEventItem->getTableName(), dbEventItem::field_id, dbEvent::field_status, dbEvent::status_deleted, dbEvent::field_event_date_from);
       $this->setMessage(event_msg_show_all_events);
     }
@@ -345,7 +372,7 @@ class eventBackend {
       $group = -1;
       $rows[] = array(
         'id_name' => dbEvent::field_id,
-        'id_link' => sprintf('%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_edit, dbEvent::field_id, $event[dbEvent::field_id]),
+        'id_link' => sprintf('%s&%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_EDIT, dbEvent::field_id, $event[dbEvent::field_id]),
         'id' => sprintf('%04d', $event[dbEvent::field_id]),
         'date_from_name' => dbEvent::field_event_date_from,
         'date_from' => date(event_cfg_datetime_str, strtotime($event[dbEvent::field_event_date_from])),
@@ -370,10 +397,10 @@ class eventBackend {
       'intro' => ($this->isMessage()) ? $this->getMessage() : event_intro_event_list,
       'th' => $th,
       'rows' => $rows,
-      'show_all_link' => sprintf('%s&%s=%s&%s=1', $this->page_link, self::request_action, self::action_list, self::request_show_all),
+      'show_all_link' => sprintf('%s&%s=%s&%s=1', $this->page_link, self::REQUEST_ACTION, self::ACTION_LIST, self::REQUEST_SHOW_ALL),
       'show_all' => event_label_show_all
     );
-    return $this->getTemplate('backend.event.list.htt', $data);
+    return $this->getTemplate('event.list.dwoo', $data);
   } // dlgList()
   public function dlgSuggestEvent() {
     global $dbEvent;
@@ -401,18 +428,18 @@ class eventBackend {
     $data = array(
       'form_name' => 'event_suggest',
       'form_action' => $this->page_link,
-      'action_name' => self::request_action,
-      'action_value' => self::action_edit,
+      'action_name' => self::REQUEST_ACTION,
+      'action_value' => self::ACTION_EDIT,
       'header' => event_header_suggest_event,
       'intro' => event_intro_suggest_event,
-      'suggest_request' => self::request_suggestion,
+      'suggest_request' => self::REQUEST_SUGGESTION,
       'suggest_label' => event_label_select_event,
       'suggest_options' => $suggest_options,
       'btn_ok' => event_btn_ok,
       'btn_abort' => event_btn_abort,
       'abort_location' => $this->page_link
     );
-    return $this->getTemplate('backend.event.suggest.htt', $data);
+    return $this->getTemplate('event.suggest.dwoo', $data);
   } // dlgEventSuggestion()
   public function dlgEditEvent() {
     global $dbEvent;
@@ -447,18 +474,18 @@ class eventBackend {
         $time_end = '';
       }
     }
-    elseif (!isset($_REQUEST[self::request_suggestion])) {
+    elseif (!isset($_REQUEST[self::REQUEST_SUGGESTION])) {
       // erster Aufruf - Datenuebernahme von bestehenden Events anbieten
       return $this->dlgSuggestEvent();
     }
-    elseif (isset($_REQUEST[self::request_suggestion]) && ($_REQUEST[self::request_suggestion] != -1)) {
+    elseif (isset($_REQUEST[self::REQUEST_SUGGESTION]) && ($_REQUEST[self::REQUEST_SUGGESTION] != -1)) {
       $item_id = -1;
       $event = $dbEvent->getFields();
       $event[dbEvent::field_status] = dbEvent::status_active;
       $time_start = '';
       $time_end = '';
       $where = array(
-        dbEventItem::field_id => $_REQUEST[self::request_suggestion]
+        dbEventItem::field_id => $_REQUEST[self::REQUEST_SUGGESTION]
       );
       $item = array();
       if (!$dbEventItem->sqlSelectRecord($where, $item)) {
@@ -467,7 +494,7 @@ class eventBackend {
       }
       $item = $item[0];
       $event = array_merge($event, $item);
-      $this->setMessage(sprintf(event_msg_event_take_suggestion, $_REQUEST[self::request_suggestion]));
+      $this->setMessage(sprintf(event_msg_event_take_suggestion, $_REQUEST[self::REQUEST_SUGGESTION]));
     }
     else {
       $item_id = -1;
@@ -499,8 +526,8 @@ class eventBackend {
         ;
       }
     }
-    if (isset($_REQUEST[self::request_time_start])) $time_start = $_REQUEST[self::request_time_start];
-    if (isset($_REQUEST[self::request_time_end])) $time_end = $_REQUEST[self::request_time_end];
+    if (isset($_REQUEST[self::REQUEST_TIME_START])) $time_start = $_REQUEST[self::REQUEST_TIME_START];
+    if (isset($_REQUEST[self::REQUEST_TIME_END])) $time_end = $_REQUEST[self::REQUEST_TIME_END];
 
     // event group
     $SQL = sprintf("SELECT * FROM %s WHERE %s='%s'", $dbEventGroup->getTableName(), dbEventGroup::field_status, dbEventGroup::status_active);
@@ -559,12 +586,12 @@ class eventBackend {
         'value' => (false !== ($x = strtotime($event[dbEvent::field_event_date_to]))) ? date(event_cfg_date_str, $x) : ''
       ),
       'time_start' => array(
-        'name' => self::request_time_start,
+        'name' => self::REQUEST_TIME_START,
         'label' => event_label_event_time_start,
         'value' => $time_start
       ),
       'time_end' => array(
-        'name' => self::request_time_end,
+        'name' => self::REQUEST_TIME_END,
         'label' => event_label_event_time_end,
         'value' => $time_end
       ),
@@ -647,14 +674,14 @@ class eventBackend {
     $data = array(
       'form_name' => 'event_edit',
       'form_action' => $this->page_link,
-      'action_name' => self::request_action,
-      'action_value' => self::action_edit_check,
+      'action_name' => self::REQUEST_ACTION,
+      'action_value' => self::ACTION_EDIT_CHECK,
       'language' => (LANGUAGE == 'EN') ? '' : strtolower(LANGUAGE),
       'event_name' => dbEvent::field_id,
       'event_value' => $event_id,
       'item_name' => dbEventItem::field_id,
       'item_value' => $item_id,
-      'suggestion_name' => self::request_suggestion,
+      'suggestion_name' => self::REQUEST_SUGGESTION,
       'suggestion_value' => -1,
       'header' => event_header_edit_event,
       'is_intro' => ($this->isMessage()) ? 0 : 1,
@@ -664,7 +691,7 @@ class eventBackend {
       'abort_location' => $this->page_link,
       'event' => $fields
     );
-    return $this->getTemplate('backend.event.edit.htt', $data);
+    return $this->getTemplate('event.edit.dwoo', $data);
   } // dlgEditEvent()
   public function checkEditEvent() {
     global $dbEvent;
@@ -695,8 +722,8 @@ class eventBackend {
           case dbEvent::field_event_date_from :
             if (false !== ($x = strtotime($_REQUEST[$request]))) {
               $_REQUEST[$request] = date('Y-m-d H:i:s', $x);
-              if (isset($_REQUEST[self::request_time_start]) && !empty($_REQUEST[self::request_time_start])) {
-                $time = $_REQUEST[self::request_time_start];
+              if (isset($_REQUEST[self::REQUEST_TIME_START]) && !empty($_REQUEST[self::REQUEST_TIME_START])) {
+                $time = $_REQUEST[self::REQUEST_TIME_START];
                 if (strpos($time, ':') !== false) {
                   list($H, $i) = explode(':', $time);
                 }
@@ -712,12 +739,12 @@ class eventBackend {
                 else {
                   // time ok
                   $_REQUEST[$request] = date('Y-m-d H:i:s', mktime($H, $i, 0, date('m', $x), date('d', $x), date('Y', $x)));
-                  unset($_REQUEST[self::request_time_start]);
+                  unset($_REQUEST[self::REQUEST_TIME_START]);
                   $start_date_ok = true;
                 }
               }
               else {
-                unset($_REQUEST[self::request_time_start]);
+                unset($_REQUEST[self::REQUEST_TIME_START]);
                 $start_date_ok = true;
               }
             }
@@ -745,8 +772,8 @@ class eventBackend {
               $message .= event_msg_date_from_to_invalid;
               break;
             }
-            if (isset($_REQUEST[self::request_time_end]) && !empty($_REQUEST[self::request_time_end])) {
-              $time = $_REQUEST[self::request_time_end];
+            if (isset($_REQUEST[self::REQUEST_TIME_END]) && !empty($_REQUEST[self::REQUEST_TIME_END])) {
+              $time = $_REQUEST[self::REQUEST_TIME_END];
               if (strpos($time, ':') !== false) {
                 list($H, $i) = explode(':', $time);
               }
@@ -762,14 +789,14 @@ class eventBackend {
               else {
                 // time ok
                 $_REQUEST[$request] = date('Y-m-d H:i:s', mktime($H, $i, 0, date('m', $x), date('d', $x), date('Y', $x)));
-                unset($_REQUEST[self::request_time_end]);
+                unset($_REQUEST[self::REQUEST_TIME_END]);
                 $end_date_ok = true;
               }
             }
             else {
               // set time to the end of the day
               $_REQUEST[$request] = date('Y-m-d H:i:s', mktime(23, 59, 0, date('m', $x), date('d', $x), date('Y', $x)));
-              unset($_REQUEST[self::request_time_end]);
+              unset($_REQUEST[self::REQUEST_TIME_END]);
               $end_date_ok = true;
             }
             break;
@@ -1486,8 +1513,8 @@ class eventBackend {
         'label' => event_label_group_select,
         'value' => $grps,
         // 'location' => sprintf('%s&%s=%s&%s=', $this->page_link,
-        // self::request_action, self::action_group, dbEventGroup::field_id),
-        'location' => sprintf('javascript:execOnChange(\'%s\', \'%s\');', sprintf('%s&amp;%s=%s%s&amp;%s=', $this->page_link, self::request_action, self::action_group, (defined('LEPTON_VERSION') && isset($_GET['leptoken'])) ? sprintf('&amp;leptoken=%s', $_GET['leptoken']) : '', dbEventGroup::field_id), dbEventGroup::field_id),
+        // self::REQUEST_ACTION, self::ACTION_GROUP, dbEventGroup::field_id),
+        'location' => sprintf('javascript:execOnChange(\'%s\', \'%s\');', sprintf('%s&amp;%s=%s%s&amp;%s=', $this->page_link, self::REQUEST_ACTION, self::ACTION_GROUP, (defined('LEPTON_VERSION') && isset($_GET['leptoken'])) ? sprintf('&amp;leptoken=%s', $_GET['leptoken']) : '', dbEventGroup::field_id), dbEventGroup::field_id),
         'hint' => event_hint_group_group
       ),
       'name' => array(
@@ -1526,8 +1553,8 @@ class eventBackend {
     $data = array(
       'form_name' => 'event_group',
       'form_action' => $this->page_link,
-      'action_name' => self::request_action,
-      'action_value' => self::action_group_check,
+      'action_name' => self::REQUEST_ACTION,
+      'action_value' => self::ACTION_GROUP_CHECK,
       'header' => event_header_edit_group,
       'is_intro' => ($this->isMessage()) ? 0 : 1,
       'intro' => ($this->isMessage()) ? $this->getMessage() : event_intro_edit_group,
@@ -1536,7 +1563,7 @@ class eventBackend {
       'btn_abort' => event_btn_abort,
       'abort_location' => $this->page_link
     );
-    return $this->getTemplate('backend.event.group.htt', $data);
+    return $this->getTemplate('event.group.dwoo', $data);
   } // dlgEditGroup()
 
   /**
@@ -1599,7 +1626,7 @@ class eventBackend {
       'img_url' => $this->img_url . '/kit_event_logo_424x283.jpg',
       'release_notes' => file_get_contents(WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/CHANGELOG')
     );
-    return $this->getTemplate('backend.about.htt', $data);
+    return $this->getTemplate('about.dwoo', $data);
   } // dlgAbout()
 
   public function dlgMessages() {
@@ -1615,7 +1642,7 @@ class eventBackend {
       return false;
     }
 
-    $row = new Dwoo_Template_File($this->template_path . 'backend.order.list.row.htt');
+    $row = new Dwoo_Template_File($this->template_path . 'order.list.row.dwoo');
 
     $items = '';
     $rows = array();
@@ -1625,7 +1652,7 @@ class eventBackend {
       $name = sprintf('%s, %s', $message[dbEventOrder::field_last_name], $message[dbEventOrder::field_first_name]);
       if (strlen($name) < 3) $name = '';
       $rows[] = array(
-        'order_date_link' => sprintf('%s&%s=%s&%s=%s', $this->page_link, self::request_action, self::action_messages_detail, dbEventOrder::field_id, $message[dbEventOrder::field_id]),
+        'order_date_link' => sprintf('%s&%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES_DETAIL, dbEventOrder::field_id, $message[dbEventOrder::field_id]),
         'order_date' => date(event_cfg_datetime_str, strtotime($message[dbEventOrder::field_order_date])),
         'email' => $message[dbEventOrder::field_email],
         'name' => $name,
@@ -1656,7 +1683,7 @@ class eventBackend {
       'message_name' => dbEventOrder::field_message,
       'message_th' => event_th_message
     );
-    return $this->getTemplate('backend.order.list.htt', $data);
+    return $this->getTemplate('order.list.dwoo', $data);
   } // dlgMessages()
   public function dlgMessageDetail() {
     global $dbEventOrder;
@@ -1719,10 +1746,10 @@ class eventBackend {
       'free_4' => substr($detail[dbEventOrder::field_free_4], strpos($detail[dbEventOrder::field_free_4], '|') + 1),
       'free_5' => substr($detail[dbEventOrder::field_free_5], strpos($detail[dbEventOrder::field_free_5], '|') + 1),
 
-      'back_link' => sprintf('%s&%s=%s', $this->page_link, self::request_action, self::action_messages),
+      'back_link' => sprintf('%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES),
       'back_text' => event_text_back
     );
-    return $this->getTemplate('backend.order.detail.htt', $data);
+    return $this->getTemplate('order.detail.dwoo', $data);
   } // dlgMessageDetail()
 
   /**
@@ -1763,9 +1790,9 @@ class eventBackend {
     $data = array(
       'form_name' => 'event_cfg',
       'form_action' => $this->page_link,
-      'action_name' => self::request_action,
-      'action_value' => self::action_config_check,
-      'items_name' => self::request_items,
+      'action_name' => self::REQUEST_ACTION,
+      'action_value' => self::ACTION_CONFIG_CHECK,
+      'items_name' => self::REQUEST_ITEMS,
       'items_value' => implode(",", $count),
       'head' => tool_header_cfg,
       'intro' => $this->isMessage() ? $this->getMessage() : sprintf(tool_intro_cfg, 'kitEvent'),
@@ -1776,7 +1803,7 @@ class eventBackend {
       'abort_location' => $this->page_link,
       'header' => $header
     );
-    return $this->getTemplate('backend.config.htt', $data);
+    return $this->getTemplate('config.dwoo', $data);
   } // dlgConfig()
 
   /**
@@ -1789,8 +1816,8 @@ class eventBackend {
     global $dbEventCfg;
     $message = '';
     // ueberpruefen, ob ein Eintrag geaendert wurde
-    if ((isset($_REQUEST[self::request_items])) && (!empty($_REQUEST[self::request_items]))) {
-      $ids = explode(",", $_REQUEST[self::request_items]);
+    if ((isset($_REQUEST[self::REQUEST_ITEMS])) && (!empty($_REQUEST[self::REQUEST_ITEMS]))) {
+      $ids = explode(",", $_REQUEST[self::REQUEST_ITEMS]);
       foreach ($ids as $id) {
         if (isset($_REQUEST[dbEventCfg::field_value . '_' . $id])) {
           $value = $_REQUEST[dbEventCfg::field_value . '_' . $id];

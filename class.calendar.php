@@ -50,7 +50,7 @@ class monthlyCalendar {
   const EVENT_MONTH = 'month';
 
   private $error = '';
-  private $template_path = '';
+  private static $template_path = '';
   private $page_link;
   private $response_link;
 
@@ -66,6 +66,7 @@ class monthlyCalendar {
   const PARAM_ACTION = 'action';
   const PARAM_PRESET = 'preset';
   const PARAM_LINK_MONTH = 'link_month';
+  const PARAM_DEBUG = 'debug';
 
   private $params = array(
     self::PARAM_SHOW_WEEKS => true,
@@ -79,12 +80,13 @@ class monthlyCalendar {
     self::PARAM_GROUP => '',
     self::PARAM_ACTION => self::ACTION_SHOW_MONTH,
     self::PARAM_PRESET => 1,
-    self::PARAM_LINK_MONTH => false
+    self::PARAM_LINK_MONTH => false,
+    self::PARAM_DEBUG => false
   );
 
   public function __construct() {
     global $kitLibrary;
-    $this->template_path = WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/htt/';
+    self::$template_path = WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/templates/frontend/';
     $kitLibrary->getUrlByPageID(PAGE_ID, $this->page_link);
     date_default_timezone_set(event_cfg_time_zone);
   } // __construct()
@@ -95,11 +97,6 @@ class monthlyCalendar {
 
   public function setParams($params = array()) {
     $this->params = $params;
-    $this->template_path = WB_PATH . '/modules/kit_event/htt/' . $this->params[self::PARAM_PRESET] . '/' . KIT_EVT_LANGUAGE . '/';
-    if (!file_exists($this->template_path)) {
-      $this->setError(sprintf(event_error_preset_not_exists, '/modules/kit_event/htt/' . $this->params[self::PARAM_PRESET] . '/' . KIT_EVT_LANGUAGE . '/'));
-      return false;
-    }
   } // setParams()
 
   /**
@@ -147,6 +144,7 @@ class monthlyCalendar {
     return $request;
   } // xssPrevent()
 
+  /*
   public function getTemplate($template, $template_data) {
     global $parser;
     try {
@@ -157,6 +155,58 @@ class monthlyCalendar {
     }
     return $result;
   } // getTemplate()
+  */
+  
+  /**
+   * Execute the desired template and return the completed template
+   *
+   */
+  protected function getTemplate($template, $template_data) {
+  	global $parser;
+  	 
+  	$template_path = self::$template_path.$this->params[self::PARAM_PRESET].'/'.KIT_EVT_LANGUAGE.'/'.$template;
+  	if (!file_exists($template_path)) {
+  		// template does not exist - fallback to default language!
+  		$template_path = self::$template_path.$this->params[self::PARAM_PRESET].'/DE/'.$template;
+  		if (!file_exists($template_path)) {
+  			// template does not exists - fallback to the default preset!
+  			$template_path = self::$template_path.'1/'.KIT_EVT_LANGUAGE.'/'.$template;
+  			if (!file_exists($template_path)) {
+  				// template does not exists - fallback to the default preset and the default language
+  				$template_path = self::$template_path.'1/DE/'.$template;
+  				if (!file_exists($template_path)) {
+  					// template does not exists in any possible path - give up!
+  					$this->setError(sprintf(event_error_template_error, $template, "$template_path nicht gefunden!"));
+  					//  					$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->translate('Error: The template {{ template }} does not exists in any of the possible paths!', array(
+  					//  							'template',	$template))));
+  					return false;
+  				}
+  			}
+  		}
+  	}
+  
+  	// add the template_path to the $template_data (for debugging purposes)
+  	if (!isset($template_data['template_path']))
+  		$template_data['template_path'] = $template_path;
+  	// add the debug flag to the $template_data
+  	if (!isset($template_data['DEBUG']))
+  		$template_data['DEBUG'] = (int) $this->params[self::PARAM_DEBUG];
+  
+  	try {
+  		// try to execute the template with Dwoo
+  		$result = $parser->get($template_path, $template_data);
+  	}
+  	catch (Exception $e) {
+  		// prompt the Dwoo error
+  		$this->setError('DWOO ERROR');
+  		//  		$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->translate('Error executing template <b>{{ template }}</b>:<br />{{ error }}', array(
+  		//  				'template' => $template,
+  		//  				'error' => $e->getMessage()))));
+  		return false;
+  	}
+  	return $result;
+  } // getTemplate()
+  
 
   public function action() {
 
@@ -401,7 +451,7 @@ class monthlyCalendar {
       'head' => $head,
       'month' => $mon
     );
-    return $this->getTemplate('calendar.htt', $data);
+    return $this->getTemplate('calendar.dwoo', $data);
   } // showCalendar()
 
   private function getMonthName($month, $length = -1, $uppercase = false) {
@@ -552,7 +602,7 @@ class monthlyCalendar {
     $data = array(
       'dates' => $items
     );
-    return $this->getTemplate('calendar.list.htt', $data);
+    return $this->getTemplate('calendar.list.dwoo', $data);
   } // showList()
 
 } // class monthlyCalendar

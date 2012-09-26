@@ -55,19 +55,27 @@ if (!function_exists('kit_event_droplet_search')) {
 			return false;
 		}
 		$result = array();
-		$htt_path = WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/htt/';
-		$tpl_title = new Dwoo_Template_File($htt_path.'search.result.title.htt');
-		$tpl_description = new Dwoo_Template_File($htt_path.'search.result.description.htt');
+		$htt_path = WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/templates/frontend/';
+		if (file_exists($htt_path.'custom.search.result.title.dwoo'))
+			$tpl_title = new Dwoo_Template_File($htt_path.'custom.search.result.title.dwoo');
+		else
+		  $tpl_title = new Dwoo_Template_File($htt_path.'search.result.title.dwoo');
+		if (file_exists($htt_path.'custom.search.result.description.dwoo'))
+		  $tpl_description = new Dwoo_Template_File($htt_path.'custom.search.result.description.dwoo');
+		else 
+			$tpl_description = new Dwoo_Template_File($htt_path.'search.result.description.dwoo');
 	  $frontend = new eventFrontend();
 
 		foreach ($events as $event) {
+			$event_data = array();
+			$parser_data = array();
 	    $frontend->getEventData($event[dbEvent::field_id], $event_data, $parser_data);
 			$result[] = array(
 				'url'						=> $page_url,
-				'params'				=> http_build_query(array(eventFrontend::request_action 			=> eventFrontend::action_event,
-																									eventFrontend::request_event				=> eventFrontend::view_id,
-																									eventFrontend::request_event_id			=> $event[dbEvent::field_id],
-																									eventFrontend::request_event_detail => 1)),
+				'params'				=> http_build_query(array(eventFrontend::REQUEST_ACTION 			=> eventFrontend::ACTION_EVENT,
+																									eventFrontend::REQUEST_EVENT				=> eventFrontend::VIEW_ID,
+																									eventFrontend::REQUEST_EVENT_ID			=> $event[dbEvent::field_id],
+																									eventFrontend::REQUEST_EVENT_DETAIL => 1)),
 				'title'					=> $parser->get($tpl_title, array('date_time' => sprintf('%s %s', date(event_cfg_datetime_str, strtotime($event[dbEvent::field_event_date_from])), event_text_hour),
 																													'title'			=> $event[dbEventItem::field_title])),
 				'description'		=> $parser->get($tpl_description, array('description' => strip_tags($event[dbEventItem::field_desc_short]),
@@ -92,11 +100,11 @@ if (!function_exists('kit_event_droplet_header')) {
 			'keywords'		=> ''
 		);
 		// Kopfdaten für Detailseiten von Events
-		if ((isset($_REQUEST[eventFrontend::request_action]) && ($_REQUEST[eventFrontend::request_action] == eventFrontend::action_event)) &&
-				(isset($_REQUEST[eventFrontend::request_event]) && ($_REQUEST[eventFrontend::request_event] == eventFrontend::view_id)) &&
-				(isset($_REQUEST[eventFrontend::request_event_id])) &&
-				(isset($_REQUEST[eventFrontend::request_event_detail]) && ($_REQUEST[eventFrontend::request_event_detail] == 1))) {
-			$event_id = $_REQUEST[eventFrontend::request_event_id];
+		if ((isset($_REQUEST[eventFrontend::REQUEST_ACTION]) && ($_REQUEST[eventFrontend::REQUEST_ACTION] == eventFrontend::ACTION_EVENT)) &&
+				(isset($_REQUEST[eventFrontend::REQUEST_EVENT]) && ($_REQUEST[eventFrontend::REQUEST_EVENT] == eventFrontend::VIEW_ID)) &&
+				(isset($_REQUEST[eventFrontend::REQUEST_EVENT_ID])) &&
+				(isset($_REQUEST[eventFrontend::REQUEST_EVENT_DETAIL]) && ($_REQUEST[eventFrontend::REQUEST_EVENT_DETAIL] == 1))) {
+			$event_id = $_REQUEST[eventFrontend::REQUEST_EVENT_ID];
 			$SQL = sprintf( "SELECT * FROM %s, %s WHERE %s.%s=%s.%s AND %s.%s='%s'",
 											$dbEvent->getTableName(),
 											$dbEventItem->getTableName(),
