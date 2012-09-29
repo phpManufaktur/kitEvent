@@ -63,10 +63,30 @@ $check = array(
         'version' => '0.16',
         'problem' => 'kitTools => <b><a href="https://addons.phpmanufaktur.de/download.php?file=kitTools" target="_blank">Download actual version</a></b>'
         ),
+    'manufakturConfig' => array(
+        'directory' => 'manufaktur_config',
+        'version' => '0.15',
+        'problem' => 'manufakturConfig => <b><a href="https://addons.phpmanufaktur.de/download.php?file=manufakturConfig" target="_blank">Download actual version</a></b>'
+        ),
     'permaLink' => array(
         'directory' => 'perma_link',
         'version' => '0.15',
         'problem' => 'permaLink => <b><a href="https://addons.phpmanufaktur.de/download.php?file=permaLink" target="_blank">Download actual version</a></b>'
+        ),
+    'wbLib' => array(
+        'directory' => 'wblib',
+        'version' => '0.65',
+        'problem' => 'wbLib => <b><a href="https://github.com/webbird/wblib/downloads" target="_blank">Download actual version</a></b>'
+        ),
+    'LibraryAdmin' => array(
+        'directory' => 'libraryadmin',
+        'version' => '1.9',
+        'problem' => 'LibraryAdmin => <b><a href="http://jquery.lepton-cms.org/modules/download_gallery/dlc.php?file=75&id=1318585713" target="_blank">Download actual version</a></b>'
+        ),
+    'libJQuery' => array(
+        'directory' => 'lib_jquery',
+        'version' => '1.25',
+        'problem' => 'libJQuery => <b><a href="http://jquery.lepton-cms.org/modules/download_gallery/dlc.php?file=76&id=1320743410" target="_blank">Download actual version</a></b>'
         ),
     );
 
@@ -97,6 +117,20 @@ foreach ($check as $name => $addon) {
   );
 }
 
+// jQueryAdmin should be uninstalled
+if (file_exists(WB_PATH . '/modules/jqueryadmin/tool.php')) {
+  $checked = false;
+  $key = 'jQueryAdmin is <b>deprecated</b>, please uninstall and<br />use <b>LibraryAdmin</b> instead!';
+}
+else
+  $key = 'jQueryAdmin';
+
+$PRECHECK['CUSTOM_CHECKS'][$key] = array(
+    'REQUIRED' => 'REMOVED',
+    'ACTUAL' => (file_exists(WB_PATH . '/modules/jqueryadmin/tool.php')) ? 'INSTALLED' : 'REMOVED',
+    'STATUS' => (!file_exists(WB_PATH . '/modules/jqueryadmin/tool.php'))
+);
+
 // check default charset
 $SQL = "SELECT `value` FROM `".TABLE_PREFIX."settings` WHERE `name`='default_charset'";
 $charset = $database->get_one($SQL, MYSQL_ASSOC);
@@ -112,3 +146,12 @@ $PRECHECK['CUSTOM_CHECKS'][$key] = array(
     'ACTUAL' => $charset,
     'STATUS' => ($charset == 'utf-8')
 );
+
+if (!$checked) {
+  // if a problem occured prompt a hint and grant that the LEPTON/WB precheck fail
+  $PRECHECK['CUSTOM_CHECKS']['Please install or update all required addons.<br />Need help? Please contact the <b><a href="https://phpmanufaktur.de/support" target="_blank">phpManufaktur Support Group</a></b>.'] = array(
+      'REQUIRED' => 'OK',
+      'ACTUAL' => 'PROBLEM',
+      'STATUS' => false
+  );
+}
