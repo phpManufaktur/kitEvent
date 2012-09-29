@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmcfg version="0.10">
+  <module name="kitEvent" directory="kit_event" group="" date="2012-09-27 16:43:31">
+    <setting name="mcFieldsetOrder" usage="HIDDEN" update="OVERWRITE">
+      <!-- with "mcFieldsetOrder" you can order the fieldsets in the dialog as you want! -->
+      <value type="ARRAY"></value>
+    </setting>
+    <setting name="cfg_event_ical_directory" usage="REGULAR" update="OVERWRITE">
+      <value type="STRING">kit_event</value>
+      <dialog set="iCal Dateien" page="Settings">
+        <label>Directory</label>
+        <hint>The /MEDIA directory for &lt;b&gt;iCal&lt;/b&gt; &lt;i&gt;*.ics&lt;/i&gt; files.</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_ical_create" usage="REGULAR" update="OVERWRITE">
+      <value type="BOOLEAN">1</value>
+      <dialog set="iCal Dateien" page="Settings">
+        <label>Create files</label>
+        <hint>Determine if kitEvent should create iCal files</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_perma_link_create" usage="REGULAR" update="OVERWRITE">
+      <value type="BOOLEAN">1</value>
+      <dialog set="Perma Links" page="Settings">
+        <label>Use Perma Links</label>
+        <hint>Determine if kitEvent should use permanent links</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_qr_code_directory" usage="REGULAR" update="OVERWRITE">
+      <value type="STRING">kit_event</value>
+      <dialog set="QR-Codes" set_order="2" page="Settings">
+        <label>Directory</label>
+        <hint>The /MEDIA directory for QR Code files</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_qr_code_create" usage="REGULAR" update="OVERWRITE">
+      <value type="BOOLEAN">kit_event</value>
+      <dialog set="QR-Codes" set_order="1" page="Settings">
+        <label>Create QR-Codes</label>
+        <hint>Determine if kitEvent should create QR-Codes</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_qr_code_size" usage="REGULAR" update="OVERWRITE">
+      <value type="INTEGER">3</value>
+      <dialog set="QR-Codes" set_order="3" page="Settings">
+        <label>QR-Code Size</label>
+        <hint>The size of the created QR-Code from 1 to 40, default is 3</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_qr_code_ec_level" usage="REGULAR" update="OVERWRITE">
+      <value type="INTEGER">2</value>
+      <dialog set="QR-Codes" set_order="4" page="Settings">
+        <label>Error correction</label>
+        <hint>Set the error correction level from 0 (low) to 3 (high), default is 2</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_qr_code_margin" usage="REGULAR" update="OVERWRITE">
+      <value type="INTEGER">2</value>
+      <dialog set="QR-Codes" set_order="5" page="Settings">
+        <label>Margin</label>
+        <hint>Margin of the QR-Code, default is 2</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_qr_code_content" usage="REGULAR" update="OVERWRITE">
+      <value type="INTEGER">1</value>
+      <dialog set="QR-Codes" set_order="6" page="Settings">
+        <label>Content</label>
+        <hint>The content of the QR-Code ()1=Perma Link, 2=iCal information), default is 2</hint>
+      </dialog>
+    </setting>    
+  </module>
+</xmcfg>
