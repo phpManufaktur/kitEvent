@@ -1,5 +1,4 @@
-//:Show a monthly calender and indicate events. On click the details of the event will be shown
-//:Please visit http://phpManufaktur.de for informations about kitEvent!
+<?php
 /**
  * kitEvent
  *
@@ -10,10 +9,10 @@
  */
 
 if (file_exists(WB_PATH.'/modules/kit_event/class.calendar.php')) {
-	require_once(WB_PATH.'/modules/kit_event/class.calendar.php');
-	$calendar = new monthlyCalendar();
-	$params = $calendar->getParams();
-	$params[monthlyCalendar::PARAM_INACTIVE_DAYS] = (isset($inactive_days) && strtolower($inactive_days) == 'true') ? true : false;
+  require_once(WB_PATH.'/modules/kit_event/class.calendar.php');
+  $calendar = new monthlyCalendar();
+  $params = $calendar->getParams();
+  $params[monthlyCalendar::PARAM_INACTIVE_DAYS] = (isset($inactive_days) && strtolower($inactive_days) == 'true') ? true : false;
   $params[monthlyCalendar::PARAM_NAVIGATION] = (isset($navigation) && strtolower($navigation) == 'true') ? true : false;
   $params[monthlyCalendar::PARAM_SHOW_TODAY] = (isset($show_today) && strtolower($show_today) == 'true') ? true : false;
   $params[monthlyCalendar::PARAM_SHOW_WEEKS] = (isset($show_weeks) && strtolower($show_weeks) == 'true') ? true : false;
@@ -26,9 +25,10 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.calendar.php')) {
   $params[monthlyCalendar::PARAM_PRESET] = (isset($preset)) ? $preset : 1;
   $params[monthlyCalendar::PARAM_LINK_MONTH] = (isset($link_month) && (strtolower($link_month) == 'true')) ? true : false;
   $params[monthlyCalendar::PARAM_DEBUG] = (isset($debug) && strtolower($debug) == 'true') ? true : false;
+  $params[monthlyCalendar::PARAM_CSS] = (isset($css) && strtolower($css) == 'false') ? false : true;
   $calendar->setParams($params);
   return $calendar->action();
 }
 else {
-	return "kitEvent is not installed!";
+  return "kitEvent is not installed!";
 }
