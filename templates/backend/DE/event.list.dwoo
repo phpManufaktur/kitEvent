@@ -14,9 +14,15 @@
  * Use {dump()} to get a list of all in this template available variables!
  *}
 <div class="evt_list">
-  <h2>{$header}</h2>
-  <div class="{$intro_class}">{$intro}</div>
-  <div class="additional"><a href="{$show_all_link}">{$show_all}</a></div>
+  <h2>{translate('List of the active events')}</h2>
+  <div class="{if $message.active == 1}message{else}intro{/if}">
+    {if $message.active == 1}
+      {$message.content}
+    {else}
+      {translate('This list shows you all active events')}
+    {/if}
+  </div>
+  <div class="additional"><a href="{$show_all_link}">{translate('Show all events')}</a></div>
   <table width="100%">
     <colgroup>
       <col width="5%" />
@@ -29,9 +35,14 @@
       <col width="35%" />
     </colgroup>
     <tr>
-    {foreach $th thead}
-    <th class="head_{$thead.class}">{$thead.text}</th>
-    {/foreach}
+      <th class="head_evt_id">{translate('ID')}</th>
+      <th class="head_evt_event_date_from">{translate('Event Start')}</th>
+      <th class="head_evt_event_date_to">{translate('Event End')}</th>
+      <th class="head_group_id">{translate('Group')}</th>
+      <th class="head_evt_participants_max">{translate('Part. max.')}</th>
+      <th class="head_evt_participants_total">{translate('Part. total')}</th>
+      <th class="head_evt_deadline">{translate('Deadline')}</th>
+      <th class="head_item_title">{translate('Title')}</th>
     </tr>
     {foreach $rows row}
     <tr class="{cycle values=array('flip', 'flop')}">

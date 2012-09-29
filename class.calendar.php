@@ -67,6 +67,7 @@ class monthlyCalendar {
   const PARAM_PRESET = 'preset';
   const PARAM_LINK_MONTH = 'link_month';
   const PARAM_DEBUG = 'debug';
+  const PARAM_CSS = 'css';
 
   private $params = array(
     self::PARAM_SHOW_WEEKS => true,
@@ -81,14 +82,20 @@ class monthlyCalendar {
     self::PARAM_ACTION => self::ACTION_SHOW_MONTH,
     self::PARAM_PRESET => 1,
     self::PARAM_LINK_MONTH => false,
-    self::PARAM_DEBUG => false
+    self::PARAM_DEBUG => false,
+    self::PARAM_CSS => true
   );
+
+  protected $lang = null;
 
   public function __construct() {
     global $kitLibrary;
-    self::$template_path = WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/templates/frontend/';
+    global $I18n;
+
+    self::$template_path = WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/templates/frontend/presets/';
     $kitLibrary->getUrlByPageID(PAGE_ID, $this->page_link);
-    date_default_timezone_set(event_cfg_time_zone);
+    date_default_timezone_set(CFG_TIME_ZONE);
+    $this->lang = $I18n;
   } // __construct()
 
   public function getParams() {
@@ -144,54 +151,41 @@ class monthlyCalendar {
     return $request;
   } // xssPrevent()
 
-  /*
-  public function getTemplate($template, $template_data) {
-    global $parser;
-    try {
-      $result = $parser->get($this->template_path . $template, $template_data);
-    } catch (Exception $e) {
-      $this->setError(sprintf(event_error_template_error, $template, $e->getMessage()));
-      return false;
-    }
-    return $result;
-  } // getTemplate()
-  */
-  
   /**
    * Execute the desired template and return the completed template
    *
    */
   protected function getTemplate($template, $template_data) {
   	global $parser;
-  	 
-  	$template_path = self::$template_path.$this->params[self::PARAM_PRESET].'/'.KIT_EVT_LANGUAGE.'/'.$template;
+
+  	$template_path = self::$template_path.$this->params[self::PARAM_PRESET].'/'.LANGUAGE.'/'.$template;
   	if (!file_exists($template_path)) {
   		// template does not exist - fallback to default language!
   		$template_path = self::$template_path.$this->params[self::PARAM_PRESET].'/DE/'.$template;
   		if (!file_exists($template_path)) {
   			// template does not exists - fallback to the default preset!
-  			$template_path = self::$template_path.'1/'.KIT_EVT_LANGUAGE.'/'.$template;
+  			$template_path = self::$template_path.'1/'.LANGUAGE.'/'.$template;
   			if (!file_exists($template_path)) {
   				// template does not exists - fallback to the default preset and the default language
   				$template_path = self::$template_path.'1/DE/'.$template;
   				if (!file_exists($template_path)) {
   					// template does not exists in any possible path - give up!
-  					$this->setError(sprintf(event_error_template_error, $template, "$template_path nicht gefunden!"));
-  					//  					$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->translate('Error: The template {{ template }} does not exists in any of the possible paths!', array(
-  					//  							'template',	$template))));
+  					$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+  					    $this->lang->translate('Error: The template {{ template }} does not exists in any of the possible paths!',
+  					        array('template',	$template))));
   					return false;
   				}
   			}
   		}
   	}
-  
+
   	// add the template_path to the $template_data (for debugging purposes)
   	if (!isset($template_data['template_path']))
   		$template_data['template_path'] = $template_path;
   	// add the debug flag to the $template_data
   	if (!isset($template_data['DEBUG']))
   		$template_data['DEBUG'] = (int) $this->params[self::PARAM_DEBUG];
-  
+
   	try {
   		// try to execute the template with Dwoo
   		$result = $parser->get($template_path, $template_data);
@@ -206,7 +200,7 @@ class monthlyCalendar {
   	}
   	return $result;
   } // getTemplate()
-  
+
 
   public function action() {
 
@@ -227,6 +221,17 @@ class monthlyCalendar {
         $_REQUEST[$key] = $this->xssPrevent($value);
       }
     }
+
+    // CSS laden?
+    if ($this->params[self::PARAM_CSS]) {
+      if (!is_registered_droplet_css('kit_monthly_calendar', PAGE_ID)) {
+        register_droplet_css('kit_monthly_calendar', PAGE_ID, 'kit_event', 'kit_event.css');
+      }
+    }
+    elseif (is_registered_droplet_css('kit_monthly_calendar', PAGE_ID)) {
+      unregister_droplet_css('kit_monthly_calendar', PAGE_ID);
+    }
+
 
     $action = (isset($this->params[self::PARAM_ACTION])) ? $this->params[self::PARAM_ACTION] : self::ACTION_SHOW_MONTH;
     if (isset($_REQUEST[self::REQUEST_ACTION])) $action = $_REQUEST[self::REQUEST_ACTION];
@@ -352,16 +357,10 @@ class monthlyCalendar {
     // navigation
     $navigation = array(
       'prev_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_SHOW_MONTH, self::REQUEST_MONTH, $prev_month, self::REQUEST_YEAR, $prev_year),
-      'prev_hint' => event_hint_previous_month,
-      'prev_text' => event_cfg_cal_prev_month,
       'month_year' => sprintf('%s %d', $month_name, $year),
       'month_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->response_link, self::REQUEST_EVENT, self::EVENT_MONTH, self::REQUEST_MONTH, $month, self::REQUEST_YEAR, $year),
       'next_link' => sprintf('%s?%s=%s&%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_SHOW_MONTH, self::REQUEST_MONTH, $next_month, self::REQUEST_YEAR, $next_year),
-      'next_hint' => event_hint_next_month,
-      'next_text' => event_cfg_cal_next_month
     );
-
-
 
     $head = array(
       '0' => $this->getDayOfWeekName(0, 2, true),
@@ -420,7 +419,6 @@ class monthlyCalendar {
           // es gibt eine oder mehrere Veranstaltungen
           $week[$dow]['date'] = $i;
           $week[$dow]['link'] = sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', $this->response_link, self::REQUEST_EVENT, self::EVENT_DAY, self::REQUEST_MONTH, $month, self::REQUEST_DAY, $i, self::REQUEST_YEAR, $year);
-          $week[$dow]['hint'] = event_hint_click_for_detail;
           $week[$dow]['type'] = 'cms_day_event';
         }
         else {
@@ -455,7 +453,7 @@ class monthlyCalendar {
   } // showCalendar()
 
   private function getMonthName($month, $length = -1, $uppercase = false) {
-    $month_names = explode(',', event_cfg_month_names);
+    $month_names = explode(',', CFG_MONTH_NAMES);
     if (isset($month_names[$month - 1])) {
       $month_name = trim($month_names[$month - 1]);
       if ($length > 0) $month_name = substr($month_name, 0, $length);
@@ -463,13 +461,13 @@ class monthlyCalendar {
       return $month_name;
     }
     else {
-      $this->setError(sprintf(event_error_cal_month_def_invalid, $month));
+      $this->setError($this->lang->translate('Error: No entry for the month number {{ month }}!', array('month' => $month)));
       return false;
     }
   } // getMonthName()
 
   private function getDayOfWeekName($day_of_week, $length = -1, $uppercase = false) {
-    $day_names = explode(',', event_cfg_day_names);
+    $day_names = explode(',', CFG_DAY_NAMES);
     if (isset($day_names[$day_of_week])) {
       $day_name = trim($day_names[$day_of_week]);
       if ($length > 0) $day_name = substr($day_name, 0, $length);
@@ -477,7 +475,8 @@ class monthlyCalendar {
       return $day_name;
     }
     else {
-      $this->setError(sprintf(event_error_cal_dayofweek_def_invalid, $day_of_week));
+      $this->setError($this->lang->translate('Error: No entry for the day of the week {{ day_of_week }}!',
+          array('day_of_week' => $day_of_week)));
       return false;
     }
   } // getDayName()
@@ -535,7 +534,7 @@ class monthlyCalendar {
         return false;
       }
       if (count($eventItem) < 0) {
-        $this->setError(sprintf(event_error_id_invalid, $event[dbEvent::field_event_item]));
+        $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event[dbEvent::field_event_item])));
         return false;
       }
       $eventItem = $eventItem[0];
@@ -554,13 +553,13 @@ class monthlyCalendar {
         'desc_long' => $eventItem[dbEventItem::field_desc_long],
         'desc_link' => $eventItem[dbEventItem::field_desc_link],
         'location' => $eventItem[dbEventItem::field_location],
-        'costs' => number_format($eventItem[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator)
+        'costs' => number_format($eventItem[dbEventItem::field_costs], 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR)
       );
 
       $start_date = strtotime($event[dbEvent::field_event_date_from]);
       $end_date = strtotime($event[dbEvent::field_event_date_to]);
-      $day_names = explode(',', event_cfg_day_names);
-      $month_names = explode(',', event_cfg_month_names);
+      $day_names = explode(',', CFG_DAY_NAMES);
+      $month_names = explode(',', CFG_MONTH_NAMES);
       $items[] = array(
         'event' => $eItem,
         'start_day' => date('j', $start_date),
@@ -572,7 +571,7 @@ class monthlyCalendar {
         'start_month_name' => $month_names[date('n', $start_date) - 1],
         'start_month_name_3' => substr($month_names[date('n', $start_date) - 1], 1, 3),
         'start_year' => date('Y', $start_date),
-        'start_time' => date(event_cfg_time_str, $start_date),
+        'start_time' => date(CFG_TIME_STR, $start_date),
 
         'end_day' => date('j', $end_date),
         'end_day_zero' => date('d', $end_date),
@@ -583,13 +582,13 @@ class monthlyCalendar {
         'end_month_name' => $month_names[date('n', $end_date) - 1],
         'end_month_name_3' => substr($month_names[date('n', $end_date) - 1], 1, 3),
         'end_year' => date('Y', $end_date),
-        'end_time' => date(event_cfg_time_str, $end_date),
+        'end_time' => date(CFG_TIME_STR, $end_date),
 
         'participants_max' => $event[dbEvent::field_participants_max],
         'participants_total' => $event[dbEvent::field_participants_total],
         'participants_free' => $event[dbEvent::field_participants_max] - $event[dbEvent::field_participants_total],
 
-        'deadline' => date(event_cfg_date_str, strtotime($event[dbEvent::field_deadline])),
+        'deadline' => date(CFG_DATE_STR, strtotime($event[dbEvent::field_deadline])),
 
         'group_name' => $eventGroup[dbEventGroup::field_name],
         'group_desc' => $eventGroup[dbEventGroup::field_desc],

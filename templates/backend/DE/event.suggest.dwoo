@@ -15,8 +15,10 @@
  *}
 <form name="{$form_name}" action="{$form_action}" method="post">
   <input type="hidden" name="{$action_name}" value="{$action_value}" />
-  <h2>{$header}</h2>
-  <div class="intro">{$intro}</div>
+  <h2>{translate('Copy event data')}</h2>
+  <div class="intro">
+    {translate('You can copy the data from a previous event to a new event, just select an event from the list.')}
+  </div>
   <table width="100%">
     <colgroup>
       <col width="30%" />
@@ -24,7 +26,7 @@
     </colgroup>
     <tr><td colspan="2">&nbsp;</td></tr>
     <tr>
-      <td class="label_{$suggest_request}">{$suggest_label}</td>
+      <td class="label_{$suggest_request}">{translate('Select')}</td>
       <td class="value_{$suggest_request}">
         <select name="{$suggest_request}">
         {foreach $suggest_options option}
@@ -36,8 +38,8 @@
     <tr><td colspan="2">&nbsp;</td></tr>
     <tr>
       <td colspan="2">
-        <input type="submit" value="{$btn_ok}" />&nbsp;
-        <input type="button" value="{$btn_abort}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
+        <input type="submit" value="{translate('OK')}" />&nbsp;
+        <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
       </td>
     </tr>
   </table>

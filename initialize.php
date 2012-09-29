@@ -38,23 +38,28 @@ if (KIT_DEBUG == true) {
 	ini_set('error_reporting', E_ALL);
 }
 
-// include GENERAL language file
-if(!file_exists(WB_PATH .'/modules/kit_tools/languages/' .LANGUAGE .'.php')) {
-	require_once(WB_PATH .'/modules/kit_tools/languages/DE.php'); // Vorgabe: DE verwenden
-}
-else {
-	require_once(WB_PATH .'/modules/kit_tools/languages/' .LANGUAGE .'.php');
+// wb2lepton compatibility
+if (!defined('LEPTON_PATH'))
+  require_once WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/wb2lepton.php';
+
+// use LEPTON 2.x I18n for access to language files
+if (!class_exists('LEPTON_Helper_I18n'))
+  require_once LEPTON_PATH.'/modules/manufaktur_config/framework/LEPTON/Helper/I18n.php';
+
+global $I18n;
+if (!is_object($I18n))
+  $I18n = new LEPTON_Helper_I18n();
+
+if (file_exists(LEPTON_PATH.'/modules/'.basename(dirname(__FILE__)).'/languages/'.LANGUAGE.'.php')) {
+  $I18n->addFile(LANGUAGE.'.php', LEPTON_PATH.'/modules/'.basename(dirname(__FILE__)).'/languages/');
 }
 
-// include language file
-if(!file_exists(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.php')) {
-	require_once(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/DE.php'); // Vorgabe: DE verwenden
-	define('KIT_EVT_LANGUAGE', 'DE'); // die Konstante gibt an in welcher Sprache KIT Event aktuell arbeitet
-}
-else {
-	require_once(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.php');
-	define('KIT_EVT_LANGUAGE', LANGUAGE); // die Konstante gibt an in welcher Sprache KIT Event aktuell arbeitet
-}
+// load language depending configuration file
+if (file_exists(LEPTON_PATH.'/modules/manufaktur_config/languages/'.LANGUAGE.'.cfg.php'))
+  require_once LEPTON_PATH.'/modules/manufaktur_config/languages/'.LANGUAGE.'.cfg.php';
+else
+  require_once LEPTON_PATH.'/modules/manufaktur_config/languages/EN.cfg.php';
+
 
 if (!class_exists('dbconnectle')) 				require_once(WB_PATH.'/modules/dbconnect_le/include.php');
 if (!class_exists('kitToolsLibrary'))   	require_once(WB_PATH.'/modules/kit_tools/class.tools.php');
@@ -73,17 +78,16 @@ if (!file_exists($compiled_path)) mkdir($compiled_path, 0755, true);
 global $parser;
 if (!is_object($parser)) $parser = new Dwoo($compiled_path, $cache_path);
 
+
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.event.php');
 
 global $dbEvent;
-global $dbEventCfg;
 global $dbEventGroup;
 global $dbEventItem;
 global $dbEventOrder;
 global $kitLibrary;
 
 if (!is_object($dbEvent)) $dbEvent = new dbEvent();
-if (!is_object($dbEventCfg)) $dbEventCfg = new dbEventCfg();
 if (!is_object($dbEventGroup)) $dbEventGroup = new dbEventGroup();
 if (!is_object($dbEventItem)) $dbEventItem = new dbEventItem();
 if (!is_object($dbEventOrder)) $dbEventOrder = new dbEventOrder();

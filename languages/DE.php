@@ -36,193 +36,251 @@ if ('á' != "\xc3\xa1") {
 	trigger_error('The language file <b>'.basename(__FILE__).'</b> is damaged, it must be saved <b>UTF-8</b> encoded!', E_USER_ERROR);
 }
 
-define('event_cfg_cal_prev_month',								'&laquo;');
-define('event_cfg_cal_next_month',								'&raquo;');
-define('event_cfg_currency',											'%s €');
-define('event_cfg_date_separator',								'.');
-define('event_cfg_date_str',											'd.m.Y');
-define('event_cfg_datetime_str',									'd.m.Y H:i');
-define('event_cfg_day_names',											"Sonntag, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag");
-define('event_cfg_decimal_separator',             ',');
-define('event_cfg_month_names',										"Januar,Februar,März,April,Mai,Juni,Juli,August,September,Oktober,November,Dezember");
-define('event_cfg_thousand_separator',						'.');
-define('event_cfg_time_long_str',									'H:i:s');
-define('event_cfg_time_str',											'H:i');
-define('event_cfg_time_zone',											'Europe/Berlin');
-define('event_cfg_title',													'Herr,Frau');
-
-define('event_btn_abort',													'Abbruch');
-define('event_btn_ok',														'Übernehmen');
-
-define('event_desc_cfg_exec',											'Legen Sie fest, ob kitEvent ausgeführt wird oder nicht (1=JA, 0=NEIN)');
-define('event_desc_cfg_ical_dir',									'Verzeichnis im /MEDIA Ordner, der für die Ablage von <b>iCal</b> <i>*.ics</i> Dateien verwendet wird.');
-define('event_desc_cfg_ical_exec',								'Legen Sie fest, ob kitEvent automatisch iCal Dateien anlegen soll oder nicht (1=JA, 0=NEIN)');
-define('event_desc_cfg_perma_link_exec',					'Legen Sie fest, ob kitEvent permaLinks anlegen soll oder nicht (1=JA, 0=NEIN). Die Einstellungen für permaLinks werden bei den Gruppendefinitionen vorgenommen.');
-define('event_desc_cfg_qrcode_content',						'Inhalt, der im QR Code gespeichert wird (1=permaLink, 2=iCal Information), Default = 1');
-define('event_desc_cfg_qrcode_dir',								'Verzeichnis im /MEDIA Ordner, der für die Ablage von <b>QR Code</b> <i>*.ics</i> Dateien verwendet wird.');
-define('event_desc_cfg_qrcode_exec',							'Legen Sie fest, ob kitEvent automatisch QR Code Dateien anlegen soll oder nicht (1=JA, 0=NEIN)');
-define('event_desc_cfg_qrcode_margin',						'Randabstand des QR Code in Pixel, Default = 2');
-define('event_desc_cfg_qrcode_eclevel',						'QR Code Fehlerkorrektur Level von 0 (gering) bis 3 (hoch), Default = 2');
-define('event_desc_cfg_qrcode_size',							'QR Code Größe von 1 - 40, Default = 3');
-
-define('event_error_cal_dayofweek_def_invalid',		'<p>Für den Wochentag mit der Nummer <b>%d</b> wurde kein gültiger Tagesname gefunden!</p>');
-define('event_error_cal_month_def_invalid',				'<p>Für den Monat <b>%d</b> wurde kein gültiger Monatsname gefunden!</p>');
-define('event_error_cfg_id',											'<p>Der Konfigurationsdatensatz mit der <b>ID %05d</b> konnte nicht ausgelesen werden!</p>');
-define('event_error_cfg_name',										'<p>Zu dem Bezeichner <b>%s</b> wurde kein Konfigurationsdatensatz gefunden!</p>');
-define('event_error_evt_invalid',									'<p>Es wurde ein ungültiges Event angefordert.</p>');
-define('event_error_evt_params_missing',					'<p>Es wurden nicht alle erforderlichen Parameter übergeben!</p>');
-define('event_error_evt_unspecified',							'<p>Die Ansicht <b>%s</b> ist nicht spezifiert und kann deshalb nicht angezeigt werden!</p>');
-define('event_error_file_create',									'<p>Die Datei <b>%s</b> konnte nicht geschrieben werden!</p>');
-define('event_error_group_invalid',								'<p>Die Gruppe <b>%s</b> wurde nicht gefunden, prüfen Sie die Parameter!</p>');
-define('event_error_id_invalid',									'<p>Der Datensatz mit der <b>ID %03d</b> wurde nicht gefunden!</p>');
-define('event_error_must_fields_missing',					'<p>Fataler Fehler: die Pflichtfelder für das Formular sind nicht definiert!</p>');
-define('event_error_preset_not_exists',						'<p>Das Presetverzeichnis <b>%s</b> existiert nicht, die erforderlichen Templates können nicht geladen werden!</p>');
-define('event_error_send_email',									'<p>Die E-Mail an <b>%s</b> konnte nicht versendet werden!</p>');
-define('event_error_template_error',							'<p>Fehler bei der Ausführung des Template <b>%s</b>:</p><p>%s</p>');
-
-define('event_header_edit_event',									'Event bearbeiten oder erstellen');
-define('event_header_edit_group',									'Gruppe bearbeiten oder erstellen');
-define('event_header_event_list',									'Übersicht über die aktuellen Events');
-define('event_header_messages_list',							'Mitteilungen und Anmeldungen');
-define('event_header_suggest_event',							'Daten eines Event übernehmen');
-
-define('event_intro_edit_event',									'<p>Mit diesem Dialog können Sie ein neues Event (Ereignis) anlegen oder ein bestehendes bearbeiten.</p>');
-define('event_intro_edit_group',							 		'<p>Mit diesem Dialog können Sie eine neue Gruppe für ein Event (Ereignis) anlegen oder eine bestehende Gruppe bearbeiten.</p><p>Die <i>Bezeichner</i> für die Gruppen sollten möglichst aus einem einzelnen Wort bestehen und keine Leerzeichen, Sonderzeichen enthalten. Sie verwenden den Bezeichner als Parameter beim Aufruf des Droplets [[kit_event]].</p>');
-define('event_intro_event_list',									'<p>In dieser Liste sehen Sie alle aktuell anstehenden Veranstaltungen.</p>');
-define('event_intro_suggest_event',								'<p>Sie können Daten eines früheren Event für das neue Event übernehmen. Wählen Sie dazu das passende Event aus.</p>');
-
-define('event_hint_click_for_detail',							'Anklicken, um mehr über die Veranstaltungen an diesem Tag zu erfahren!');
-define('event_hint_group_desc',										'');
-define('event_hint_group_group',									'');
-define('event_hint_group_name',										'');
-define('event_hint_group_perma_pattern',					'Muster für die automatische Erzeugung von permanenten Links (permaLinks). Möglich sind die Platzhalter <b>{$ID}, {$NAME}, {$YEAR}, {$MONTH}, {$DAY}</b> und <b>{$EXT}</b>.<br />Der angegebene permaLink bezieht sich relativ auf das Seitenverzeichnis, beginnt mit einem Slash / und endet mit der Dateiendung.<br />Beispiel: <b>/termine/{$NAME}-{$YEAR}{$MONTH}{$DAY}{$EXT}</b>');
-define('event_hint_group_redirect_page',					'Legen Sie die Seite fest, auf der das Droplet [[kit_event]] für diese Gruppe verwendet wird. Diese Festlegung ist wichtig, damit automatisch permaLinks erzeugt werden können.');
-define('event_hint_group_status',									'');
-define('event_hint_perma_link',										'Wenn Sie in der Gruppendefinition ein Muster für die Erzeugung eines permanenten Link angegeben haben, wird dieser <b>beim ersten Speichern</b> dieses Event automatisch erzeugt.');
-define('event_hint_previous_month',								'Vorheriger Monat');
-define('event_hint_next_month',										'Nächster Monat');
-
-define('event_label_cfg_exec',										'EventCalendar ausführen');
-define('event_label_cfg_ical_dir',								'iCal, Verzeichnis');
-define('event_label_cfg_ical_exec',								'iCal, Dateien anlegen');
-define('event_label_cfg_perma_link_exec',					'permaLinks anlegen');
-define('event_label_cfg_qrcode_content',					'QR Code, Inhalt');
-define('event_label_cfg_qrcode_dir',							'QR Code, Verzeichnis');
-define('event_label_cfg_qrcode_exec',							'QR Code, Dateien anlegen');
-define('event_label_cfg_qrcode_margin',						'QR Code, Randabstand');
-define('event_label_cfg_qrcode_eclevel',					'QR Code, Fehlerkorrektur');
-define('event_label_cfg_qrcode_size',							'QR Code, Größe der Grafik');
-define('event_label_date',												'Datum');
-define('event_label_deadline',										'Anmeldeschluß');
-define('event_label_declared',										'Angemeldet');
-define('event_label_email',												'E-Mail');
-define('event_label_event',												'Veranstaltung');
-define('event_label_event_costs',									'Kosten pro Teilnehmer (<i>-1 = Kostenfrei</i>)');
-define('event_label_event_date_from',							'Datum: Beginn des Event');
-define('event_label_event_date_to',								'Datum: Ende des Event');
-define('event_label_event_group',									'Event Gruppe');
-define('event_label_event_link',									'Ergänzender Link');
-define('event_label_event_location',							'Veranstaltungsort');
-define('event_label_perma_link',									'Permanent Link (permaLink)');
-define('event_label_event_title',									'Schlagzeile für das Event');
-define('event_label_event_time_start',						'Uhrzeit: Beginn des Event');
-define('event_label_event_time_end',							'Uhrzeit: Ende des Event');
-define('event_label_free_field_nr',								'Freies Feld %d');
-define('event_label_group_description',						'Beschreibung der Gruppe');
-define('event_label_group_name',									'Bezeichner für die Gruppe');
-define('event_label_group_perma_pattern',					'permaLink Muster');
-define('event_label_group_redirect_page',					'Detailseite dieser Gruppe');
-define('event_label_group_select',								'Gruppe auswählen');
-define('event_label_long_description',						'Langbeschreibung (Optional)');
-define('event_label_message',											'Mitteilung');
-define('event_label_participants_max',						'Anzahl Teilnehmer (<i>-1 = unbegrenzt</i>)');
-define('event_label_participants_total',					'Gemeldete Teilnehmer');
-define('event_label_phone',												'Telefon');
-define('event_label_publish_from',								'Event veröffentlichen ab');
-define('event_label_publish_to',									'Event veröffentlichen bis');
-define('event_label_select_event',								'Event auswählen');
-define('event_label_short_description',						'Kurzbeschreibung (Pflicht)');
-define('event_label_show_all',										'alle Events anzeigen');
-define('event_label_status',											'Status');
-
-define('event_msg_captcha_invalid',								'<p>Der übermittelte Wert stimmt nicht mit dem Captcha überein.</p>');
-define('event_msg_date_from_to_invalid',					'<p>Prüfen Sie die Datumsangaben, das Enddatum für das Event liegt vor dem Beginn des Events!</p>');
-define('event_msg_date_from_in_past',							'<p>Der Beginn des Events liegt in der Vergangenheit, prüfen Sie das Datum!</p>');
-define('event_msg_date_invalid',									'<p>Die Datumsangabe <b>%s</b> für das Feld <b>%s</b> ist ungültig und konnte nicht gelesen werden! Geben Sie das Datum in der Form <i>dd.mm.YYYY</i> an!</p>');
-define('event_msg_deadline_invalid',							'<p>Das Datum des Anmeldeschluß liegt nach dem Event, bitte prüfen Sie das Datum!</p>');
-define('event_msg_event_inserted',								'<p>Das Event <b>%03d</b> wurde erfolgreich angelegt!</p>');
-define('event_msg_event_take_suggestion',					'<p>Es wurden Daten aus dem Event mit der <b>ID %03d</b> übernommen!</p>');
-define('event_msg_event_title_missing',						'<p>Bitte geben Sie eine Schlagzeile für das Event an!</p>');
-define('event_msg_event_updated',									'<p>Das Event <b>%03d</b> wurde erfolgreich aktualisiert!</p>');
-define('event_msg_group_already_exists',					'<p>Es existiert bereits eine Gruppe mit dem Bezeichner <b>%s</b>, bitte wählen Sie einen anderen Bezeichner!</p>');
-define('event_msg_group_created',									'<p>Die Gruppe mit der <b>ID %03d</b> wurde hinzufügt.</p>');
-define('event_msg_group_name_empty',							'<p>Der Gruppen Bezeichner darf nicht leer sein!</p>');
-define('event_msg_group_updated',									'<p>Die Gruppe mit der <b>ID %03d</b> wurde aktualisiert!');
-define('event_msg_ical_file_undefined',						'<p>Es ist keine iCal Datei definiert!</p>');
-define('event_msg_invalid_email',									'<p>Die E-Mail Adresse <b>%s</b> ist nicht gültig, bitte prüfen Sie Ihre Eingabe.</p>');
-define('event_msg_must_city',											'<p>Bitte geben Sie die <b>Stadt</b> an.</p>');
-define('event_msg_must_data_privacy',							'<p>Bitte bestätigen Sie, dass Sie unsere <b>Datenschutzerklärung</b> akzeptieren.</p>');
-define('event_msg_must_first_name',								'<p>Bitte geben Sie Ihren <b>Vornamen</b> an.</p>');
-define('event_msg_must_last_name',								'<p>Bitte geben Sie Ihren <b>Nachnamen</b> an.</p>');
-define('event_msg_must_phone',										'<p>Bitte geben Sie eine <b>Telefonnummer</b> an.</p>');
-define('event_msg_must_street',										'<p>Bitte geben Sie <b>Straße und Hausnummer</b> an.</p>');
-define('event_msg_must_terms_and_conditions',			'<p>Bitte bestätigen Sie, dass Sie unsere <b>Geschäftsbedingungen</b> akzeptieren.</p>');
-define('event_msg_must_zip',											'<p>Bitte geben Sie die <b>Postleitzahl</b> an.</p>');
-define('event_msg_no_event_at_date',							'<p>Für den <b>%s</b> sind leider keine Veranstaltungen eingetragen!</p>');
-define('event_msg_perma_link_created',						'<p>Der permaLink <b>%s</b> wurde angelegt.</p>');
-define('event_msg_perma_link_deleted',						'<p>Der permaLink <b>%s</b> wurde gelöscht.</p>');
-define('event_msg_perma_link_redirect_missing',		'<p>Damit für dieses Event ein permaLink angelegt werden kann, muss dieses Event einer Gruppe zugeordnet sein und in der Gruppendefinition eine Zielseite für die permaLinks definiert sein!</p>');
-define('event_msg_perma_link_undefined',					'<p>Es ist kein permaLink definiert!</p>');
-define('event_msg_publish_from_check',						'<p>Bitte prüfen Sie das Startdatum der Veröffentlichung!</p>');
-define('event_msg_publish_from_invalid',					'<p>Das Veröffentlichungsdatum liegt nach dem Event! Prüfen Sie die Datumsangaben!</p>');
-define('event_msg_publish_to_check',							'<p>Bitte prüfen Sie das Enddatum der Veröffentlichung!</p>');
-define('event_msg_publish_to_invalid',						'<p>Das Ende der Veröffentlichung liegt vor dem Event! Prüfen Sie die Datumsangaben!</p>');
-define('event_msg_short_description_empty',				'<p>Die Kurzbeschreibung zu dem Event darf nicht leer sein! Bitte fügen Sie eine Kurzbeschreibung ein.</p>');
-define('event_msg_show_all_events',								'<p>Es werden alle Events angezeigt, die nicht gelöscht wurden!</p>');
-define('event_msg_time_invalid',									'<p>Die Zeitangabe <b>%s</b> für das Feld <b>%s</b> ist ungültig und konnte nicht gelesen werden! Geben Sie die Uhrzeit in der Form <i>HH:mm</i> an!</p>');
-
-define('event_status_active',											'Aktiv');
-define('event_status_deleted',										'Gelöscht');
-define('event_status_locked',											'Gesperrt');
-
-define('event_tab_about',													'?');
-define('event_tab_config',												'Einstellungen');
-define('event_tab_edit',													'Event bearbeiten');
-define('event_tab_group',													'Gruppen');
-define('event_tab_list',													'Aktuelle Events');
-define('event_tab_messages',											'Mitteilungen');
-
-define('event_text_back',													'Zurück...');
-define('event_text_confirmed',										'Bestätigt');
-define('event_text_create_new_group',							'- neue Gruppe erstellen -');
-define('event_text_fully_booked',									'<b>- ausgebucht -</b>');
-define('event_text_hour',													'Uhr');
-define('event_text_no',														'NEIN');
-define('event_text_not_confirmed',								'Nicht bestätigt');
-define('event_text_no_group',											'- keine Gruppe -');
-define('event_text_none',													'- keine -');
-define('event_text_participants_free',						'- noch Plätze frei -');
-define('event_text_participants_unlimited',				'- offen -');
-define('event_text_qrcode_content_ical',					'Dieser QR Code enthält die Daten des Termin im iCal Format.');
-define('event_text_qrcode_content_url',						'Dieser QR Code enthält einen permanenten Link auf diesen Termin');
-define('event_text_select_no_event',							'- keine Daten übernehmen -');
-define('event_text_select_redirect_page',					'- Zielseite auswählen -');
-define('event_text_yes',													'JA');
-
-define('event_th_id',															'ID');
-define('event_th_date',														'Datum');
-define('event_th_date_time',											'Datum/Zeit');
-define('event_th_date_from',											'Datum von');
-define('event_th_date_to',												'Datum bis');
-define('event_th_declared',												'TLN');
-define('event_th_email',													'E-Mail');
-define('event_th_event',													'Veranstaltung');
-define('event_th_group',													'Gruppe');
-define('event_th_message',												'Mitteilung');
-define('event_th_name',														'Name');
-define('event_th_participants_max',								'Tln. max.');
-define('event_th_participants_total',							'Tln. total');
-define('event_th_deadline',												'Meldeschluß');
-define('event_th_title',													'Schlagzeile');
-
-?>
+$LANG = array(
+    '- create a new group -'
+      => '- neue Gruppe erstellen -',
+    '- do not use data from a previous event -'
+      => '- keine Daten einer früheren Veranstaltung übernehmen -',
+    '- no group -'
+      => '- keine Gruppe -',
+    '- out of stock -'
+      => '- ausverkauft -',
+    '- places available -'
+      => '- freie Plätze -',
+    '- select the redirect page -'
+      => '- Zielseite auswählen -',
+    '- unlimited -'
+      => '- unbegrenzt -',
+    'ACTIVE'
+      => 'Aktiv',
+    '<p>All events are shown!</p>'
+      => '<p>Es werden alle Events angezeigt, die nicht gelöscht wurden!</p>',
+    'Content'
+      => 'Inhalt',
+    'Copy event data'
+      => 'Daten einer Veranstaltung übernehmen',
+    'Costs'
+      => 'Kosten pro Teilnehmer (<i>-1 = Kostenfrei</i>)',
+    'Create files'
+      => 'Dateien erzeugen',
+    'Create or edit event'
+      => 'Veranstaltung erstellen oder bearbeiten',
+    'Create or edit group'
+      => 'Gruppe erstellen oder bearbeiten',
+    'Create QR-Codes'
+      => 'QR-Codes erstellen',
+    'Date'
+      => 'Datum',
+    'Date/time'
+      => 'Datum/Zeit',
+    'Date from'
+      => 'Datum: Beginn des Event',
+    'Date to'
+      => 'Datum: Ende des Event',
+    'Deadline'
+      => 'Anmeldeschluß',
+    'Declared'
+      => 'Angemeldet',
+    'DELETED'
+      => 'Gelöscht',
+    'Description'
+      => 'Beschreibung',
+    'Determine at which page the droplet [[kit_event]] is placed. This information is important for the automatic creation of the permaLinks'
+      => 'Legen Sie die Seite fest, auf der das Droplet [[kit_event]] für diese Gruppe verwendet wird. Diese Festlegung ist wichtig, damit automatisch permaLinks erzeugt werden können.',
+    'Determine if kitEvent should create iCal files'
+      => 'Legen Sie fest, ob kitEvent iCal Dateien anlegen soll oder nicht',
+    'Determine if kitEvent should use permanent links'
+      => 'Legen Sie fest, ob kitEvent permanente Links verwenden soll oder nicht.',
+    'Determine if kitEvent should create QR-Codes'
+      => 'Legen Sie fest, ob kitEvent QR-Codes erstellen soll oder nicht.',
+    'Directory'
+      => 'Verzeichnis',
+    'Error: cannot create the file {{ file }}!'
+      => '<p>Die Datei <b>{{ file }}</b> konnte nicht geschrieben werden!</p>',
+    'Error: cannot send the email to {{ email }}!'
+      => '<p>Die E-Mail an <b>{{ email }}</b> konnte nicht versendet werden!</p>',
+    'Error: No entry for the day of the week {{ day_of_week }}!'
+      => '<p>Für den Wochentag mit der Nummer <b>{{ day_of_week }}</b> wurde kein gültiger Tagesname gefunden!</p>',
+    'Error: No entry for the month number {{ month }}!'
+      => '<p>Für den Monat <b>{{ month }}</b> wurde kein gültiger Monatsname gefunden!</p>',
+    'Error: The event view <b>{{ view }}</b> is not specified!'
+      => '<p>Die Ansicht <b>{{ view }}</b> ist nicht spezifiert und kann deshalb nicht angezeigt werden!</p>',
+    'Error: The group {{ group }} does not exists, please check the params!'
+      => '<p>Die Gruppe <b>{{ group }}</b> wurde nicht gefunden, prüfen Sie die Parameter!</p>',
+    'Error: The id {{ id }} is invalid!'
+      => '<p>Der Datensatz mit der <b>ID {{ id }}</b> ist ungültig!</p>',
+    'Error: The must fields for the form are not defined!'
+      => '<p>Fataler Fehler: die Pflichtfelder für das Formular sind nicht definiert!</p>',
+    'Error: This event is invalid!'
+      => '<p>Es wurde ein ungültiges Event angefordert.</p>',
+    'Error correction'
+      => 'Fehlerkorrektur',
+    'Event'
+      => 'Veranstaltung',
+    'Event End'
+      => 'Ende',
+    'Event group'
+      => 'Veranstaltungsgruppe',
+    'Event link'
+      => 'Ergänzender Link',
+    'Event Start'
+      => 'Beginn',
+    'Event title'
+      => 'Schlagzeile für die Veranstaltung',
+    'go back ...'
+      => 'Zurück',
+    'Group'
+      => 'Gruppe',
+    'Group name'
+      => 'Bezeichner für die Gruppe',
+    'If you have defined a pattern in the group definition, kitEvent will create a permanet link at the first save of this event.'
+      => 'Wenn Sie in der Gruppendefinition ein Muster für die Erzeugung eines permanenten Link angegeben haben, wird dieser <b>beim ersten Speichern</b> dieses Event automatisch erzeugt.',
+    'List of the active events'
+      => 'Liste der aktuellen Veranstaltungen',
+    'Location'
+      => 'Veranstaltungsort',
+    'LOCKED'
+      => 'Gesperrt',
+    'Long description'
+      => 'Ausführliche Beschreibung (optional)',
+    'Margin'
+      => 'Randabstand',
+    'Margin of the QR-Code, default is 2'
+      => 'Randabstand des QR Code in Pixel, Vorgabe ist 2',
+    'Message'
+      => 'Mitteilung',
+    'Orders and messages'
+      => 'Anmeldungen und Mitteilungen',
+    'Page with details'
+      => 'Detailseite',
+    'Part. max.'
+      => 'Tln. max.',
+    'Part. total'
+      => 'Tln. total',
+    'Participants, max.'
+      => 'Teilnehmer, max.',
+    'Participants, total'
+      => 'Teilnehmer, gesamt',
+    'Pattern for the automatic generation of permanent links. Possible placeholders are <b>{&#x0024;ID}, {&#x0024;NAME}, {&#x0024;YEAR}, {&#x0024;MONTH}, {&#x0024;DAY}</b> and <b>{&#x0024;EXT}</b>.<br />The assigned permaLink is relative to the page directory, must star6t with a slash / and is closed by the file extension.<br />Sample: <b>/termine/{&#x0024;NAME}-{&#x0024;YEAR}{&#x0024;MONTH}{&#x0024;DAY}{&#x0024;EXT}</b>'
+      => 'Muster für die automatische Erzeugung von permanenten Links (permaLinks). Möglich sind die Platzhalter <b>{&#x0024;ID}, {&#x0024;NAME}, {&#x0024;YEAR}, {&#x0024;MONTH}, {&#x0024;DAY}</b> und <b>{&#x0024;EXT}</b>.<br />Der angegebene permaLink bezieht sich relativ auf das Seitenverzeichnis, beginnt mit einem Slash / und endet mit der Dateiendung.<br />Beispiel: <b>/termine/{&#x0024;NAME}-{&#x0024;YEAR}{&#x0024;MONTH}{&#x0024;DAY}{&#x0024;EXT}</b>',
+    'Perma Link'
+      => 'Perma Link',
+    'Permanent Link Pattern'
+      => 'permaLink Muster',
+    'Phone'
+      => 'Telefon',
+    '<p>Please accept our data privacy!</p>'
+      => '<p>Bitte bestätigen Sie, dass Sie unsere <b>Datenschutzerklärung</b> akzeptieren.</p>',
+    '<p>Please accept our terms and conditions!</p>'
+      => '<p>Bitte bestätigen Sie, dass Sie unsere <b>Geschäftsbedingungen</b> akzeptieren.</p>',
+    '<p>Please check the both dates from and to!</p>'
+      => '<p>Prüfen Sie die Datumsangaben, das Enddatum für das Event liegt vor dem Beginn des Events!</p>',
+    '<p>Please check the publishing date!</p>'
+      => '<p>Bitte prüfen Sie das Startdatum der Veröffentlichung!</p>',
+    'Please click to get more informations about the events of this day!'
+      => 'Anklicken, um mehr über die Veranstaltungen an diesem Tag zu erfahren!',
+    '<p>Please insert a event title!</p>'
+      => '<p>Bitte geben Sie eine Schlagzeile für das Event an!</p>',
+    '<p>Please type in the city!</p>'
+      => '<p>Bitte geben Sie die <b>Stadt</b> an.</p>',
+    '<p>Please type in the short description!</p>'
+      => '<p>Die Kurzbeschreibung zu dem Event darf nicht leer sein! Bitte fügen Sie eine Kurzbeschreibung ein.</p>',
+    '<p>Please type in your first name!</p>'
+      => '<p>Bitte geben Sie Ihren <b>Vornamen</b> an.</p>',
+    '<p>Please type in your phone number!</p>'
+      => '<p>Bitte geben Sie eine <b>Telefonnummer</b> an.</p>',
+    '<p>Please type in your last name!</p>'
+      => '<p>Bitte geben Sie Ihren Vornamen an.</p>',
+    '<p>Please type in your street!</p>'
+      => '<p>Bitte geben Sie <b>Straße und Hausnummer</b> an.</p>',
+    '<p>Please type in your ZIP code!</p>'
+      => '<p>Bitte geben Sie Ihre Postleitzahl an!</p>',
+    'Publish from'
+      => 'Veröffentlichen ab',
+    'Publish to'
+      => 'Veröffentlichen bis',
+    'QR-Code Size'
+      => 'QR-Code Größe',
+    'Select'
+      => 'Auswählen',
+    'Set the error correction level from 0 (low) to 3 (high), default is 2'
+      => 'Legen Sie den Wert für die Fehlerkorrektur von 0 (niedrig) bis 3 (hoch) fest, Vorgabe ist 2',
+    'Short Description'
+      => 'Kurzbeschreibung (Pflicht)',
+    'Show all events'
+      => 'Alle Veranstaltungen anzeigen',
+    'Status'
+      => 'Status',
+    'TAB_ABOUT'
+      => '?',
+    'TAB_CONFIG'
+      => 'Einstellungen',
+    'TAB_EDIT'
+      => 'Bearbeiten',
+    'TAB_GROUP'
+      => 'Gruppen',
+    'TAB_LIST'
+      => 'Liste',
+    'TAB_MESSAGES'
+      => 'Mitteilungen',
+    '<p>The CAPTCHA is invalid!</p>'
+      => '<p>Der übermittelte Wert stimmt nicht mit dem Captcha überein.</p>',
+    'The content of the QR-Code ()1=Perma Link, 2=iCal information), default is 2'
+      => 'Inhalt, der im QR Code gespeichert wird (1=permaLink, 2=iCal Information), Vorgabe ist 1',
+    '<p>The date {{ date }} for the field {{ field }} is invalid! Please type in the date in the format <i>mm-dd-YYYY</i>.</p>'
+      => '<p>Die Datumsangabe <b>%s</b> für das Feld <b>%s</b> ist ungültig und konnte nicht gelesen werden! Geben Sie das Datum in der Form <i>dd.mm.YYYY</i> an!</p>',
+    '<p>The deadline is invalid, please check the date!</p>'
+      => '<p>Das Datum des Anmeldeschluß liegt nach dem Event, bitte prüfen Sie das Datum!</p>',
+    '<p>The event group must be named!</p>'
+      => '<p>Der Gruppen Bezeichner darf nicht leer sein!</p>',
+    '<p>The event group with the ID {{ id }} was successfull created.</p>'
+      => '<p>Die Gruppe mit der <b>ID %03d</b> wurde hinzufügt.</p>',
+    '<p>The event group with the ID {{ id }} was successfull updated</p>'
+      => '<p>Die Gruppe mit der <b>ID {{ id }}</b> wurde aktualisiert!',
+    '<p>The event group with the name {{ name }} already exists!</p>'
+      => '<p>Es existiert bereits eine Gruppe mit dem Bezeichner <b>%s</b>, bitte wählen Sie einen anderen Bezeichner!</p>',
+    '<p>The event with the {{ id }} was successfull created.</p>'
+      => '<p>Die Veranstaltung <b>{{ id }}</b> wurde erfolgreich angelegt!</p>',
+    '<p>The event with the ID {{ id }} was successfull updated.</p>'
+      => '<p>Das Event <b>{{ id }}</b> wurde erfolgreich aktualisiert!</p>',
+    '<p>The iCal file does not exists!</p>'
+      => '<p>Es ist keine iCal Datei definiert!</p>',
+    'The /MEDIA directory for <b>iCal</b> <i>*.ics</i> files.'
+      => 'Das /MEDIA Verzeichnis für <b>iCal</b> <i>*.ics</i> Dateien',
+    'The /MEDIA directory for QR Code files'
+      => 'Das /MEDIA Verzeichnis für QR Code Dateien',
+    '<p>The permaLink {{ link }} was created!</p>'
+      => '<p>Der permaLink <b>{{ link }}</b> wurde angelegt.</p>',
+    '<p>The permaLink {{ link }} was deleted!</p>'
+      => '<p>Der permaLink <b>{{ link }}</b> wurde gelöscht.</p>',
+    'The QR-Code contains a link to this event'
+      => 'Dieser QR Code enthält einen permanenten Link auf diesen Termin',
+    'The QR-Code contains iCal informations'
+      => 'Dieser QR Code enthält die Daten des Termin im iCal Format.',
+    'The size of the created QR-Code from 1 to 40, default is 3'
+      => 'Die Größe des erzeugten QR-Code von 1 bis 40, Vorgabe ist 3',
+    '<p>There are no events for {{ date }}!</p>'
+      => '<p>Für den <b>{{ date }}</b> sind leider keine Veranstaltungen eingetragen!</p>',
+    '<p>There is no permaLink defined!</p>'
+      => '<p>Es ist kein permaLink definiert!</p>',
+    '<p>This event was taken from the previous event with the ID {{ id }}</p>'
+      => '<p>Es wurden Daten aus dem Event mit der <b>ID %03d</b> übernommen!</p>',
+    'This list shows you all active events'
+      => '<p>In dieser Liste sehen Sie alle aktuell anstehenden Veranstaltungen.</p>',
+    'Time end'
+      => 'Uhrzeit: Ende',
+    'Time start'
+      => 'Uhrzeit: Start',
+    'Title'
+      => 'Schlagzeile',
+    '<p>To create a permaLink for this event, you must select a valid event group!</p>'
+      => '<p>Damit für dieses Event ein permaLink angelegt werden kann, muss dieses Event einer Gruppe zugeordnet sein und in der Gruppendefinition eine Zielseite für die permaLinks definiert sein!</p>',
+    'Use Perma Links'
+      => 'Perma Links verwenden',
+    '<p>Use this dialog to create or edit a group.</p><p>The name of the group should be a single word, it will be used as parameter for the droplet [[kit_event]]</p>'
+      => '<p>Mit diesem Dialog können Sie eine neue Gruppe für ein Event (Ereignis) anlegen oder eine bestehende Gruppe bearbeiten.</p><p>Die <i>Bezeichner</i> für die Gruppen sollten möglichst aus einem einzelnen Wort bestehen und keine Leerzeichen, Sonderzeichen enthalten. Sie verwenden den Bezeichner als Parameter beim Aufruf des Droplets [[kit_event]].</p>',
+    'With this dialog you can create a new event or edit an existing event.'
+      => '<p>Mit diesem Dialog können Sie ein neues Event (Ereignis) anlegen oder ein bestehendes bearbeiten.</p>',
+    'You can copy the data from a previous event to a new event, just select an event from the list.'
+      => '<p>Sie können Daten eines früheren Event für das neue Event übernehmen. Wählen Sie dazu das passende Event aus.</p>'
+    );

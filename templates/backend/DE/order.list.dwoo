@@ -14,7 +14,7 @@
  * Use {dump()} to get a list of all in this template available variables!
  *}
 <div class="evt_list">
-  <h2>{$header}</h2>
+  <h2>{translate('Orders and messages')}</h2>
   {if (count_characters($intro) > 0)}
   <div class="{if $is_intro == 1}intro{else}message{/if}">{$intro}</div>
   {/if}
@@ -29,13 +29,13 @@
       <col width="30%" />
     </colgroup>
     <tr>
-      <th class="head_{$order_date_name}">{$order_date_th}</th>
-      <th class="head_{$email_name}">{$email_th}</th>
-      <th class="head_{$name_name}">{$name_th}</th>
-      <th class="head_{$event_name}">{$event_th}</th>
-      <th class="head_{$event_date_name}">{$event_date_th}</th>
-      <th class="head_{$declared_name}">{$declared_th}</th>
-      <th class="head_{$message_name}">{$message_th}</th>
+      <th class="head_ord_date">{translate('Date/time')}</th>
+      <th class="head_ord_email">{translate('E-Mail')}</th>
+      <th class="head_ord_last_name">{translate('Name')}</th>
+      <th class="head_evt_id">{translate('Event')}</th>
+      <th class="head_evt_event_date_from">{translate('Date')}</th>
+      <th class="head_ord_confirm">{translate('Declared')}</th>
+      <th class="head_ord_message">{translate('Message')}</th>
     </tr>
     {foreach $rows row}
     <tr class="{cycle values=array('flip','flop')}">

@@ -31,11 +31,17 @@ else {
 // end include class.secure.php
 
 require_once (WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/initialize.php');
-require_once (WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/class.editor.php');
 require_once (WB_PATH . '/modules/perma_link/class.interface.php');
 require_once (WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/include/ical/iCalcreator.class.php');
 require_once (WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/include/qrcode/qrlib.php');
 require_once (WB_PATH . '/framework/functions-utf8.php');
+
+require_once LEPTON_PATH.'/modules/manufaktur_config/class.dialog.php';
+require_once LEPTON_PATH.'/modules/manufaktur_config/library.php';
+global $manufakturConfig;
+if (!is_object($manufakturConfig))
+  $manufakturConfig = new manufakturConfig('kit_event');
+
 
 class eventBackend {
 
@@ -48,7 +54,6 @@ class eventBackend {
 
   const ACTION_ABOUT = 'abt';
   const ACTION_CONFIG = 'cfg';
-  const ACTION_CONFIG_CHECK = 'cfgc';
   const ACTION_DEFAULT = 'def';
   const ACTION_EDIT = 'edt';
   const ACTION_EDIT_CHECK = 'edtc';
@@ -58,97 +63,125 @@ class eventBackend {
   const ACTION_MESSAGES = 'msg';
   const ACTION_MESSAGES_DETAIL = 'msgd';
 
-  private $tab_navigation_array = array(
-    self::ACTION_LIST => event_tab_list,
-    self::ACTION_EDIT => event_tab_edit,
-    self::ACTION_GROUP => event_tab_group,
-    self::ACTION_MESSAGES => event_tab_messages,
-    self::ACTION_CONFIG => event_tab_config,
-    self::ACTION_ABOUT => event_tab_about
+  private static $tab_navigation_array = array(
+    self::ACTION_LIST => 'TAB_LIST',
+    self::ACTION_EDIT => 'TAB_EDIT',
+    self::ACTION_GROUP => 'TAB_GROUP',
+    self::ACTION_MESSAGES => 'TAB_MESSAGES',
+    self::ACTION_CONFIG => 'TAB_CONFIG',
+    self::ACTION_ABOUT => 'TAB_ABOUT'
   );
 
-  private $page_link = '';
-  private $img_url = '';
+  private static $page_link = '';
+  private static $img_url = '';
   private static $template_path = '';
-  private $error = '';
-  private $message = '';
+  private static $error = '';
+  private static $message = '';
+
+  // configuration values
+  protected static $cfgICalDir = null;
+  protected static $cfgICalCreate = null;
+  protected static $cfgPermaLinkCreate = null;
+  protected static $cfgQRCodeDir = null;
+  protected static $cfgQRCodeCreate = null;
+  protected static $cfgQRCodeSize = null;
+  protected static $cfgQRCodeECLevel = null;
+  protected static $cfgQRCodeMargin = null;
+  protected static $cfgQRCodeContent = null;
+
+  protected $lang = null;
 
   public function __construct() {
-    $this->page_link = ADMIN_URL . '/admintools/tool.php?tool=kit_event';
+    global $I18n;
+    global $manufakturConfig;
+
+    $this->lang = $I18n;
+    self::$page_link = ADMIN_URL . '/admintools/tool.php?tool=kit_event';
     self::$template_path = WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/templates/backend/';
-    $this->img_url = WB_URL . '/modules/' . basename(dirname(__FILE__)) . '/images/';
-    date_default_timezone_set(event_cfg_time_zone);
+    self::$img_url = WB_URL . '/modules/' . basename(dirname(__FILE__)) . '/images/';
+    date_default_timezone_set(CFG_TIME_ZONE);
+    // get the configuration values
+    self::$cfgICalDir = $manufakturConfig->getValue('cfg_event_ical_directory', 'kit_event');
+    self::$cfgICalCreate = $manufakturConfig->getValue('cfg_event_ical_create', 'kit_event');
+    self::$cfgPermaLinkCreate = $manufakturConfig->getValue('cfg_event_perma_link_create', 'kit_event');
+    self::$cfgQRCodeDir = $manufakturConfig->getValue('cfg_event_qr_code_directory', 'kit_event');
+    self::$cfgQRCodeCreate = $manufakturConfig->getValue('cfg_event_qr_code_create', 'kit_event');
+    self::$cfgQRCodeSize = $manufakturConfig->getValue('cfg_event_qr_code_size', 'kit_event');
+    self::$cfgQRCodeECLevel = $manufakturConfig->getValue('cfg_event_qr_code_ec_level', 'kit_event');
+    self::$cfgQRCodeMargin = $manufakturConfig->getValue('cfg_event_qr_code_margin', 'kit_event');
+    self::$cfgQRCodeContent = $manufakturConfig->getValue('cfg_event_qr_code_content', 'kit_event');
   } // __construct()
 
   /**
-   * Set $this->error to $error
+   * Set self::$error to $error
    *
    * @param STR $error
    */
   public function setError($error) {
     $caller = next(debug_backtrace());
-    $this->error = sprintf('[%s::%s - %s] %s', basename($caller['file']), $caller['function'], $caller['line'], $error);
+    self::$error = sprintf('[%s::%s - %s] %s', basename($caller['file']), $caller['function'], $caller['line'], $error);
   } // setError()
 
   /**
-   * Get Error from $this->error;
+   * Get Error from self::$error;
    *
-   * @return STR $this->error
+   * @return STR self::$error
    */
   public function getError() {
-    return $this->error;
+    return self::$error;
   } // getError()
 
   /**
-   * Check if $this->error is empty
+   * Check if self::$error is empty
    *
    * @return BOOL
    */
   public function isError() {
-    return (bool) !empty($this->error);
+    return (bool) !empty(self::$error);
   } // isError
 
   /**
    * Reset Error to empty String
    */
   public function clearError() {
-    $this->error = '';
+    self::$error = '';
   }
 
   /**
-   * Set $this->message to $message
+   * Set self::$message to $message
    *
    * @param STR $message
    */
   public function setMessage($message) {
-    $this->message = $message;
+    self::$message = $message;
   } // setMessage()
 
   /**
-   * Get Message from $this->message;
+   * Get Message from self::$message;
    *
-   * @return STR $this->message
+   * @return STR self::$message
    */
   public function getMessage() {
-    return $this->message;
+    return self::$message;
   } // getMessage()
 
   /**
-   * Check if $this->message is empty
+   * Check if self::$message is empty
    *
    * @return BOOL
    */
   public function isMessage() {
-    return (bool) !empty($this->message);
+    return (bool) !empty(self::$message);
   } // isMessage
+
   public function clearMessage() {
-    $this->message = '';
+    self::$message = '';
   } // clearMessage()
 
   /**
    * Return Version of Module
    *
-   * @return FLOAT
+   * @return float
    */
   public function getVersion() {
     // read info.php into array
@@ -167,7 +200,7 @@ class eventBackend {
     }
     return -1;
   } // getVersion()
-  
+
   /**
    * Get the template, set the data and return the compiled result
    *
@@ -178,7 +211,7 @@ class eventBackend {
    */
   protected function getTemplate($template, $template_data, $trigger_error=false) {
   	global $parser;
-  	
+
   	// check if a language depending template exists
   	$template_path = (file_exists(self::$template_path.LANGUAGE.'/'.$template)) ? self::$template_path.LANGUAGE.'/' : self::$template_path.'DE/';
   	// check if a custom template exists ...
@@ -187,29 +220,20 @@ class eventBackend {
   		$result = $parser->get($load_template, $template_data);
   	}
   	catch (Exception $e) {
-  		$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-  				/*
-  				$this->lang->translate('Error executing the template <b>{{ template }}</b>: {{ error }}',
-  						array(
-  								'template' => basename($load_template),
-  								'error' => $e->getMessage())
-  				)
-  				*/
-  				$e->getMessage()
-  		));
+  		$this->setError($this->lang->translate('Error executing the template <b>{{ template }}</b>: {{ error }}',
+  		    array('template' => basename($load_template), 'error' => $e->getMessage())));
   		if ($trigger_error)
   			trigger_error($this->getError(), E_USER_ERROR);
   		return false;
   	}
   	return $result;
   } // getTemplate()
-  
+
 
   /**
    * Verhindert XSS Cross Site Scripting
    *
-   * @param REFERENCE $_REQUEST
-   *          Array
+   * @param Array REFERENCE $_REQUEST
    * @return $request
    */
   public function xssPrevent(&$request) {
@@ -221,6 +245,7 @@ class eventBackend {
     }
     return $request;
   } // xssPrevent()
+
   public function action() {
     $html_allowed = array(
       dbEventItem::field_desc_long,
@@ -244,9 +269,6 @@ class eventBackend {
         break;
       case self::ACTION_CONFIG :
         $this->show(self::ACTION_CONFIG, $this->dlgConfig());
-        break;
-      case self::ACTION_CONFIG_CHECK :
-        $this->show(self::ACTION_CONFIG, $this->checkConfig());
         break;
       case self::ACTION_EDIT :
         $this->show(self::ACTION_EDIT, $this->dlgEditEvent());
@@ -277,19 +299,17 @@ class eventBackend {
   /**
    * Ausgabe des formatierten Ergebnis mit Navigationsleiste
    *
-   * @param $action -
-   *          aktives Navigationselement
-   * @param $content -
-   *          Inhalt
+   * @param string $action aktives Navigationselement
+   * @param string $content Inhalt
    *
    * @return ECHO RESULT
    */
   public function show($action, $content) {
     $navigation = array();
-    foreach ($this->tab_navigation_array as $key => $value) {
+    foreach (self::$tab_navigation_array as $key => $value) {
       $navigation[] = array(
         'active' => ($key == $action) ? 1 : 0,
-        'url' => sprintf('%s&%s=%s', $this->page_link, self::REQUEST_ACTION, $key),
+        'url' => sprintf('%s&%s=%s', self::$page_link, self::REQUEST_ACTION, $key),
         'text' => $value
       );
     }
@@ -301,6 +321,7 @@ class eventBackend {
     );
     echo $this->getTemplate('body.dwoo', $data);
   } // show()
+
   public function dlgList() {
     global $dbEvent;
     global $dbEventItem;
@@ -308,53 +329,40 @@ class eventBackend {
     global $parser;
 
     if (isset($_REQUEST[self::REQUEST_SHOW_ALL]) && ($_REQUEST[self::REQUEST_SHOW_ALL] == 1)) {
-      $SQL = sprintf("SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s!='%s' ORDER BY %s ASC", $dbEvent->getTableName(), $dbEventItem->getTableName(), $dbEvent->getTableName(), dbEvent::field_event_item, $dbEventItem->getTableName(), dbEventItem::field_id, dbEvent::field_status, dbEvent::status_deleted, dbEvent::field_event_date_from);
-      $this->setMessage(event_msg_show_all_events);
+      $SQL = sprintf("SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s!='%s' ORDER BY %s ASC",
+          TABLE_PREFIX.'mod_kit_event', //$dbEvent->getTableName(),
+          TABLE_PREFIX.'mod_kit_event_item', //$dbEventItem->getTableName(),
+          TABLE_PREFIX.'mod_kit_event', //$dbEvent->getTableName(),
+          'item_id', //dbEvent::field_event_item,
+          TABLE_PREFIX.'mod_kit_event_item', //$dbEventItem->getTableName(),
+          'item_id', //dbEventItem::field_id,
+          'evt_status', //dbEvent::field_status,
+          '-1', //dbEvent::status_deleted,
+          'evt_event_date_from' //dbEvent::field_event_date_from
+          );
+      $this->setMessage($this->lang->translate('<p>All events are shown!</p>'));
     }
     else {
       $start_date = date('Y-m-d H:i:s', mktime(0, 0, 0, date('m'), date('d') - 2, date('Y')));
-      $SQL = sprintf("SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s!='%s' AND %s>='%s' ORDER BY %s ASC", $dbEvent->getTableName(), $dbEventItem->getTableName(), $dbEvent->getTableName(), dbEvent::field_event_item, $dbEventItem->getTableName(), dbEventItem::field_id, dbEvent::field_status, dbEvent::status_deleted, dbEvent::field_event_date_from, $start_date, dbEvent::field_event_date_from);
+      $SQL = sprintf("SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s!='%s' AND %s>='%s' ORDER BY %s ASC",
+          TABLE_PREFIX.'mod_kit_event', //$dbEvent->getTableName(),
+          TABLE_PREFIX.'mod_kit_event_item', //$dbEventItem->getTableName(),
+          TABLE_PREFIX.'mod_kit_event', //$dbEvent->getTableName(),
+          'item_id', //dbEvent::field_event_item,
+          TABLE_PREFIX.'mod_kit_event_item', //$dbEventItem->getTableName(),
+          'item_id', //dbEventItem::field_id,
+          'evt_status', //dbEvent::field_status,
+          '-1', //dbEvent::status_deleted,
+          'evt_event_date_from', //dbEvent::field_event_date_from,
+          $start_date,
+          'evt_event_date_from' //dbEvent::field_event_date_from
+          );
     }
     $events = array();
     if (!$dbEvent->sqlExec($SQL, $events)) {
       $this->setError($dbEvent->getError());
       return false;
     }
-
-    $th = array(
-      array(
-        'class' => dbEvent::field_id,
-        'text' => event_th_id
-      ),
-      array(
-        'class' => dbEvent::field_event_date_from,
-        'text' => event_th_date_from
-      ),
-      array(
-        'class' => dbEvent::field_event_date_to,
-        'text' => event_th_date_to
-      ),
-      array(
-        'class' => dbEvent::field_event_group,
-        'text' => event_th_group
-      ),
-      array(
-        'class' => dbEvent::field_participants_max,
-        'text' => event_th_participants_max
-      ),
-      array(
-        'class' => dbEvent::field_participants_total,
-        'text' => event_th_participants_total
-      ),
-      array(
-        'class' => dbEvent::field_deadline,
-        'text' => event_th_deadline
-      ),
-      array(
-        'class' => dbEventItem::field_title,
-        'text' => event_th_title
-      )
-    );
 
     $items = '';
     $rows = array();
@@ -372,12 +380,12 @@ class eventBackend {
       $group = -1;
       $rows[] = array(
         'id_name' => dbEvent::field_id,
-        'id_link' => sprintf('%s&%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_EDIT, dbEvent::field_id, $event[dbEvent::field_id]),
+        'id_link' => sprintf('%s&%s=%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_EDIT, dbEvent::field_id, $event[dbEvent::field_id]),
         'id' => sprintf('%04d', $event[dbEvent::field_id]),
         'date_from_name' => dbEvent::field_event_date_from,
-        'date_from' => date(event_cfg_datetime_str, strtotime($event[dbEvent::field_event_date_from])),
+        'date_from' => date(CFG_DATETIME_STR, strtotime($event[dbEvent::field_event_date_from])),
         'date_to_name' => dbEvent::field_event_date_to,
-        'date_to' => date(event_cfg_datetime_str, strtotime($event[dbEvent::field_event_date_to])),
+        'date_to' => date(CFG_DATETIME_STR, strtotime($event[dbEvent::field_event_date_to])),
         'group_name' => dbEvent::field_event_group,
         'group' => $grp,
         'part_max_name' => dbEvent::field_participants_max,
@@ -385,23 +393,64 @@ class eventBackend {
         'part_total_name' => dbEvent::field_participants_total,
         'part_total' => $event[dbEvent::field_participants_total],
         'deadline_name' => dbEvent::field_deadline,
-        'deadline' => date(event_cfg_date_str, strtotime($event[dbEvent::field_deadline])),
+        'deadline' => date(CFG_DATE_STR, strtotime($event[dbEvent::field_deadline])),
         'title_name' => dbEventItem::field_title,
         'title' => $event[dbEventItem::field_title]
       );
     }
 
     $data = array(
-      'header' => event_header_event_list,
-      'intro_class' => ($this->isMessage()) ? 'message' : 'intro',
-      'intro' => ($this->isMessage()) ? $this->getMessage() : event_intro_event_list,
-      'th' => $th,
+      'message' => array(
+          'active' => (int) $this->isMessage(),
+          'content' => $this->getMessage()
+          ),
       'rows' => $rows,
-      'show_all_link' => sprintf('%s&%s=%s&%s=1', $this->page_link, self::REQUEST_ACTION, self::ACTION_LIST, self::REQUEST_SHOW_ALL),
-      'show_all' => event_label_show_all
+      'show_all_link' => sprintf('%s&%s=%s&%s=1', self::$page_link, self::REQUEST_ACTION, self::ACTION_LIST, self::REQUEST_SHOW_ALL),
     );
     return $this->getTemplate('event.list.dwoo', $data);
   } // dlgList()
+
+  /**
+   * Sanitize variables and prepare them for saving in a MySQL record
+   *
+   * @param mixed $item
+   * @return mixed
+   */
+  public static function sanitizeVariable($item) {
+    if (!is_array($item)) {
+      // undoing 'magic_quotes_gpc = On' directive
+      if (get_magic_quotes_gpc())
+        $item = stripcslashes($item);
+      $item = self::sanitizeText($item);
+    }
+    return $item;
+  } // sanitizeVariable()
+
+  /**
+   * Sanitize a text variable and prepare ist for saving in a MySQL record
+   *
+   * @param string $text
+   * @return string
+   */
+  protected static function sanitizeText($text) {
+    $text = str_replace(array("<",">","\"","'"), array("&lt;","&gt;","&quot;","&#039;"), $text);
+    $text = mysql_real_escape_string($text);
+    return $text;
+  } // sanitizeText()
+
+  /**
+   * Unsanitize a text variable and prepare it for output
+   *
+   * @param string $text
+   * @return string
+   */
+  public static function unsanitizeText($text) {
+    $text = stripcslashes($text);
+    $text = str_replace(array("&lt;","&gt;","&quot;","&#039;"), array("<",">","\"","'"), $text);
+    return $text;
+  } // unsanitizeText()
+
+
   public function dlgSuggestEvent() {
     global $dbEvent;
     global $dbEventItem;
@@ -416,31 +465,27 @@ class eventBackend {
     $suggest_options = array();
     $suggest_options[] = array(
       'value' => -1,
-      'text' => event_text_select_no_event
+      'text' => $this->lang->translate('- do not use data from a previous event -')
     );
     foreach ($events as $event) {
       $suggest_options[] = array(
         'value' => $event[dbEventItem::field_id],
-        'text' => sprintf('[ %s ] %s', date(event_cfg_date_str, strtotime($event[dbEvent::field_event_date_from])), $event[dbEventItem::field_title])
+        'text' => sprintf('[ %s ] %s', date(CFG_DATE_STR, strtotime($event[dbEvent::field_event_date_from])), $event[dbEventItem::field_title])
       );
     }
 
     $data = array(
       'form_name' => 'event_suggest',
-      'form_action' => $this->page_link,
+      'form_action' => self::$page_link,
       'action_name' => self::REQUEST_ACTION,
       'action_value' => self::ACTION_EDIT,
-      'header' => event_header_suggest_event,
-      'intro' => event_intro_suggest_event,
       'suggest_request' => self::REQUEST_SUGGESTION,
-      'suggest_label' => event_label_select_event,
       'suggest_options' => $suggest_options,
-      'btn_ok' => event_btn_ok,
-      'btn_abort' => event_btn_abort,
-      'abort_location' => $this->page_link
+      'abort_location' => self::$page_link
     );
     return $this->getTemplate('event.suggest.dwoo', $data);
   } // dlgEventSuggestion()
+
   public function dlgEditEvent() {
     global $dbEvent;
     global $dbEventGroup;
@@ -456,19 +501,19 @@ class eventBackend {
         return false;
       }
       if (count($event) < 1) {
-        $this->setError(sprintf(event_error_id_invalid, $event_id));
+        $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id)));
         return false;
       }
       $event = $event[0];
       $item_id = $event[dbEvent::field_event_item];
       if ((date('H', strtotime($event[dbEvent::field_event_date_from])) !== 0) && (date('i', strtotime($event[dbEvent::field_event_date_from])) !== 0)) {
-        $time_start = date(event_cfg_time_str, strtotime($event[dbEvent::field_event_date_from]));
+        $time_start = date(CFG_TIME_STR, strtotime($event[dbEvent::field_event_date_from]));
       }
       else {
         $time_start = '';
       }
       if ((date('H', strtotime($event[dbEvent::field_event_date_to])) !== 0) && (date('i', strtotime($event[dbEvent::field_event_date_to])) !== 0)) {
-        $time_end = date(event_cfg_time_str, strtotime($event[dbEvent::field_event_date_to]));
+        $time_end = date(CFG_TIME_STR, strtotime($event[dbEvent::field_event_date_to]));
       }
       else {
         $time_end = '';
@@ -494,7 +539,8 @@ class eventBackend {
       }
       $item = $item[0];
       $event = array_merge($event, $item);
-      $this->setMessage(sprintf(event_msg_event_take_suggestion, $_REQUEST[self::REQUEST_SUGGESTION]));
+      $this->setMessage($this->lang->translate('<p>This event was taken from the previous event with the ID {{ id }}</p>',
+          array('id' => $_REQUEST[self::REQUEST_SUGGESTION])));
     }
     else {
       $item_id = -1;
@@ -511,13 +557,13 @@ class eventBackend {
           case dbEvent::field_event_date_from :
             if (false !== ($x = strtotime($_REQUEST[$key]))) {
               $event[$key] = date('Y-m-d H:i:s', $x);
-              $time_start = ((date('H', $x) !== 0) || (date('i', $x) !== 0)) ? date(event_cfg_time_str, $x) : '';
+              $time_start = ((date('H', $x) !== 0) || (date('i', $x) !== 0)) ? date(CFG_TIME_STR, $x) : '';
             }
             break;
           case dbEvent::field_event_date_to :
             if (false !== ($x = strtotime($_REQUEST[$key]))) {
               $event[$key] = date('Y-m-d H:i:s', $x);
-              $time_end = ((date('H', $x) !== 0) || (date('i', $x) !== 0)) ? date(event_cfg_time_str, $x) : '';
+              $time_end = ((date('H', $x) !== 0) || (date('i', $x) !== 0)) ? date(CFG_TIME_STR, $x) : '';
             }
             break;
           default :
@@ -540,7 +586,7 @@ class eventBackend {
     $group[] = array(
       'selected' => ($event[dbEvent::field_event_group] == -1) ? 1 : 0,
       'value' => -1,
-      'text' => event_text_no_group
+      'text' => $this->lang->translate('- no group -')
     );
     foreach ($grps as $grp) {
       $group[] = array(
@@ -560,120 +606,104 @@ class eventBackend {
       );
     }
 
-    // short description
-    ob_start();
-    show_wysiwyg_editor(dbEventItem::field_desc_short, dbEventItem::field_desc_short, stripslashes($event[dbEventItem::field_desc_short]), '99%', '200px');
-    $editor_short = ob_get_contents();
-    ob_end_clean();
-
-    // long description
-    ob_start();
-    show_wysiwyg_editor(dbEventItem::field_desc_long, dbEventItem::field_desc_long, stripslashes($event[dbEventItem::field_desc_long]), '99%', '300px');
-    $editor_long = ob_get_contents();
-    ob_end_clean();
-
     $fields = array(
       'date_from' => array(
         'name' => dbEvent::field_event_date_from,
         'id' => 'datepicker_1',
-        'label' => event_label_event_date_from,
-        'value' => (false !== ($x = strtotime($event[dbEvent::field_event_date_from]))) ? date(event_cfg_date_str, $x) : ''
+        'value' => (false !== ($x = strtotime($event[dbEvent::field_event_date_from]))) ? date(CFG_DATE_STR, $x) : ''
       ),
       'date_to' => array(
         'name' => dbEvent::field_event_date_to,
         'id' => 'datepicker_2',
-        'label' => event_label_event_date_to,
-        'value' => (false !== ($x = strtotime($event[dbEvent::field_event_date_to]))) ? date(event_cfg_date_str, $x) : ''
+        'value' => (false !== ($x = strtotime($event[dbEvent::field_event_date_to]))) ? date(CFG_DATE_STR, $x) : ''
       ),
       'time_start' => array(
         'name' => self::REQUEST_TIME_START,
-        'label' => event_label_event_time_start,
         'value' => $time_start
       ),
       'time_end' => array(
         'name' => self::REQUEST_TIME_END,
-        'label' => event_label_event_time_end,
         'value' => $time_end
       ),
       'publish_date_from' => array(
         'name' => dbEvent::field_publish_date_from,
-        'label' => event_label_publish_from,
-        'value' => (false !== ($x = strtotime($event[dbEvent::field_publish_date_from]))) ? date(event_cfg_date_str, $x) : '',
+        'value' => (false !== ($x = strtotime($event[dbEvent::field_publish_date_from]))) ? date(CFG_DATE_STR, $x) : '',
         'id' => 'datepicker_3'
       ),
       'publish_date_to' => array(
         'name' => dbEvent::field_publish_date_to,
-        'label' => event_label_publish_to,
-        'value' => (false !== ($x = strtotime($event[dbEvent::field_publish_date_to]))) ? date(event_cfg_date_str, $x) : '',
+        'value' => (false !== ($x = strtotime($event[dbEvent::field_publish_date_to]))) ? date(CFG_DATE_STR, $x) : '',
         'id' => 'datepicker_4'
       ),
       'participants_max' => array(
         'name' => dbEvent::field_participants_max,
-        'label' => event_label_participants_max,
         'value' => $event[dbEvent::field_participants_max]
       ),
       'participants_total' => array(
         'name' => dbEvent::field_participants_total,
-        'label' => event_label_participants_total,
         'value' => $event[dbEvent::field_participants_total]
       ),
       'deadline' => array(
         'name' => dbEvent::field_deadline,
-        'label' => event_label_deadline,
-        'value' => (false !== ($x = strtotime($event[dbEvent::field_deadline]))) ? date(event_cfg_date_str, $x) : '',
+        'value' => (false !== ($x = strtotime($event[dbEvent::field_deadline]))) ? date(CFG_DATE_STR, $x) : '',
         'id' => 'datepicker_5'
       ),
       'costs' => array(
         'name' => dbEventItem::field_costs,
-        'label' => event_label_event_costs,
-        'value' => sprintf(event_cfg_currency, number_format((float) $event[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator))
+        'value' => sprintf(CFG_CURRENCY, number_format((float) $event[dbEventItem::field_costs], 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR))
       ),
       'group' => array(
         'name' => dbEvent::field_event_group,
-        'label' => event_label_event_group,
         'value' => $group
       ),
       'status' => array(
         'name' => dbEvent::field_status,
-        'label' => event_label_status,
         'value' => $status
       ),
       'title' => array(
         'name' => dbEventItem::field_title,
-        'label' => event_label_event_title,
         'value' => $event[dbEventItem::field_title]
       ),
       'short_description' => array(
         'name' => dbEventItem::field_desc_short,
-        'label' => event_label_short_description,
-        'value' => $editor_short
+        'value' => self::unsanitizeText($event[dbEventItem::field_desc_short])
       ),
       'long_description' => array(
         'name' => dbEventItem::field_desc_long,
-        'label' => event_label_long_description,
-        'value' => $editor_long
+        'value' => self::unsanitizeText($event[dbEventItem::field_desc_long])
       ),
       'location' => array(
         'name' => dbEventItem::field_location,
-        'label' => event_label_event_location,
         'value' => $event[dbEventItem::field_location]
       ),
       'link' => array(
         'name' => dbEventItem::field_desc_link,
-        'label' => event_label_event_link,
         'value' => $event[dbEventItem::field_desc_link]
       ),
       'perma_link' => array(
         'name' => dbEvent::field_perma_link,
-        'label' => event_label_perma_link,
         'value' => $event[dbEvent::field_perma_link],
-        'hint' => event_hint_perma_link
       )
     );
 
+    // check if libraryAdmin exists
+    if (file_exists(WB_PATH.'/modules/libraryadmin/inc/class.LABackend.php')) {
+      require_once WB_PATH.'/modules/libraryadmin/inc/class.LABackend.php';
+      // create instance; if you're not using OOP, use a simple var, like $la
+      $libraryAdmin = new LABackend();
+      // load the preset
+      $libraryAdmin->loadPreset(array(
+          'module' => 'kit_event',
+          'lib'    => 'lib_jquery',
+          'preset' => 'datepicker'
+      ));
+      // print the preset
+      $libraryAdmin->printPreset();
+    }
+
     $data = array(
       'form_name' => 'event_edit',
-      'form_action' => $this->page_link,
+      'form_action' => self::$page_link,
       'action_name' => self::REQUEST_ACTION,
       'action_value' => self::ACTION_EDIT_CHECK,
       'language' => (LANGUAGE == 'EN') ? '' : strtolower(LANGUAGE),
@@ -683,16 +713,16 @@ class eventBackend {
       'item_value' => $item_id,
       'suggestion_name' => self::REQUEST_SUGGESTION,
       'suggestion_value' => -1,
-      'header' => event_header_edit_event,
-      'is_intro' => ($this->isMessage()) ? 0 : 1,
-      'intro' => ($this->isMessage()) ? $this->getMessage() : event_intro_edit_event,
-      'btn_ok' => event_btn_ok,
-      'btn_abort' => event_btn_abort,
-      'abort_location' => $this->page_link,
+      'message' => array(
+          'active' => (int) $this->isMessage(),
+          'content' => $this->getMessage()
+          ),
+      'abort_location' => self::$page_link,
       'event' => $fields
     );
     return $this->getTemplate('event.edit.dwoo', $data);
   } // dlgEditEvent()
+
   public function checkEditEvent() {
     global $dbEvent;
     global $dbEventItem;
@@ -734,7 +764,8 @@ class eventBackend {
                 if (($H > 23) || ($H < 0) || ($i > 59) || ($i < 0)) {
                   // invalid time
                   $checked = false;
-                  $message .= sprintf(event_msg_time_invalid, $time, event_label_event_time_start);
+                  $message .= $this->lang->translate('<p>The time {{ time }} for the field {{ field }} is invalid! Please type in the time in the form <i>HH:mm</i>!</p>',
+                       array('time' => $time, 'field' => $this->lang->translate('Time start')));
                 }
                 else {
                   // time ok
@@ -750,7 +781,8 @@ class eventBackend {
             }
             else {
               $checked = false;
-              $message .= sprintf(event_msg_date_invalid, $_REQUEST[$request], event_label_event_date_from);
+              $message .= $this->lang->translate('<p>The date {{ date }} for the field {{ field }} is invalid! Please type in the date in the format <i>mm-dd-YYYY</i>.</p>',
+                  array('field' => $this->lang->translate('Date from'), 'date' => $_REQUEST[$request]));
             }
             break;
           case dbEvent::field_event_date_to :
@@ -761,7 +793,8 @@ class eventBackend {
             }
             elseif (!$x) {
               $checked = false;
-              $message .= sprintf(event_msg_date_invalid, $_REQUEST[$request], event_label_event_date_to);
+              $message .= $this->lang->translate('<p>The date {{ date }} for the field {{ field }} is invalid! Please type in the date in the format <i>mm-dd-YYYY</i>.</p>',
+                  array('field' => $this->lang->translate('Date to'), 'date' => $_REQUEST[$request]));
               break;
             }
             // check time
@@ -769,7 +802,7 @@ class eventBackend {
             $y = strtotime($_REQUEST[dbEvent::field_event_date_from]);
             if (mktime(0, 0, 0, date('m', $x), date('d', $x), date('Y', $x)) < mktime(0, 0, 0, date('m', $y), date('d', $y), date('Y', $y))) {
               $checked = false;
-              $message .= event_msg_date_from_to_invalid;
+              $message .= $this->lang->translate('<p>Please check the both dates from and to!</p>');
               break;
             }
             if (isset($_REQUEST[self::REQUEST_TIME_END]) && !empty($_REQUEST[self::REQUEST_TIME_END])) {
@@ -784,7 +817,8 @@ class eventBackend {
               if (($H > 23) || ($H < 0) || ($i > 59) || ($i < 0)) {
                 // invalid time
                 $checked = false;
-                $message .= sprintf(event_msg_time_invalid, $time, event_label_event_time_end);
+                $message .= $this->lang->translate('<p>The time {{ time }} for the field {{ field }} is invalid! Please type in the time in the form <i>HH:mm</i>!</p>',
+                       array('time' => $time, 'field' => $this->lang->translate('Time end')));
               }
               else {
                 // time ok
@@ -804,7 +838,7 @@ class eventBackend {
             if (false !== ($x = strtotime($_REQUEST[$request]))) {
               $y = strtotime($_REQUEST[dbEvent::field_event_date_from]);
               if ($start_date_ok && (mktime(0, 0, 0, date('m', $x), date('d', $x), date('Y', $x)) > mktime(0, 0, 0, date('m', $y), date('d', $y), date('Y', $y)))) {
-                $message .= event_msg_publish_from_invalid;
+                $message .= $this->lang->translate('<p>Please check the publishing date!</p>');
                 $checked = false;
                 break;
               }
@@ -815,7 +849,7 @@ class eventBackend {
               $_REQUEST[$request] = date('Y-m-d H:i:s', mktime(0, 0, 0, date('m', $y), date('d', $y) - 14, date('Y', $y)));
             }
             else {
-              $message .= event_msg_publish_from_check;
+              $message .= $this->lang->translate('<p>Please check the publishing date!</p>');
               $checked = false;
             }
             break;
@@ -823,7 +857,7 @@ class eventBackend {
             if (false !== ($x = strtotime($_REQUEST[$request]))) {
               $y = strtotime($_REQUEST[dbEvent::field_event_date_to]);
               if ($end_date_ok && (mktime(0, 0, 0, date('m', $x), date('d', $x), date('Y', $x)) < mktime(0, 0, 0, date('m', $y), date('d', $y), date('Y', $y)))) {
-                $message .= event_msg_publish_to_invalid;
+                $message .= $this->lang->translate('<p>Please check the publishing date!</p>');
                 $checked = false;
                 break;
               }
@@ -834,7 +868,7 @@ class eventBackend {
               $_REQUEST[$request] = date('Y-m-d H:i:s', mktime(23, 59, 59, date('m', $y), date('d', $y), date('Y', $y)));
             }
             else {
-              $message .= event_msg_publish_to_check;
+              $message .= $this->lang->translate('<p>Please check the publishing date!</p>');
               $checked = false;
             }
             break;
@@ -858,7 +892,7 @@ class eventBackend {
               $y = strtotime($_REQUEST[dbEvent::field_event_date_from]);
               if ($start_date_ok && (mktime(0, 0, 0, date('m', $x), date('d', $x), date('Y', $x)) > mktime(0, 0, 0, date('m', $y), date('d', $y), date('Y', $y)))) {
                 // Deadline liegt nach dem Veranstaltungstermin
-                $message .= event_msg_deadline_invalid;
+                $message .= $this->lang->translate('<p>The deadline is invalid, please check the date!</p>');
                 $checked = false;
               }
               else {
@@ -874,13 +908,13 @@ class eventBackend {
             break;
           case dbEventItem::field_title :
             if (empty($_REQUEST[$request])) {
-              $message .= event_msg_event_title_missing;
+              $message .= $this->lang->translate('<p>Please insert a event title!</p>');
               $checked = false;
             }
             break;
           case dbEventItem::field_desc_short :
             if (empty($_REQUEST[$request])) {
-              $message .= event_msg_short_description_empty;
+              $message .= $this->lang->translate('<p>Please type in the short description!</p>');
               $checked = false;
             }
             break;
@@ -924,7 +958,7 @@ class eventBackend {
           $this->setError($dbEvent->getError());
           return false;
         }
-        $message .= sprintf(event_msg_event_inserted, $event_id);
+        $message .= $this->lang->translate('<p>The event with the {{ id }} was successfull created.</p>', array('id' => $event_id));
       }
       else {
         // Datensatz aktualisieren
@@ -943,7 +977,8 @@ class eventBackend {
           $this->setError($dbEvent->getError());
           return false;
         }
-        $message .= sprintf(event_msg_event_updated, $event_id);
+        $message .= $this->lang->translate('<p>The event with the ID {{ id }} was successfull updated.</p>',
+            array('id' => $event_id));
       }
       // permaLink pruefen
       $this->checkPermaLink($event_id, $_REQUEST[dbEvent::field_perma_link], $new_event);
@@ -974,12 +1009,12 @@ class eventBackend {
     $this->setMessage($message);
     return $this->dlgEditEvent();
   } // checkEditEvent()
+
   public function createQRCodeFile($event_id) {
-    global $dbEventCfg;
     global $dbEvent;
     global $kitLibrary;
 
-    if (!$dbEventCfg->getValue(dbEventCfg::cfgQRCodeExec)) return true;
+    if (!self::$cfgQRCodeCreate) return true;
 
     $SQL = sprintf("SELECT * FROM %s WHERE %s='%s'", $dbEvent->getTableName(), dbEvent::field_id, $event_id);
     $event = array();
@@ -988,22 +1023,22 @@ class eventBackend {
       return false;
     }
     if (count($event) < 1) {
-      $this->setError(sprintf(event_error_id_invalid, $event_id));
+      $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id)));
       return false;
     }
     $event = $event[0];
 
-    $c_type = $dbEventCfg->getValue(dbEventCfg::cfgQRCodeContent);
+    $c_type = self::$cfgQRCodeContent;
 
     if ($c_type == 2) {
       // iCal einlesen
-      $dir = $kitLibrary->removeLeadingSlash($dbEventCfg->getValue(dbEventCfg::cfgICalDir));
+      $dir = $kitLibrary->removeLeadingSlash(self::$cfgICalDir);
       $dir = $kitLibrary->addSlash($dir);
       $dir_path = WB_PATH . MEDIA_DIRECTORY . '/' . $dir;
       $filename = $event[dbEvent::field_ical_file];
       if (empty($filename)) {
         // es existiert keine iCal Datei
-        $this->setMessage(event_msg_ical_file_undefined);
+        $this->setMessage($this->lang->translate('<p>The iCal file does not exists!</p>'));
         return true;
       }
       if (!file_exists($dir_path . $filename)) {
@@ -1014,18 +1049,18 @@ class eventBackend {
     }
     else {
       if (empty($event[dbEvent::field_perma_link])) {
-        $this->setMessage(event_msg_perma_link_undefined);
+        $this->setMessage($this->lang->translate('<p>There is no permaLink defined!</p>'));
         return true;
       }
       $text = WB_URL . PAGES_DIRECTORY . $event[dbEvent::field_perma_link];
     }
 
-    $level = $dbEventCfg->getValue(dbEventCfg::cfgQRCodeECLevel);
-    $size = $dbEventCfg->getValue(dbEventCfg::cfgQRCodeSize);
-    $margin = $dbEventCfg->getValue(dbEventCfg::cfgQRCodeMargin);
+    $level = self::$cfgQRCodeECLevel;
+    $size = self::$cfgQRCodeSize;
+    $margin = self::$cfgQRCodeMargin;
 
     $filename = sprintf('%s-%05d.png', date('Ymd-Hi', strtotime($event[dbEvent::field_event_date_from])), $event[dbEvent::field_id]);
-    $dir = $kitLibrary->removeLeadingSlash($dbEventCfg->getValue(dbEventCfg::cfgQRCodeDir));
+    $dir = $kitLibrary->removeLeadingSlash(self::$cfgQRCodeDir);
     $dir = $kitLibrary->addSlash($dir);
     $dir_path = WB_PATH . MEDIA_DIRECTORY . '/' . $dir;
     if (!file_exists($dir_path)) {
@@ -1051,13 +1086,13 @@ class eventBackend {
 
     return true;
   } // createQRCodeFile()
+
   public function createICalFile($event_id) {
     global $dbEvent;
     global $dbEventItem;
-    global $dbEventCfg;
     global $kitLibrary;
 
-    if (!$dbEventCfg->getValue(dbEventCfg::cfgICalExec)) {
+    if (!self::$cfgICalCreate) {
       // keine iCal Dateien anlegen
       return true;
     }
@@ -1069,7 +1104,7 @@ class eventBackend {
       return false;
     }
     if (count($event) < 1) {
-      $this->setError(sprintf(event_error_id_invalid, $event_id));
+      $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id)));
       return false;
     }
     $event = $event[0];
@@ -1096,7 +1131,7 @@ class eventBackend {
     $evt->setProperty('location', $event[dbEventItem::field_location]);
     $ical = $vCal->createCalendar();
     $filename = sprintf('%s-%05d.ics', date('Ymd-Hi', strtotime($event[dbEvent::field_event_date_from])), $event[dbEvent::field_id]);
-    $dir = $kitLibrary->removeLeadingSlash($dbEventCfg->getValue(dbEventCfg::cfgICalDir));
+    $dir = $kitLibrary->removeLeadingSlash(self::$cfgICalDir);
     $dir = $kitLibrary->addSlash($dir);
     $dir_path = WB_PATH . MEDIA_DIRECTORY . '/' . $dir;
     if (!file_exists($dir_path)) {
@@ -1106,7 +1141,8 @@ class eventBackend {
       }
     }
     if (!file_put_contents($dir_path . $filename, $ical)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, sprintf(event_error_file_create, $dir . $filename)));
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+          $this->lang->create('Error: cannot create the file {{ file }}!', array('file' => $dir . $filename))));
       return false;
     }
 
@@ -1122,13 +1158,13 @@ class eventBackend {
     }
     return true;
   } // createICalFile()
+
   public function checkPermaLink($event_id, $perma_link, $new_event = false) {
     global $dbEventGroup;
     global $dbEvent;
     global $kitLibrary;
-    global $dbEventCfg;
 
-    if (!$dbEventCfg->getValue(dbEventCfg::cfgPermaLinkExec)) return true;
+    if (!self::$cfgPermaLinkCreate) return true;
 
     $where = array(
       dbEvent::field_id => $event_id
@@ -1139,7 +1175,8 @@ class eventBackend {
       return false;
     }
     if (count($event) < 1) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, sprintf(event_error_id_invalid, $event_id)));
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+          $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id))));
       return false;
     }
     $event = $event[0];
@@ -1157,7 +1194,8 @@ class eventBackend {
           return false;
         }
         if (count($group) < 1) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, sprintf(event_error_id_invalid, $event[dbEvent::field_event_group])));
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+              $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event[dbEvent::field_event_group]))));
           return false;
         }
         $group = $group[0];
@@ -1216,7 +1254,7 @@ class eventBackend {
           $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
           return false;
         }
-        $this->setMessage(sprintf(event_msg_perma_link_created, $perma_link));
+        $this->setMessage($this->lang->translate('<p>The permaLink {{ link }} was created!</p>', array('link' => $perma_link)));
         return true;
       }
       else {
@@ -1231,12 +1269,13 @@ class eventBackend {
           return false;
         }
         if (count($group) < 1) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, sprintf(event_error_id_invalid, $event_group)));
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+              $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event[dbEvent::field_event_group]))));
           return false;
         }
         $redirect = $group[0][dbEventGroup::field_redirect_page];
         if (empty($redirect)) {
-          $this->setMessage(event_msg_perma_link_redirect_missing);
+          $this->setMessage($this->lang->translate('<p>To create a permaLink for this event, you must select a valid event group!</p>'));
           return false;
         }
         // REDIRECT mit den erforderlichen Parametern ergaenzen
@@ -1267,7 +1306,7 @@ class eventBackend {
           $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
           return false;
         }
-        $this->setMessage(sprintf(event_msg_perma_link_created, $perma_link));
+        $this->setMessage($this->lang->translate('<p>The permaLink {{ link }} was created!</p>', array('link' => $perma_link)));
         return true;
       }
     }
@@ -1276,7 +1315,7 @@ class eventBackend {
       if (empty($event[dbEvent::field_perma_link])) {
         // der permaLink ist neu
         if ($event[dbEvent::field_event_group] == -1) {
-          $this->setMessage(event_msg_perma_link_redirect_missing);
+          $this->setMessage($this->lang->translate('<p>To create a permaLink for this event, you must select a valid event group!</p>'));
           return false;
         }
         $where = array(
@@ -1288,12 +1327,13 @@ class eventBackend {
           return false;
         }
         if (count($group) < 1) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, sprintf(event_error_id_invalid, $event_group)));
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+              $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event[dbEvent::field_event_group]))));
           return false;
         }
         $redirect = $group[0][dbEventGroup::field_redirect_page];
         if (empty($redirect)) {
-          $this->setMessage(event_msg_perma_link_redirect_missing);
+          $this->setMessage($this->lang->translate('<p>To create a permaLink for this event, you must select a valid event group!</p>'));
           return false;
         }
         // REDIRECT mit den erforderlichen Parametern ergaenzen
@@ -1324,7 +1364,7 @@ class eventBackend {
           $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
           return false;
         }
-        $this->setMessage(sprintf(event_msg_perma_link_created, $perma_link));
+        $this->setMessage($this->lang->translate('<p>The permaLink {{ link }} was created!</p>', array('link' => $perma_link)));
         return true;
       }
       else {
@@ -1350,7 +1390,7 @@ class eventBackend {
           $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
           return false;
         }
-        $message = sprintf(event_msg_perma_link_deleted, $event[dbEvent::field_perma_link]);
+        $message = $this->lang->translate('<p>The permaLink {{ link }} was deleted!</p>', array('link' => $event[dbEvent::field_perma_link]));
         if (empty($perma_link)) {
           // permaLink wird nur geloescht, kein neuer angelegt...
           $this->setMessage($message);
@@ -1358,7 +1398,7 @@ class eventBackend {
         }
         // neuen permaLink anlegen
         if ($event[dbEvent::field_event_group] == -1) {
-          $message .= event_msg_perma_link_redirect_missing;
+          $message .= $this->lang->translate('<p>To create a permaLink for this event, you must select a valid event group!</p>');
           $this->setMessage($message);
           return false;
         }
@@ -1371,12 +1411,13 @@ class eventBackend {
           return false;
         }
         if (count($group) < 1) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, sprintf(event_error_id_invalid, $event_group)));
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+              $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event[dbEvent::field_event_group]))));
           return false;
         }
         $redirect = $group[0][dbEventGroup::field_redirect_page];
         if (empty($redirect)) {
-          $message .= event_msg_perma_link_redirect_missing;
+          $message .= $this->lang->translate('<p>To create a permaLink for this event, you must select a valid event group!</p>');
           $this->setMessage($message);
           return false;
         }
@@ -1409,7 +1450,7 @@ class eventBackend {
           $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
           return false;
         }
-        $message .= sprintf(event_msg_perma_link_created, $perma_link);
+        $message .= $this->lang->translate('<p>The permaLink {{ link }} was created!</p>', array('link' => $perma_link));
         $this->setMessage($message);
         return true;
       }
@@ -1440,7 +1481,7 @@ class eventBackend {
         return false;
       }
       if (count($active_group) < 1) {
-        $this->setError(sprintf(event_error_id_invalid, $group_id));
+        $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $group_id)));
         return false;
       }
       $active_group = $active_group[0];
@@ -1464,7 +1505,7 @@ class eventBackend {
     $grps[] = array(
       'selected' => ($group_id == -1) ? 1 : 0,
       'value' => -1,
-      'text' => event_text_create_new_group
+      'text' => $this->lang->translate('- create a new group -')
     );
     foreach ($all_groups as $grp) {
       $grps[] = array(
@@ -1498,7 +1539,7 @@ class eventBackend {
     $page_array = array();
     $page_array[] = array(
       'value' => -1,
-      'text' => event_text_select_redirect_page
+      'text' => $this->lang->translate('- select the redirect page -')
     );
     while (false !== ($page = $pages->fetchRow(MYSQL_ASSOC))) {
       $page_array[] = array(
@@ -1510,58 +1551,44 @@ class eventBackend {
     $group = array(
       'group' => array(
         'name' => dbEventGroup::field_id,
-        'label' => event_label_group_select,
         'value' => $grps,
-        // 'location' => sprintf('%s&%s=%s&%s=', $this->page_link,
-        // self::REQUEST_ACTION, self::ACTION_GROUP, dbEventGroup::field_id),
-        'location' => sprintf('javascript:execOnChange(\'%s\', \'%s\');', sprintf('%s&amp;%s=%s%s&amp;%s=', $this->page_link, self::REQUEST_ACTION, self::ACTION_GROUP, (defined('LEPTON_VERSION') && isset($_GET['leptoken'])) ? sprintf('&amp;leptoken=%s', $_GET['leptoken']) : '', dbEventGroup::field_id), dbEventGroup::field_id),
-        'hint' => event_hint_group_group
+        'location' => sprintf('javascript:execOnChange(\'%s\', \'%s\');', sprintf('%s&amp;%s=%s%s&amp;%s=', self::$page_link, self::REQUEST_ACTION, self::ACTION_GROUP, (defined('LEPTON_VERSION') && isset($_GET['leptoken'])) ? sprintf('&amp;leptoken=%s', $_GET['leptoken']) : '', dbEventGroup::field_id), dbEventGroup::field_id),
       ),
       'name' => array(
         'name' => dbEventGroup::field_name,
-        'label' => event_label_group_name,
         'value' => $active_group[dbEventGroup::field_name],
-        'hint' => event_hint_group_name
       ),
       'desc' => array(
         'name' => dbEventGroup::field_desc,
-        'label' => event_label_group_description,
         'value' => $active_group[dbEventGroup::field_desc],
-        'hint' => event_hint_group_desc
       ),
       'status' => array(
         'name' => dbEventGroup::field_status,
         'label' => event_label_status,
         'value' => $status,
-        'hint' => event_hint_group_status
       ),
       'perma_pattern' => array(
         'name' => dbEventGroup::field_perma_link_pattern,
-        'label' => event_label_group_perma_pattern,
         'value' => $active_group[dbEventGroup::field_perma_link_pattern],
-        'hint' => event_hint_group_perma_pattern
       ),
       'redirect_page' => array(
         'name' => dbEventGroup::field_redirect_page,
-        'label' => event_label_group_redirect_page,
         'value' => $active_group[dbEventGroup::field_redirect_page],
         'options' => $page_array,
-        'hint' => event_hint_group_redirect_page
       )
     );
 
     $data = array(
       'form_name' => 'event_group',
-      'form_action' => $this->page_link,
+      'form_action' => self::$page_link,
       'action_name' => self::REQUEST_ACTION,
       'action_value' => self::ACTION_GROUP_CHECK,
-      'header' => event_header_edit_group,
-      'is_intro' => ($this->isMessage()) ? 0 : 1,
-      'intro' => ($this->isMessage()) ? $this->getMessage() : event_intro_edit_group,
+      'message' => array(
+          'active' => (int) $this->isMessage(),
+          'content' => $this->getMessage()
+          ),
       'group' => $group,
-      'btn_ok' => event_btn_ok,
-      'btn_abort' => event_btn_abort,
-      'abort_location' => $this->page_link
+      'abort_location' => self::$page_link
     );
     return $this->getTemplate('event.group.dwoo', $data);
   } // dlgEditGroup()
@@ -1576,7 +1603,7 @@ class eventBackend {
     global $dbEventGroup;
     $group_id = $_REQUEST[dbEventGroup::field_id];
     if (empty($_REQUEST[dbEventGroup::field_name])) {
-      $this->setMessage(event_msg_group_name_empty);
+      $this->setMessage($this->lang->translate('<p>The event group must be named!</p>'));
       return $this->dlgEditGroup();
     }
     $data = array(
@@ -1596,7 +1623,7 @@ class eventBackend {
         $this->setError($dbEventGroup->getError());
         return false;
       }
-      $this->setMessage(sprintf(event_msg_group_updated, $group_id));
+      $this->setMessage($this->lang->translate('<p>The event group with the ID {{ id }} was successfull updated</p>', array('id' => $group_id)));
     }
     else {
       // new group - check if name is already in use
@@ -1607,14 +1634,16 @@ class eventBackend {
         return false;
       }
       if (count($check) > 0) {
-        $this->setMessage(sprintf(event_msg_group_already_exists, $data[dbEventGroup::field_name]));
+        $this->setMessage($this->lang->translate('<p>The event group with the name {{ name }} already exists!</p>',
+            array('name' => $data[dbEventGroup::field_name])));
       }
       elseif (!$dbEventGroup->sqlInsertRecord($data, $group_id)) {
         $this->setError($dbEventGroup->getError());
         return false;
       }
       else {
-        $this->setMessage(sprintf(event_msg_group_created, $group_id));
+        $this->setMessage($this->lang->translate('<p>The event group with the ID {{ id }} was successfull created.</p>',
+            array('id' => $group_id)));
       }
     }
     return $this->dlgEditGroup();
@@ -1623,7 +1652,7 @@ class eventBackend {
   public function dlgAbout() {
     $data = array(
       'version' => sprintf('%01.2f', $this->getVersion()),
-      'img_url' => $this->img_url . '/kit_event_logo_424x283.jpg',
+      'img_url' => self::$img_url . '/kit_event_logo_424x283.jpg',
       'release_notes' => file_get_contents(WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/CHANGELOG')
     );
     return $this->getTemplate('about.dwoo', $data);
@@ -1633,7 +1662,6 @@ class eventBackend {
     global $dbEventOrder;
     global $dbEvent;
     global $dbEventItem;
-    global $parser;
 
     $SQL = sprintf("SELECT * FROM %s,%s,%s WHERE %s.%s=%s.%s AND %s.%s=%s.%s ORDER BY %s DESC LIMIT 100", $dbEvent->getTableName(), $dbEventOrder->getTableName(), $dbEventItem->getTableName(), $dbEvent->getTableName(), dbEvent::field_id, $dbEventOrder->getTableName(), dbEventOrder::field_event_id, $dbEvent->getTableName(), dbEvent::field_event_item, $dbEventItem->getTableName(), dbEventItem::field_id, dbEventOrder::field_order_date);
     $messages = array();
@@ -1642,49 +1670,40 @@ class eventBackend {
       return false;
     }
 
-    $row = new Dwoo_Template_File($this->template_path . 'order.list.row.dwoo');
-
     $items = '';
     $rows = array();
     foreach ($messages as $message) {
       $dt = strtotime($message[dbEventOrder::field_confirm_order]);
-      $declared = (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? event_text_yes : '';
+      $declared = (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? $this->lang->translate('Yes') : '';
       $name = sprintf('%s, %s', $message[dbEventOrder::field_last_name], $message[dbEventOrder::field_first_name]);
       if (strlen($name) < 3) $name = '';
       $rows[] = array(
-        'order_date_link' => sprintf('%s&%s=%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES_DETAIL, dbEventOrder::field_id, $message[dbEventOrder::field_id]),
-        'order_date' => date(event_cfg_datetime_str, strtotime($message[dbEventOrder::field_order_date])),
+        'order_date_link' => sprintf('%s&%s=%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES_DETAIL, dbEventOrder::field_id, $message[dbEventOrder::field_id]),
+        'order_date' => date(CFG_DATETIME_STR, strtotime($message[dbEventOrder::field_order_date])),
         'email' => $message[dbEventOrder::field_email],
         'name' => $name,
         'event' => $message[dbEventItem::field_title],
-        'event_date' => date(event_cfg_date_str, strtotime($message[dbEvent::field_event_date_from])),
+        'event_date' => date(CFG_DATE_STR, strtotime($message[dbEvent::field_event_date_from])),
         'declared' => $declared,
         'message' => $message[dbEventOrder::field_message]
       );
     }
 
     $data = array(
-      'header' => event_header_messages_list,
       'intro' => ($this->isMessage()) ? $this->getMessage() : '',
       'is_intro' => ($this->isMessage()) ? 0 : 1,
       'rows' => $rows,
       'order_date_name' => dbEventOrder::field_order_date,
-      'order_date_th' => event_th_date_time,
       'email_name' => dbEventOrder::field_email,
-      'email_th' => event_th_email,
       'name_name' => dbEventOrder::field_last_name,
-      'name_th' => event_th_name,
       'event_name' => dbEventOrder::field_event_id,
-      'event_th' => event_th_event,
       'event_date_name' => dbEvent::field_event_date_from,
-      'event_date_th' => event_th_date,
       'declared_name' => dbEventOrder::field_confirm_order,
-      'declared_th' => event_th_declared,
       'message_name' => dbEventOrder::field_message,
-      'message_th' => event_th_message
     );
     return $this->getTemplate('order.list.dwoo', $data);
   } // dlgMessages()
+
   public function dlgMessageDetail() {
     global $dbEventOrder;
     global $dbEvent;
@@ -1700,13 +1719,13 @@ class eventBackend {
       return false;
     }
     if (count($detail) < 1) {
-      $this->setError(sprintf(event_error_id_invalid, $order_id));
+      $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $order_id)));
       return false;
     }
     $detail = $detail[0];
 
     $dt = strtotime($detail[dbEventOrder::field_confirm_order]);
-    $declared = (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? date(event_cfg_datetime_str, $dt) : event_text_no;
+    $declared = (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? date(CFG_DATETIME_STR, $dt) : $this->lang->translate('No');
 
     $label_free_1 = substr($detail[dbEventOrder::field_free_1], 0, strpos($detail[dbEventOrder::field_free_1], '|'));
     $label_free_2 = substr($detail[dbEventOrder::field_free_2], 0, strpos($detail[dbEventOrder::field_free_2], '|'));
@@ -1723,136 +1742,46 @@ class eventBackend {
       'zip' => $detail[dbEventOrder::field_zip],
       'city' => $detail[dbEventOrder::field_city],
       'email' => $detail[dbEventOrder::field_email],
-      'label_email' => event_label_email,
-      'label_phone' => event_label_phone,
       'phone' => $detail[dbEventOrder::field_phone],
       'best_time' => $detail[dbEventOrder::field_best_time],
-      'label_event' => event_label_event,
       'event' => $detail[dbEventItem::field_title],
-      'label_declared' => event_label_declared,
-      'label_event_date' => event_label_date,
-      'event_date' => date(event_cfg_date_str, strtotime($detail[dbEvent::field_event_date_from])),
+      'event_date' => date(CFG_DATE_STR, strtotime($detail[dbEvent::field_event_date_from])),
       'declared' => $declared,
-      'label_message' => event_label_message,
       'message' => $detail[dbEventOrder::field_message],
-      'label_free_1' => (!empty($label_free_1)) ? $label_free_1 : sprintf(event_label_free_field_nr, 1),
-      'label_free_2' => (!empty($label_free_2)) ? $label_free_2 : sprintf(event_label_free_field_nr, 2),
-      'label_free_3' => (!empty($label_free_3)) ? $label_free_3 : sprintf(event_label_free_field_nr, 3),
-      'label_free_4' => (!empty($label_free_4)) ? $label_free_4 : sprintf(event_label_free_field_nr, 4),
-      'label_free_5' => (!empty($label_free_5)) ? $label_free_5 : sprintf(event_label_free_field_nr, 5),
       'free_1' => substr($detail[dbEventOrder::field_free_1], strpos($detail[dbEventOrder::field_free_1], '|') + 1),
       'free_2' => substr($detail[dbEventOrder::field_free_2], strpos($detail[dbEventOrder::field_free_2], '|') + 1),
       'free_3' => substr($detail[dbEventOrder::field_free_3], strpos($detail[dbEventOrder::field_free_3], '|') + 1),
       'free_4' => substr($detail[dbEventOrder::field_free_4], strpos($detail[dbEventOrder::field_free_4], '|') + 1),
       'free_5' => substr($detail[dbEventOrder::field_free_5], strpos($detail[dbEventOrder::field_free_5], '|') + 1),
-
-      'back_link' => sprintf('%s&%s=%s', $this->page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES),
-      'back_text' => event_text_back
+      'back_link' => sprintf('%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES),
     );
     return $this->getTemplate('order.detail.dwoo', $data);
   } // dlgMessageDetail()
 
-  /**
-   * Dialog zur Konfiguration und Anpassung von kitMarketPlace
-   *
-   * @return STR dialog
-   */
-  public function dlgConfig() {
-    global $dbEventCfg;
-    $SQL = sprintf("SELECT * FROM %s WHERE NOT %s='%s' ORDER BY %s", $dbEventCfg->getTableName(), dbEventCfg::field_status, dbEventCfg::status_deleted, dbEventCfg::field_name);
-    $config = array();
-    if (!$dbEventCfg->sqlExec($SQL, $config)) {
-      $this->setError($dbEventCfg->getError());
-      return false;
-    }
-    $count = array();
-    $header = array(
-      'identifier' => tool_header_cfg_identifier,
-      'value' => tool_header_cfg_value,
-      'description' => tool_header_cfg_description
-    );
-
-    $items = array();
-    // bestehende Eintraege auflisten
-    foreach ($config as $entry) {
-      $id = $entry[dbEventCfg::field_id];
-      $count[] = $id;
-      $value = (isset($_REQUEST[dbEventCfg::field_value . '_' . $id])) ? $_REQUEST[dbEventCfg::field_value . '_' . $id] : $entry[dbEventCfg::field_value];
-      $value = str_replace('"', '&quot;', stripslashes($value));
-      $items[] = array(
-        'id' => $id,
-        'identifier' => constant($entry[dbEventCfg::field_label]),
-        'value' => $value,
-        'name' => sprintf('%s_%s', dbEventCfg::field_value, $id),
-        'description' => constant($entry[dbEventCfg::field_description])
-      );
-    }
-    $data = array(
-      'form_name' => 'event_cfg',
-      'form_action' => $this->page_link,
-      'action_name' => self::REQUEST_ACTION,
-      'action_value' => self::ACTION_CONFIG_CHECK,
-      'items_name' => self::REQUEST_ITEMS,
-      'items_value' => implode(",", $count),
-      'head' => tool_header_cfg,
-      'intro' => $this->isMessage() ? $this->getMessage() : sprintf(tool_intro_cfg, 'kitEvent'),
-      'is_message' => $this->isMessage() ? 1 : 0,
-      'items' => $items,
-      'btn_ok' => tool_btn_ok,
-      'btn_abort' => tool_btn_abort,
-      'abort_location' => $this->page_link,
-      'header' => $header
-    );
-    return $this->getTemplate('config.dwoo', $data);
-  } // dlgConfig()
 
   /**
-   * Ueberprueft Aenderungen die im Dialog dlgConfig() vorgenommen wurden
-   * und aktualisiert die entsprechenden Datensaetze.
+   * kitEvent settings
    *
-   * @return STR DIALOG dlgConfig()
+   * @return string dialog
    */
-  public function checkConfig() {
-    global $dbEventCfg;
-    $message = '';
-    // ueberpruefen, ob ein Eintrag geaendert wurde
-    if ((isset($_REQUEST[self::REQUEST_ITEMS])) && (!empty($_REQUEST[self::REQUEST_ITEMS]))) {
-      $ids = explode(",", $_REQUEST[self::REQUEST_ITEMS]);
-      foreach ($ids as $id) {
-        if (isset($_REQUEST[dbEventCfg::field_value . '_' . $id])) {
-          $value = $_REQUEST[dbEventCfg::field_value . '_' . $id];
-          $where = array();
-          $where[dbEventCfg::field_id] = $id;
-          $config = array();
-          if (!$dbEventCfg->sqlSelectRecord($where, $config)) {
-            $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEventCfg->getError()));
-            return false;
-          }
-          if (sizeof($config) < 1) {
-            $this->setError(sprintf(tool_error_cfg_id, $id));
-            return false;
-          }
-          $config = $config[0];
-          if ($config[dbEventCfg::field_value] != $value) {
-            // Wert wurde geaendert
-            if (!$dbEventCfg->setValue($value, $id) && $dbEventCfg->isError()) {
-              $this->setError($dbEventCfg->getError());
-              return false;
-            }
-            elseif ($dbEventCfg->isMessage()) {
-              $message .= $dbEventCfg->getMessage();
-            }
-            else {
-              // Datensatz wurde aktualisiert
-              $message .= sprintf(tool_msg_cfg_id_updated, $config[dbEventCfg::field_name]);
-            }
-          }
-        }
-      }
-    }
-    $this->setMessage($message);
-    return $this->dlgConfig();
-  } // checkConfig()
+  protected function dlgConfig() {
+    // set the link to call the dlgConfig()
+    $link = sprintf('%s&%s',
+        self::$page_link,
+        http_build_query(array(
+            self::REQUEST_ACTION => self::ACTION_CONFIG
+        )));
+    // set the abort link
+    $abort = sprintf('%s&%s',
+        self::$page_link,
+        http_build_query(array(
+            self::REQUEST_ACTION => self::ACTION_DEFAULT
+        )));
+    // exec manufakturConfig
+    $dialog = new manufakturConfigDialog('kit_event', 'kitEvent', $link, $abort);
+    return $dialog->action();
+  } // dlgSettings()
+
 } // class eventBackend
 
 ?>

@@ -4,7 +4,7 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
-0.31 - NOT PUBLISHED, JUST IN PROGRESS
+0.40 - NOT PUBLISHED, JUST IN PROGRESS
 
 * added additional placeholder for ISO date format
 * added template /10 with sample for event micro data
@@ -13,6 +13,12 @@ http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
   custom templates for the backend and for the search results
 * changed license from GNU GPL to MIT license (MIT)
 * updated all header informations  
+* removed class.droplets.php - no longer needed
+* renamed frontend.css to kit_event.css to force improved loading by the
+  dropletsExtension
+* removed class.editor.php - no longer needed 
+* removed backend_body.js - no longer needed
+* changed all language strings to I18n mode
 
 0.30 - 2012-07-14
 

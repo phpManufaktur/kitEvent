@@ -19,18 +19,18 @@
   {$company}<br />
   {$street}<br />
   {$zip} {$city}</p>
-  <p>{$label_email} <a href="mailto:{$email}">{$email}</a></p>
-  <p>{$label_phone} {$phone} <i>{$best_time}</i></p>
+  <p>{translate('E-Mail')} <a href="mailto:{$email}">{$email}</a></p>
+  <p>{translate('Phone')} {$phone} <i>{$best_time}</i></p>
   <p>&nbsp;</p>
-  <p>{$label_event}: {$event}</p>
-  <p>{$label_event_date}: {$event_date}</p>
-  <p>{$label_declared} {$declared}</p>
-  <p>{$label_message}:</p>
+  <p>{translate('Event')}: {$event}</p>
+  <p>{translate('Date')}: {$event_date}</p>
+  <p>{translate('Declared')}: {$declared}</p>
+  <p>{translate('Message')}:</p>
   <p>{$message}</p>
-  <p>{$label_free_1}: {$free_1}</p>
-  <p>{$label_free_2}: {$free_2}</p>
-  <p>{$label_free_3}: {$free_3}</p>
-  <p>{$label_free_4}: {$free_4}</p>
-  <p>{$label_free_5}: {$free_5}</p>
-  <p><a href="{$back_link}">{$back_text}</a></p>
+  <p>{translate('Free field {{ number }}', array(number='1'))}: {$free_1}</p>
+  <p>{translate('Free field {{ number }}', array(number='2'))}: {$free_2}</p>
+  <p>{translate('Free field {{ number }}', array(number='3'))}: {$free_3}</p>
+  <p>{translate('Free field {{ number }}', array(number='4'))}: {$free_4}</p>
+  <p>{translate('Free field {{ number }}', array(number='5'))}: {$free_5}</p>
+  <p><a href="{$back_link}">{translate('go back ...')}</a></p>
 </div>

@@ -62,7 +62,7 @@ if (!function_exists('kit_event_droplet_search')) {
 		  $tpl_title = new Dwoo_Template_File($htt_path.'search.result.title.dwoo');
 		if (file_exists($htt_path.'custom.search.result.description.dwoo'))
 		  $tpl_description = new Dwoo_Template_File($htt_path.'custom.search.result.description.dwoo');
-		else 
+		else
 			$tpl_description = new Dwoo_Template_File($htt_path.'search.result.description.dwoo');
 	  $frontend = new eventFrontend();
 
@@ -76,7 +76,7 @@ if (!function_exists('kit_event_droplet_search')) {
 																									eventFrontend::REQUEST_EVENT				=> eventFrontend::VIEW_ID,
 																									eventFrontend::REQUEST_EVENT_ID			=> $event[dbEvent::field_id],
 																									eventFrontend::REQUEST_EVENT_DETAIL => 1)),
-				'title'					=> $parser->get($tpl_title, array('date_time' => sprintf('%s %s', date(event_cfg_datetime_str, strtotime($event[dbEvent::field_event_date_from])), event_text_hour),
+				'title'					=> $parser->get($tpl_title, array('date_time' => sprintf('%s %s h', date(CFG_DATETIME_STR, strtotime($event[dbEvent::field_event_date_from]))),
 																													'title'			=> $event[dbEventItem::field_title])),
 				'description'		=> $parser->get($tpl_description, array('description' => strip_tags($event[dbEventItem::field_desc_short]),
 	                                                              'event'       => $parser_data)),

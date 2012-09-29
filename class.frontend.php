@@ -35,6 +35,11 @@ require_once(WB_PATH.'/include/captcha/captcha.php');
 require_once(WB_PATH.'/framework/class.wb.php');
 require_once(WB_PATH.'/modules/droplets_extension/interface.php');
 
+require_once LEPTON_PATH.'/modules/manufaktur_config/library.php';
+global $manufakturConfig;
+if (!is_object($manufakturConfig))
+  $manufakturConfig = new manufakturConfig('kit_event');
+
 class eventFrontend {
 	const REQUEST_ACTION				= 'kea';
 	const REQUEST_EVENT					= 'evt';
@@ -105,14 +110,37 @@ class eventFrontend {
 	private static $template_path;
 	private static $page_link;
 
+	// configuration values
+	protected static $cfgICalDir = null;
+	protected static $cfgICalCreate = null;
+	protected static $cfgPermaLinkCreate = null;
+	protected static $cfgQRCodeDir = null;
+	protected static $cfgQRCodeCreate = null;
+	protected static $cfgQRCodeContent = null;
+
+	protected $lang = null;
+
 	public function __construct() {
 		global $kitLibrary;
+		global $manufakturConfig;
+		global $I18n;
+
 		$url = '';
 		$_SESSION['FRONTEND'] = true;
 		$kitLibrary->getPageLinkByPageID(PAGE_ID, $url);
 		self::$page_link = $url;
-		self::$template_path = WB_PATH.'/modules/kit_event/templates/frontend/';
-		date_default_timezone_set(event_cfg_time_zone);
+		self::$template_path = WB_PATH.'/modules/kit_event/templates/frontend/presets/';
+		date_default_timezone_set(CFG_TIME_ZONE);
+
+		$this->lang = $I18n;
+
+		// get the configuration values
+		self::$cfgICalDir = $manufakturConfig->getValue('cfg_event_ical_directory', 'kit_event');
+		self::$cfgICalCreate = $manufakturConfig->getValue('cfg_event_ical_create', 'kit_event');
+		self::$cfgPermaLinkCreate = $manufakturConfig->getValue('cfg_event_perma_link_create', 'kit_event');
+		self::$cfgQRCodeDir = $manufakturConfig->getValue('cfg_event_qr_code_directory', 'kit_event');
+		self::$cfgQRCodeCreate = $manufakturConfig->getValue('cfg_event_qr_code_create', 'kit_event');
+		self::$cfgQRCodeContent = $manufakturConfig->getValue('cfg_event_qr_code_content', 'kit_event');
 	} // __construct();
 
 	public function getParams() {
@@ -231,35 +259,35 @@ class eventFrontend {
    */
   protected function getTemplate($template, $template_data) {
   	global $parser;
-  	
-  	$template_path = self::$template_path.$this->params[self::PARAM_PRESET].'/'.KIT_EVT_LANGUAGE.'/'.$template;
+
+  	$template_path = self::$template_path.$this->params[self::PARAM_PRESET].'/'.LANGUAGE.'/'.$template;
   	if (!file_exists($template_path)) {
   		// template does not exist - fallback to default language!
   		$template_path = self::$template_path.$this->params[self::PARAM_PRESET].'/DE/'.$template;
   		if (!file_exists($template_path)) {
   			// template does not exists - fallback to the default preset!
-  			$template_path = self::$template_path.'1/'.KIT_EVT_LANGUAGE.'/'.$template;
+  			$template_path = self::$template_path.'1/'.LANGUAGE.'/'.$template;
   			if (!file_exists($template_path)) {
   				// template does not exists - fallback to the default preset and the default language
   				$template_path = self::$template_path.'1/DE/'.$template;
   				if (!file_exists($template_path)) {
   					// template does not exists in any possible path - give up!
-  					$this->setError(sprintf(event_error_template_error, $template, "$template_path nicht gefunden!"));
-//  					$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->translate('Error: The template {{ template }} does not exists in any of the possible paths!', array(
-//  							'template',	$template))));
+  					$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+  					    $this->lang->translate('Error: The template {{ template }} does not exists in any of the possible paths!',
+  					        array('template',	$template))));
   					return false;
   				}
   			}
   		}
   	}
-  
+
   	// add the template_path to the $template_data (for debugging purposes)
   	if (!isset($template_data['template_path']))
   		$template_data['template_path'] = $template_path;
   	// add the debug flag to the $template_data
   	if (!isset($template_data['DEBUG']))
   		$template_data['DEBUG'] = (int) $this->params[self::PARAM_DEBUG];
-  
+
   	try {
   		// try to execute the template with Dwoo
   		$result = $parser->get($template_path, $template_data);
@@ -274,7 +302,7 @@ class eventFrontend {
   	}
   	return $result;
   } // getTemplate()
-  
+
   /**
    * Action Handler der class.frontend.php
    * Diese Funktion wird generell von aussen aufgerufen und steuert die Klasse.
@@ -332,14 +360,14 @@ class eventFrontend {
   	$date = ($is_start) ? strtotime($event_data[dbEvent::field_event_date_from]) : strtotime($event_data[dbEvent::field_event_date_to]);
   	$publish = ($is_start) ? strtotime($event_data[dbEvent::field_publish_date_from]) : strtotime($event_data[dbEvent::field_publish_date_to]);
 
-  	$weekdays = explode(',', event_cfg_day_names);
- 		$months = explode(',', event_cfg_month_names);
+  	$weekdays = explode(',', CFG_DAY_NAMES);
+ 		$months = explode(',', CFG_MONTH_NAMES);
 
   	$dates = array(
  			'timestamp'					=> $date,
- 			'date'							=> date(event_cfg_date_str, $date),
- 			'datetime'					=> date(event_cfg_datetime_str, $date),
- 			'time'							=> date(event_cfg_time_str, $date),
+ 			'date'							=> date(CFG_DATE_STR, $date),
+ 			'datetime'					=> date(CFG_DATETIME_STR, $date),
+ 			'time'							=> date(CFG_TIME_STR, $date),
  			'day'								=> date('j', $date),
  			'day_zero'					=> date('d', $date),
  			'day_name'					=> trim($weekdays[date('w', $date)]),
@@ -351,7 +379,7 @@ class eventFrontend {
  			'year'							=> date('Y', $date),
  			'year_2'						=> date('y', $date),
  			'week'							=> date('W', $date),
-			'publish_date'			=> date(event_cfg_date_str, $publish),
+			'publish_date'			=> date(CFG_DATE_STR, $publish),
 			'publish_timestamp'	=> $publish,
   	  'iso'               => date('c', $date)
  		);
@@ -370,7 +398,6 @@ class eventFrontend {
   	global $dbEvent;
   	global $dbEventItem;
   	global $dbEventGroup;
-  	global $dbEventCfg;
   	global $kitLibrary;
 
   	$SQL = sprintf( 'SELECT * FROM %1$s, %2$s WHERE %1$s.%3$s = %2$s.%4$s AND %1$s.%5$s=\'%6$s\'',
@@ -386,7 +413,7 @@ class eventFrontend {
  			return false;
  		}
  		if (count($event_data) < 1) {
- 			$this->setError(sprintf(event_error_id_invalid, $event_id));
+ 			$this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id)));
  			return false;
  		}
  		$event_data = $event_data[0];
@@ -406,37 +433,28 @@ class eventFrontend {
  		}
  		if ($event_data[dbEvent::field_participants_max] > 0) {
  			$participants_max = $event_data[dbEvent::field_participants_max];
- 			$participants_free = (($x = $event_data[dbEvent::field_participants_max]-$event_data[dbEvent::field_participants_total]) > 0) ? $x : event_text_fully_booked;
+ 			$participants_free = (($x = $event_data[dbEvent::field_participants_max]-$event_data[dbEvent::field_participants_total]) > 0) ? $x : $this->lang->translate('- out of stock -');
  		}
  		else {
- 			$participants_max = event_text_participants_unlimited;
- 			$participants_free = event_text_participants_free;
+ 			$participants_max = $this->lang->translate('- unlimited -');
+ 			$participants_free = $this->lang->translate('- places available -');
  		}
-
- 		/*
- 		if ($event_data[dbEventItem::field_costs] > 0) {
- 			$costs = sprintf(event_cfg_currency, number_format($event_data[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator));
- 		}
- 		else {
- 			$costs = event_text_none;
- 		}
- 		*/
 
  		$start = strtotime($event_data[dbEvent::field_event_date_from]);
  		$end = strtotime($event_data[dbEvent::field_event_date_to]);
 
  		// QR Code
- 		if ($dbEventCfg->getValue(dbEventCfg::cfgQRCodeExec) == 1) {
+ 		if (self::$cfgQRCodeCreate) {
  			// QR Code verwenden
- 			$dir = $kitLibrary->removeLeadingSlash($dbEventCfg->getValue(dbEventCfg::cfgQRCodeDir));
+ 			$dir = $kitLibrary->removeLeadingSlash(self::$cfgQRCodeDir);
   		$dir = $kitLibrary->addSlash($dir);
   		$dir_path = WB_PATH.MEDIA_DIRECTORY.'/'.$dir;
   		$filename = $event_data[dbEvent::field_qrcode_image];
   		if (!empty($filename) && file_exists($dir_path.$filename)) {
 	  		list($qrcode_width, $qrcode_height) = getimagesize($dir_path.$filename);
 	  		$qrcode_src = WB_URL.MEDIA_DIRECTORY.'/'.$dir.$filename;
-	  		$qrcode_type = $dbEventCfg->getValue(dbEventCfg::cfgQRCodeContent);
-	  		$qrcode_text = ($qrcode_type == 1) ? event_text_qrcode_content_url : event_text_qrcode_content_ical;
+	  		$qrcode_type = self::$cfgQRCodeContent;
+	  		$qrcode_text = ($qrcode_type == 1) ? $this->lang->translate('The QR-Code contains a link to this event') : $this->lang->translate('The QR-Code contains iCal informations');
   		}
   		else {
   			$qrcode_src = '';
@@ -454,8 +472,8 @@ class eventFrontend {
  			$qrcode_type = 0;
  		}
  		// iCal
- 		if (($dbEventCfg->getValue(dbEventCfg::cfgICalExec) == 1) && !empty($event_data[dbEvent::field_ical_file])) {
- 			$dir = $kitLibrary->removeLeadingSlash($dbEventCfg->getValue(dbEventCfg::cfgICalDir));
+ 		if (self::$cfgICalCreate && !empty($event_data[dbEvent::field_ical_file])) {
+ 			$dir = $kitLibrary->removeLeadingSlash(self::$cfgICalDir);
   		$dir = $kitLibrary->addSlash($dir);
   		$dir_url = WB_URL.MEDIA_DIRECTORY.'/'.$dir;
   		$filename = $event_data[dbEvent::field_ical_file];
@@ -491,8 +509,8 @@ class eventFrontend {
  			'costs'										=> array(
  																			'value'		=> $event_data[dbEventItem::field_costs],
  																			'format'	=> array(
- 																											'float'		=> number_format($event_data[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator),
- 																											'currency'=> sprintf(event_cfg_currency, number_format($event_data[dbEventItem::field_costs], 2, event_cfg_decimal_separator, event_cfg_thousand_separator))
+ 																											'float'		=> number_format($event_data[dbEventItem::field_costs], 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR),
+ 																											'currency'=> sprintf(CFG_CURRENCY, number_format($event_data[dbEventItem::field_costs], 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR))
  																										),
  																		),
  			'link'										=> array(
@@ -514,7 +532,7 @@ class eventFrontend {
  																		 	'ical'					=> $ical_link
  																		),
  			'qr_code'									=> array(
- 																			'is_active'		=> (int) $dbEventCfg->getValue(dbEventCfg::cfgQRCodeExec),
+ 																			'is_active'		=> (int) self::$cfgQRCodeCreate,
  																			'image'				=> array(
  																													'src'		=> $qrcode_src,
  																													'width'	=> $qrcode_width,
@@ -540,13 +558,13 @@ class eventFrontend {
   	global $wb;
 
   	if (!isset($_REQUEST[self::REQUEST_EVENT_ID]) && !isset($_REQUEST[dbEvent::field_id])) {
-  		$this->setError(event_error_evt_invalid);
+  		$this->setError($this->lang->translate('Error: This event is invalid!'));
   		return false;
   	}
   	$event_id = (isset($_REQUEST[self::REQUEST_EVENT_ID])) ? (int) $_REQUEST[self::REQUEST_EVENT_ID] : (int) $_REQUEST[dbEvent::field_id];
 
   	if (!isset($_REQUEST[self::REQUEST_MUST_FIELDS])) {
-  		$this->setError(event_error_must_fields_missing);
+  		$this->setError($this->lang->translate('Error: The must fields for the form are not defined!'));
   		return false;
   	}
   	$mf = strtolower($_REQUEST[self::REQUEST_MUST_FIELDS]);
@@ -557,36 +575,37 @@ class eventFrontend {
   	foreach ($must_fields as $must_field) {
   		switch ($must_field):
   		case self::REQUEST_CAPTCHA:
-		  	if (!isset($_REQUEST['captcha']) || ($_REQUEST['captcha'] != $_SESSION['captcha'])) $message .= event_msg_captcha_invalid;
+		  	if (!isset($_REQUEST['captcha']) || ($_REQUEST['captcha'] != $_SESSION['captcha'])) $message .= $this->lang->translate('<p>The CAPTCHA is invalid!</p>');
 				break;
   		case self::REQUEST_CITY:
-  			if (!isset($_REQUEST[self::REQUEST_CITY]) || (strlen($_REQUEST[self::REQUEST_CITY]) < 4)) $message .= event_msg_must_city;
+  			if (!isset($_REQUEST[self::REQUEST_CITY]) || (strlen($_REQUEST[self::REQUEST_CITY]) < 4)) $message .= $this->lang->translate('<p>Please type in the city!</p>');
   			break;
   		case self::REQUEST_EMAIL:
 		  	if (!isset($_REQUEST[self::REQUEST_EMAIL]) || !$kitLibrary->validateEMail($_REQUEST[self::REQUEST_EMAIL])) {
-					$message .= sprintf(event_msg_invalid_email, $_REQUEST[self::REQUEST_EMAIL]);
+					$message .= $this->lang->translate('<p>The email address <b>{{ email }}</b> is not valid!</p>',
+					    array('email' => $_REQUEST[self::REQUEST_EMAIL]));
 				}
   			break;
   		case self::REQUEST_FIRST_NAME:
-  			if (!isset($_REQUEST[self::REQUEST_FIRST_NAME]) || empty($_REQUEST[self::REQUEST_FIRST_NAME])) $message .= event_msg_must_first_name;
+  			if (!isset($_REQUEST[self::REQUEST_FIRST_NAME]) || empty($_REQUEST[self::REQUEST_FIRST_NAME])) $message .= $this->lang->translate('<p>Please type in your first name!</p>');
   			break;
   		case self::REQUEST_LAST_NAME:
-  			if (!isset($_REQUEST[self::REQUEST_LAST_NAME]) || empty($_REQUEST[self::REQUEST_LAST_NAME])) $message .= event_msg_must_last_name;
+  			if (!isset($_REQUEST[self::REQUEST_LAST_NAME]) || empty($_REQUEST[self::REQUEST_LAST_NAME])) $message .= $this->lang->translate('<p>Please type in your last name!</p>');
   			break;
 			case self::REQUEST_PHONE:
-  			if (!isset($_REQUEST[self::REQUEST_PHONE]) || empty($_REQUEST[self::REQUEST_PHONE])) $message .= event_msg_must_phone;
+  			if (!isset($_REQUEST[self::REQUEST_PHONE]) || empty($_REQUEST[self::REQUEST_PHONE])) $message .= $this->lang->translate('<p>Please type in your phone number!</p>');
   			break;
   		case self::REQUEST_STREET:
-  			if (!isset($_REQUEST[self::REQUEST_STREET]) || empty($_REQUEST[self::REQUEST_STREET])) $message .= event_msg_must_street;
+  			if (!isset($_REQUEST[self::REQUEST_STREET]) || empty($_REQUEST[self::REQUEST_STREET])) $message .= $this->lang->translate('<p>Please type in your street!</p>');
   			break;
   		case self::REQUEST_TERMS:
-  			if (!isset($_REQUEST[self::REQUEST_TERMS])) $message .= event_msg_must_terms_and_conditions;
+  			if (!isset($_REQUEST[self::REQUEST_TERMS])) $message .= $this->lang->translate('<p>Please accept our terms and conditions!</p>');
   			break;
   		case self::REQUEST_PRIVACY:
-  			if (!isset($_REQUEST[self::REQUEST_PRIVACY])) $message .= event_msg_must_data_privacy;
+  			if (!isset($_REQUEST[self::REQUEST_PRIVACY])) $message .= $this->lang->translate('<p>Please accept our data privacy!</p>');
   			break;
   		case self::REQUEST_ZIP:
-  			if (!isset($_REQUEST[self::REQUEST_ZIP]) || empty($_REQUEST[self::REQUEST_ZIP])) $message .= event_msg_must_zip;
+  			if (!isset($_REQUEST[self::REQUEST_ZIP]) || empty($_REQUEST[self::REQUEST_ZIP])) $message .= $this->lang->translate('<p>Please type in your ZIP code!</p>');
   			break;
   		endswitch;
   	}
@@ -633,12 +652,13 @@ class eventFrontend {
   										$dbEvent->getTableName(),
   										dbEvent::field_id,
   										$event_id);
+  		$counter = array();
   		if (!$dbEvent->sqlExec($SQL, $counter)) {
   			$this->setError($dbEvent->getError());
   			return false;
   		}
   		if (count($counter) < 1) {
-  			$this->setError(sprintf(event_error_id_invalid, $event_id));
+  			$this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id)));
   			return false;
   		}
   		$where = array(dbEvent::field_id => $event_id);
@@ -662,7 +682,7 @@ class eventFrontend {
   		'phone'							=> $orderData[dbEventOrder::field_phone],
   		'best_time'					=> $orderData[dbEventOrder::field_best_time],
   		'message'						=> $orderData[dbEventOrder::field_message],
-  		'confirm_datetime'	=> (!strtotime($orderData[dbEventOrder::field_confirm_order])) ? NULL : date(event_cfg_datetime_str, strtotime($orderData[dbEventOrder::field_confirm_order])),
+  		'confirm_datetime'	=> (!strtotime($orderData[dbEventOrder::field_confirm_order])) ? NULL : date(CFG_DATETIME_STR, strtotime($orderData[dbEventOrder::field_confirm_order])),
   		'confirm_timestamp' => (!strtotime($orderData[dbEventOrder::field_confirm_order])) ? NULL : strtotime($orderData[dbEventOrder::field_confirm_order]),
   		'free_1'						=> substr($orderData[dbEventOrder::field_free_1], strpos($orderData[dbEventOrder::field_free_1], '|')+1),
   		'free_2'						=> substr($orderData[dbEventOrder::field_free_2], strpos($orderData[dbEventOrder::field_free_2], '|')+1),
@@ -679,7 +699,8 @@ class eventFrontend {
 
  		if (false == ($body = $this->getTemplate('mail.confirm.participant.dwoo', $data))) return false;
   	if (!$wb->mail(SERVER_EMAIL, $orderData[dbEventOrder::field_email], $event[dbEventItem::field_title], $body)) {
-			$this->setError(sprintf(event_error_send_email, $orderData[dbEventOrder::field_email]));
+			$this->setError($this->lang->translate('Error: cannot send the email to {{ email }}!',
+			    array('email' => $orderData[dbEventOrder::field_email])));
 			return false;
 	  }
 
@@ -694,7 +715,8 @@ class eventFrontend {
 	  // E-Mail an Seitenbetreiber
 	  if (false == ($body = $this->getTemplate('mail.confirm.admin.dwoo', $data))) return false;
 		if (!$wb->mail(SERVER_EMAIL, SERVER_EMAIL, $event[dbEventItem::field_title], $body)) {
-			$this->setError(sprintf(event_error_send_email, $orderData[dbEventOrder::field_email]));
+			$this->setError($this->lang->translate('Error: cannot send the email to {{ email }}!',
+			    array('email' => $orderData[dbEventOrder::field_email])));
 			return false;
 	  }
 
@@ -711,7 +733,7 @@ class eventFrontend {
   	global $dbEventGroup;
 
   	if (!isset($_REQUEST[self::REQUEST_EVENT_ID]) && !isset($_REQUEST[dbEvent::field_id])) {
-  		$this->setError(event_error_evt_invalid);
+  		$this->setError($this->lang->translate('Error: This event is invalid!'));
   		return false;
   	}
   	$event_id = (isset($_REQUEST[self::REQUEST_EVENT_ID])) ? (int) $_REQUEST[self::REQUEST_EVENT_ID] : (int) $_REQUEST[dbEvent::field_id];
@@ -722,7 +744,7 @@ class eventFrontend {
 
   	$request = array();
   	// persoenliche Anrede...
- 		$titles = explode(',', event_cfg_title);
+ 		$titles = array('Mister', 'Lady');
  		$options = '';
  		$title_values = array();
  		foreach ($titles as $title) {
@@ -786,7 +808,7 @@ class eventFrontend {
 
  	public function showEvent($show_view=-1) {
  		if (!isset($_REQUEST[self::REQUEST_EVENT]) && ($show_view == -1)) {
- 			$this->setError(event_error_evt_invalid);
+ 			$this->setError($this->lang->translate('Error: This event is invalid!'));
  			return false;
  		}
  		$event_view = (isset($_REQUEST[self::REQUEST_EVENT])) ? strtolower(trim($_REQUEST[self::REQUEST_EVENT])) : $show_view;
@@ -821,7 +843,8 @@ class eventFrontend {
  			break;
  		default:
  			// nicht spezifiziertes Event
- 			$this->setError(sprintf(event_error_evt_unspecified, $event_view));
+ 			$this->setError($this->lang->translate('Error: The event view <b>{{ view }}</b> is not specified!',
+ 			  array('view' => $event_view)));
  			return false;
  		endswitch;
  		return $result;
@@ -830,6 +853,8 @@ class eventFrontend {
  	public function viewEventID($event_id=-1, $show_details=true) {
  		$show_details = (isset($_REQUEST[self::REQUEST_EVENT_DETAIL])) ? (bool) $_REQUEST[self::REQUEST_EVENT_DETAIL] : $show_details;
  		$event_id = (isset($_REQUEST[self::REQUEST_EVENT_ID])) ? (int) $_REQUEST[self::REQUEST_EVENT_ID] : $event_id;
+ 		$parser_data = array();
+ 		$event_data = array();
  		if (!$this->getEventData($event_id, $event_data, $parser_data)) return false;
  		$data = array(
  			'show_details' 	=> ($show_details) ? 1 : 0,
@@ -862,11 +887,11 @@ class eventFrontend {
  		$search_date_to = date('Y-m-d H:i:s', mktime(0,0,0,$month,$day+1,$year));
  		$dt = mktime(0,0,0,$month,$day,$year);
 
- 		$weekdays = explode(',', event_cfg_day_names);
- 		$months = explode(',', event_cfg_month_names);
+ 		$weekdays = explode(',', CFG_DAY_NAMES);
+ 		$months = explode(',', CFG_MONTH_NAMES);
 
  		$day = array(
- 			'date'					=> date(event_cfg_date_str, $dt),
+ 			'date'					=> date(CFG_DATE_STR, $dt),
  			'day'						=> date('j', $dt),
  			'day_zero'			=> date('d', $dt),
  			'day_name'			=> trim($weekdays[date('w', $dt)]),
@@ -891,7 +916,8 @@ class eventFrontend {
  				return false;
  			}
  			if (count($groups) < 1) {
- 				$this->setError(sprintf(event_error_group_invalid, $group));
+ 				$this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!',
+ 				    array('group' => $group)));
  				return false;
  			}
  			$filter_group = sprintf(" AND %s='%s'", dbEvent::field_event_group, $groups[0][dbEventGroup::field_id]);
@@ -941,7 +967,7 @@ class eventFrontend {
  		$search_date_from = date('Y-m-d H:i:s', mktime(23,59,59,$month,0,$year));
  		$search_date_to = date('Y-m-d H:i:s', mktime(0,0,0,$month+1,1,$year));
  		$dt = mktime(0,0,0,$month,1,$year);
- 		$months = explode(',', event_cfg_month_names);
+ 		$months = explode(',', CFG_MONTH_NAMES);
 
  		if ($month == 1) {
  			$prev_month = 11;
@@ -1007,7 +1033,8 @@ class eventFrontend {
  				return false;
  			}
  			if (count($groups) < 1) {
- 				$this->setError(sprintf(event_error_group_invalid, $group));
+ 				$this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!',
+ 				    array('group' => $group)));
  				return false;
  			}
  			$filter_group = sprintf(" AND %s='%s'", dbEvent::field_event_group, $groups[0][dbEventGroup::field_id]);
@@ -1066,7 +1093,7 @@ class eventFrontend {
  		$search_date_from = date('Y-m-d H:i:s', mktime(23,59,59,$month,$monday-1,$year));
  		$search_date_to = date('Y-m-d H:i:s', mktime(0,0,0,$month,$monday+7,$year));
  		$dt = mktime(0,0,0,$month,$monday,$year);
- 		$months = explode(',', event_cfg_month_names);
+ 		$months = explode(',', CFG_MONTH_NAMES);
 
  		$prev_date = mktime(0,0,0,$month,$monday-7,$year);
  		$next_date = mktime(0,0,0,$month,$monday+7,$year);
@@ -1121,7 +1148,8 @@ class eventFrontend {
  				return false;
  			}
  			if (count($groups) < 1) {
- 				$this->setError(sprintf(event_error_group_invalid, $group));
+ 				$this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!',
+ 				    array('group' => $group)));
  				return false;
  			}
  			$filter_group = sprintf(" AND %s='%s'", dbEvent::field_event_group, $groups[0][dbEventGroup::field_id]);
@@ -1162,7 +1190,7 @@ class eventFrontend {
 
  		$search_date_from = date('Y-m-d H:i:s', mktime(23,59,59,date('n'),date('j')-1,date('Y')));
  		$search_date_to = date('Y-m-d H:i:s', mktime(23,59,59,date('n'),date('j'),date('Y')));
- 		$months = explode(',', event_cfg_month_names);
+ 		$months = explode(',', CFG_MONTH_NAMES);
 
  		$filter_group = '';
  		$group = (isset($_REQUEST[self::PARAM_GROUP]) && !empty($_REQUEST[self::PARAM_GROUP])) ? $_REQUEST[self::PARAM_GROUP] : $this->params[self::PARAM_GROUP];
@@ -1174,7 +1202,8 @@ class eventFrontend {
  				return false;
  			}
  			if (count($groups) < 1) {
- 				$this->setError(sprintf(event_error_group_invalid, $group));
+ 				$this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!',
+ 				    array('group' => $group)));
  				return false;
  			}
  			$filter_group = sprintf(" AND %s='%s'", dbEvent::field_event_group, $groups[0][dbEventGroup::field_id]);
@@ -1196,7 +1225,7 @@ class eventFrontend {
  			return false;
  		}
  		if (count($events) < 1) {
- 			$this->setMessage(sprintf(event_msg_no_event_at_date, $months[date('n')-1]));//$months[$month-1]));
+ 			$this->setMessage($this->lang->translate('<p>There are no events for {{ date }}!</p>', array('date' => $months[date('n')-1])));
  			return $this->getMessage();
  		}
  		$event_items = array();

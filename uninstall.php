@@ -30,37 +30,57 @@ else {
 }
 // end include class.secure.php
 
-// include language file
-if(!file_exists(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.php')) {
-	require_once(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/DE.php'); // Vorgabe: DE verwenden
-	define('KIT_EVT_LANGUAGE', 'DE'); // die Konstante gibt an in welcher Sprache KIT Event aktuell arbeitet
+// wb2lepton compatibility
+if (!defined('LEPTON_PATH'))
+  require_once WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/wb2lepton.php';
+
+// use LEPTON 2.x I18n for access to language files
+if (!class_exists('LEPTON_Helper_I18n'))
+  require_once LEPTON_PATH.'/modules/manufaktur_config/framework/LEPTON/Helper/I18n.php';
+
+global $I18n;
+if (!is_object($I18n))
+  $I18n = new LEPTON_Helper_I18n();
+
+if (file_exists(LEPTON_PATH.'/modules/'.basename(dirname(__FILE__)).'/languages/'.LANGUAGE.'.php')) {
+  $I18n->addFile(LANGUAGE.'.php', LEPTON_PATH.'/modules/'.basename(dirname(__FILE__)).'/languages/');
 }
-else {
-	require_once(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.php');
-	define('KIT_EVT_LANGUAGE', LANGUAGE); // die Konstante gibt an in welcher Sprache KIT Event aktuell arbeitet
-}
+
+// load language depending configuration file
+if (file_exists(LEPTON_PATH.'/modules/manufaktur_config/languages/'.LANGUAGE.'.cfg.php'))
+  require_once LEPTON_PATH.'/modules/manufaktur_config/languages/'.LANGUAGE.'.cfg.php';
+else
+  require_once LEPTON_PATH.'/modules/manufaktur_config/languages/EN.cfg.php';
 
 require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.event.php');
 
 
 global $admin;
+global $database;
 
-$tables = array('dbEventCfg', 'dbEvent', 'dbEventGroup', 'dbEventItem', 'dbEventOrder');
 $error = '';
 
+// delete tables
+$tables = array('mod_kit_event','mod_kit_event_config','mod_kit_event_group','mod_kit_event_item','mod_kit_event_order');
+
 foreach ($tables as $table) {
-	$delete = null;
-	$delete = new $table();
-	if ($delete->sqlTableExists()) {
-		if (!$delete->sqlDeleteTable()) {
-			$error .= sprintf('[UNINSTALL] %s', $delete->getError());
-		}
-	}
+	$database->query("DROP TABLE IF EXISTS `".TABLE_PREFIX."$table`");
+	if ($database->is_error())
+	  $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+}
+
+// delete the kitEvent Droplets
+$doplets = array('kit_event', 'kit_monthly_calendar');
+
+foreach ($droplets as $doplet) {
+  $database->query("DELETE FROM `".TABLE_PREFIX."mod_droplets` WHERE `name`='$droplet'");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
 }
 
 // Prompt Errors
 if (!empty($error)) {
-	$admin->print_error($error);
+	$admin->print_error($error, 'javascript:history_back();');
 }
 
 ?>

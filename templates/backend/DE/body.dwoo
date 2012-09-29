@@ -20,9 +20,9 @@
   <ul class="nav_tab">
   {foreach $navigation nav}
     {if $nav.active == 1}
-      <li class="selected"><a href="{$nav.url}">{$nav.text}</a></li>
+      <li class="selected"><a href="{$nav.url}">{translate($nav.text)}</a></li>
     {else}
-      <li><a href="{$nav.url}">{$nav.text}</a></li>
+      <li><a href="{$nav.url}">{translate($nav.text)}</a></li>
     {/if}
   {/foreach}
   </ul>
