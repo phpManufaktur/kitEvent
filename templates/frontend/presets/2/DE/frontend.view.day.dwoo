@@ -13,6 +13,10 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
+{if $DEBUG == 1}
+  {$template_path}
+  {dump()}
+{/if} 
 <div id="evt_view_day">
   <h2>Übersicht über Workshops &amp; Termine am {$day.date}</h2>
   {if isset($events)}

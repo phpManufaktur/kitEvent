@@ -57,7 +57,7 @@
     <div class="evt_cal_sheet_clear"></div>
     
     <div class="evt_cal_sheet_label">Anmeldung</div>
-    <div class="evt_cal_sheet_value">bis zum <b>{date_format($event.deadline.date, "%d.%m.%Y")}</b>, <b><a href="{$event.link.register}">AnmeldeformularXX</a></b></div>
+    <div class="evt_cal_sheet_value">bis zum <b>{date_format($event.deadline.date, "%d.%m.%Y")}</b>, <b><a href="{$event.link.register}">Anmeldeformular</a></b></div>
     <div class="evt_cal_sheet_clear"></div>
     
     <div class="evt_cal_sheet_label"></div>

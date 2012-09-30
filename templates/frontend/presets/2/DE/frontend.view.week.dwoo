@@ -13,6 +13,10 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
+{if $DEBUG == 1}
+  {$template_path}
+  {dump()}
+{/if} 
 <div id="evt_view_week">
   <h2>Übersicht über die Veranstaltungen in der {$week.week}. Kalenderwoche</h2>
   <p>Woche: {$week.week_zero}</p>

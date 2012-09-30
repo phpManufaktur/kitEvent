@@ -13,6 +13,10 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
+{if $DEBUG == 1}
+  {$template_path}
+  {dump()}
+{/if} 
 <div id="evt_view_active">
   <h2>Aktuelle Events dieses Anbieters</h2>
   <div>Hier sehen Sie unsere aktuellen Veranstaltungen...</div>
