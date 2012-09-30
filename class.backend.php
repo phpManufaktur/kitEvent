@@ -88,6 +88,18 @@ class eventBackend {
   protected static $cfgQRCodeECLevel = null;
   protected static $cfgQRCodeMargin = null;
   protected static $cfgQRCodeContent = null;
+  protected static $cfgDescriptionLong = null;
+  protected static $cfgDescriptionShort = null;
+  protected static $cfgFreeFieldLabel_1 = null;
+  protected static $cfgFreeFieldUseHTML_1 = null;
+  protected static $cfgFreeFieldLabel_2 = null;
+  protected static $cfgFreeFieldUseHTML_2 = null;
+  protected static $cfgFreeFieldLabel_3 = null;
+  protected static $cfgFreeFieldUseHTML_3 = null;
+  protected static $cfgFreeFieldLabel_4 = null;
+  protected static $cfgFreeFieldUseHTML_4 = null;
+  protected static $cfgFreeFieldLabel_5 = null;
+  protected static $cfgFreeFieldUseHTML_5 = null;
 
   protected $lang = null;
 
@@ -110,6 +122,19 @@ class eventBackend {
     self::$cfgQRCodeECLevel = $manufakturConfig->getValue('cfg_event_qr_code_ec_level', 'kit_event');
     self::$cfgQRCodeMargin = $manufakturConfig->getValue('cfg_event_qr_code_margin', 'kit_event');
     self::$cfgQRCodeContent = $manufakturConfig->getValue('cfg_event_qr_code_content', 'kit_event');
+    self::$cfgDescriptionLong = $manufakturConfig->getValue('cfg_event_use_long_description', 'kit_event');
+    self::$cfgDescriptionShort = $manufakturConfig->getValue('cfg_event_use_short_description', 'kit_event');
+    self::$cfgFreeFieldLabel_1 = $manufakturConfig->getValue('cfg_event_free_field_1', 'kit_event');
+    self::$cfgFreeFieldUseHTML_1 = $manufakturConfig->getValue('cfg_event_free_field_1_use_html', 'kit_event');
+    self::$cfgFreeFieldLabel_2 = $manufakturConfig->getValue('cfg_event_free_field_2', 'kit_event');
+    self::$cfgFreeFieldUseHTML_2 = $manufakturConfig->getValue('cfg_event_free_field_2_use_html', 'kit_event');
+    self::$cfgFreeFieldLabel_3 = $manufakturConfig->getValue('cfg_event_free_field_3', 'kit_event');
+    self::$cfgFreeFieldUseHTML_3 = $manufakturConfig->getValue('cfg_event_free_field_3_use_html', 'kit_event');
+    self::$cfgFreeFieldLabel_4 = $manufakturConfig->getValue('cfg_event_free_field_4', 'kit_event');
+    self::$cfgFreeFieldUseHTML_4 = $manufakturConfig->getValue('cfg_event_free_field_4_use_html', 'kit_event');
+    self::$cfgFreeFieldLabel_5 = $manufakturConfig->getValue('cfg_event_free_field_5', 'kit_event');
+    self::$cfgFreeFieldUseHTML_5 = $manufakturConfig->getValue('cfg_event_free_field_5_use_html', 'kit_event');
+
   } // __construct()
 
   /**
@@ -672,6 +697,43 @@ class eventBackend {
         'name' => dbEventItem::field_desc_long,
         'value' => self::unsanitizeText($event[dbEventItem::field_desc_long])
       ),
+      'free_field' => array(
+          1 => array(
+              'active' => (int) !empty(self::$cfgFreeFieldLabel_1),
+              'use_html' => (int) self::$cfgFreeFieldUseHTML_1,
+              'name' => dbEventItem::field_free_1,
+              'label' => self::$cfgFreeFieldLabel_1,
+              'value' => self::unsanitizeText($event[dbEventItem::field_free_1])
+              ),
+          2 => array(
+              'active' => (int) !empty(self::$cfgFreeFieldLabel_2),
+              'use_html' => (int) self::$cfgFreeFieldUseHTML_2,
+              'name' => dbEventItem::field_free_2,
+              'label' => self::$cfgFreeFieldLabel_2,
+              'value' => self::unsanitizeText($event[dbEventItem::field_free_2])
+              ),
+          3 => array(
+              'active' => (int) !empty(self::$cfgFreeFieldLabel_3),
+              'use_html' => (int) self::$cfgFreeFieldUseHTML_3,
+              'name' => dbEventItem::field_free_3,
+              'label' => self::$cfgFreeFieldLabel_3,
+              'value' => self::unsanitizeText($event[dbEventItem::field_free_3])
+              ),
+          4 => array(
+              'active' => (int) !empty(self::$cfgFreeFieldLabel_4),
+              'use_html' => (int) self::$cfgFreeFieldUseHTML_4,
+              'name' => dbEventItem::field_free_4,
+              'label' => self::$cfgFreeFieldLabel_4,
+              'value' => self::unsanitizeText($event[dbEventItem::field_free_4])
+              ),
+          5 => array(
+              'active' => (int) !empty(self::$cfgFreeFieldLabel_5),
+              'use_html' => (int) self::$cfgFreeFieldUseHTML_5,
+              'name' => dbEventItem::field_free_5,
+              'label' => self::$cfgFreeFieldLabel_5,
+              'value' => self::unsanitizeText($event[dbEventItem::field_free_5])
+              )
+          ),
       'location' => array(
         'name' => dbEventItem::field_location,
         'value' => $event[dbEventItem::field_location]
@@ -717,6 +779,12 @@ class eventBackend {
           'active' => (int) $this->isMessage(),
           'content' => $this->getMessage()
           ),
+      'option' => array(
+          'description' => array(
+              'long' => (int) self::$cfgDescriptionLong,
+              'short' => (int) self::$cfgDescriptionShort
+              )
+          ),
       'abort_location' => self::$page_link,
       'event' => $fields
     );
@@ -726,6 +794,7 @@ class eventBackend {
   public function checkEditEvent() {
     global $dbEvent;
     global $dbEventItem;
+    global $manufakturConfig;
 
     $event_id = (isset($_REQUEST[dbEvent::field_id]) && ($_REQUEST[dbEvent::field_id] > 0)) ? $_REQUEST[dbEvent::field_id] : -1;
     $item_id = (isset($_REQUEST[dbEvent::field_event_item])) && ($_REQUEST[dbEvent::field_event_item] > 0) ? $_REQUEST[dbEvent::field_event_item] : -1;
@@ -913,7 +982,7 @@ class eventBackend {
             }
             break;
           case dbEventItem::field_desc_short :
-            if (empty($_REQUEST[$request])) {
+            if (empty($_REQUEST[$request]) && self::$cfgDescriptionShort) {
               $message .= $this->lang->translate('<p>Please type in the short description!</p>');
               $checked = false;
             }
@@ -936,13 +1005,27 @@ class eventBackend {
         dbEvent::field_publish_date_to => $_REQUEST[dbEvent::field_publish_date_to],
         dbEvent::field_status => $_REQUEST[dbEvent::field_status]
       );
+      $free_field = array();
+      for ($i=1; $i<6; $i++) {
+        if (isset($_REQUEST["item_free_$i"])) {
+          $is_html = $manufakturConfig->getValue('cfg_event_free_field_'.$i.'_use_html', 'kit_event');
+          $free_field[$i] = ($is_html) ? self::sanitizeText($_REQUEST["item_free_$i"]) : self::sanitizeText(strip_tags($_REQUEST["item_free_$i"]));
+        }
+        else
+          $free_field[$i] = '';
+      }
       $item = array(
         dbEventItem::field_costs => $_REQUEST[dbEventItem::field_costs],
         dbEventItem::field_desc_link => $_REQUEST[dbEventItem::field_desc_link],
-        dbEventItem::field_desc_long => $_REQUEST[dbEventItem::field_desc_long],
-        dbEventItem::field_desc_short => $_REQUEST[dbEventItem::field_desc_short],
+        dbEventItem::field_desc_long => self::$cfgDescriptionLong ? self::sanitizeText($_REQUEST[dbEventItem::field_desc_long]) : '',
+        dbEventItem::field_desc_short => self::$cfgDescriptionShort ? self::sanitizeText($_REQUEST[dbEventItem::field_desc_short]) : '',
         dbEventItem::field_location => $_REQUEST[dbEventItem::field_location],
-        dbEventItem::field_title => $_REQUEST[dbEventItem::field_title]
+        dbEventItem::field_title => $_REQUEST[dbEventItem::field_title],
+        dbEventItem::field_free_1 => $free_field[1],
+        dbEventItem::field_free_2 => $free_field[2],
+        dbEventItem::field_free_3 => $free_field[3],
+        dbEventItem::field_free_4 => $free_field[4],
+        dbEventItem::field_free_5 => $free_field[5]
       );
 
       if ($event_id == -1) {
@@ -1564,7 +1647,6 @@ class eventBackend {
       ),
       'status' => array(
         'name' => dbEventGroup::field_status,
-        'label' => event_label_status,
         'value' => $status,
       ),
       'perma_pattern' => array(
