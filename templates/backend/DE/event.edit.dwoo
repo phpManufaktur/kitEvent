@@ -96,18 +96,36 @@
       <td class="label_{$event.title.name}">{translate('Event title')}</td>
       <td class="value_{$event.title.name}"><input type="text" name="{$event.title.name}" value="{$event.title.value}" /></td>
     </tr>
-    <tr>
-      <td class="label_{$event.short_description.name}">{translate('Short description')}</td>
-      <td class="value_{$event.short_description.name}">
-        {show_wysiwyg_editor($event.short_description.name, $event.short_description.name, $event.short_description.value, '100%', '200px','Simple')}
-      </td>
-    </tr>
-    <tr>
-      <td class="label_{$event.long_description.name}">{translate('Long description')}</td>
-      <td class="value_{$event.long_description.name}">
-        {show_wysiwyg_editor($event.long_description.name, $event.long_description.name, $event.long_description.value, '100%', '200px','Simple')}
-      </td>
-    </tr>
+    {if $option.description.short == 1}
+      <tr>
+        <td class="label_{$event.short_description.name}">{translate('Short description')}</td>
+        <td class="value_{$event.short_description.name}">
+          {show_wysiwyg_editor($event.short_description.name, $event.short_description.name, $event.short_description.value, '100%', '200px','Simple')}
+        </td>
+      </tr>
+    {/if}
+    {if $option.description.long == 1}
+      <tr>
+        <td class="label_{$event.long_description.name}">{translate('Long description')}</td>
+        <td class="value_{$event.long_description.name}">
+          {show_wysiwyg_editor($event.long_description.name, $event.long_description.name, $event.long_description.value, '100%', '200px','Simple')}
+        </td>
+      </tr>
+    {/if}
+    {foreach $event.free_field field}
+      {if $field.active == 1}
+        <tr>
+          <td class="label_{$field.name}">{translate($field.label)}</td>
+          <td class="value_{$field.name}">
+            {if $field.use_html == 1}
+              {show_wysiwyg_editor($field.name, $field.name, $field.value, '100%', '50px', 'Simple')}
+            {else}
+              <input type="text" name="{$field.name}" value="{$field.value}" />
+            {/if}
+          </td>
+        </tr>
+      {/if}
+    {/foreach}
     <tr>
       <td class="label_{$event.location.name}">{translate('Location')}</td>
       <td class="value_{$event.location.name}"><input type="text" name="{$event.location.name}" value="{$event.location.value}" /></td>

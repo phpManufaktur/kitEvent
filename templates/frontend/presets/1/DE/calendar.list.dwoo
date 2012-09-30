@@ -13,6 +13,10 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
+{if $DEBUG == 1}
+  {$template_path}
+  {dump()}
+{/if} 
 <div class="cms_list_container">
   {foreach $dates date}
      {if $date.start_day !== $date.end_day}
