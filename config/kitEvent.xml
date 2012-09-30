@@ -3,18 +3,18 @@
   <module name="kitEvent" directory="kit_event" group="" date="2012-09-27 16:43:31">
     <setting name="mcFieldsetOrder" usage="HIDDEN" update="OVERWRITE">
       <!-- with "mcFieldsetOrder" you can order the fieldsets in the dialog as you want! -->
-      <value type="ARRAY"></value>
+      <value type="ARRAY">Free Fields,General,QR-Codes,Perma Links,iCal Files</value>
     </setting>
     <setting name="cfg_event_ical_directory" usage="REGULAR" update="OVERWRITE">
       <value type="STRING">kit_event</value>
-      <dialog set="iCal Dateien" page="Settings">
+      <dialog set="iCal Files" page="Settings">
         <label>Directory</label>
         <hint>The /MEDIA directory for &lt;b&gt;iCal&lt;/b&gt; &lt;i&gt;*.ics&lt;/i&gt; files.</hint>
       </dialog>
     </setting>
     <setting name="cfg_event_ical_create" usage="REGULAR" update="OVERWRITE">
       <value type="BOOLEAN">1</value>
-      <dialog set="iCal Dateien" page="Settings">
+      <dialog set="iCal Files" page="Settings">
         <label>Create files</label>
         <hint>Determine if kitEvent should create iCal files</hint>
       </dialog>
@@ -68,5 +68,89 @@
         <hint>The content of the QR-Code ()1=Perma Link, 2=iCal information), default is 2</hint>
       </dialog>
     </setting>    
+    <setting name="cfg_event_use_long_description" usage="REGULAR" update="OVERWRITE">
+      <value type="BOOLEAN">1</value>
+      <dialog set="General" set_order="1" page="Settings">
+        <label>Description, long</label>
+        <hint>Determine if to use the long description</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_use_short_description" usage="REGULAR" update="OVERWRITE">
+      <value type="BOOLEAN">1</value>
+      <dialog set="General" set_order="2" page="Settings">
+        <label>Description, short</label>
+        <hint>Determine if to use the short description</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_free_field_1" usage="REGULAR" update="OVERWRITE">
+      <value type="STRING"></value>
+      <dialog set="Free Fields" page="Settings">
+        <label>Name of Field 1</label>
+        <hint>If you give this free field a name it will be activated</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_free_field_1_use_html" usage="REGULAR" update="OVERWRITE">
+      <value type="BOOLEAN">0</value>
+      <dialog set="Free Fields" page="Settings">
+        <label>Field 1 uses HTML</label>
+        <hint>Set to YES to activate HTML usage for this field</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_free_field_2" usage="REGULAR" update="OVERWRITE">
+      <value type="STRING"></value>
+      <dialog set="Free Fields" page="Settings">
+        <label>Name of Field 2</label>
+        <hint>If you give this free field a name it will be activated</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_free_field_2_use_html" usage="REGULAR" update="OVERWRITE">
+      <value type="BOOLEAN">0</value>
+      <dialog set="Free Fields" page="Settings">
+        <label>Field 2 uses HTML</label>
+        <hint>Set to YES to activate HTML usage for this field</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_free_field_3" usage="REGULAR" update="OVERWRITE">
+      <value type="STRING"></value>
+      <dialog set="Free Fields" page="Settings">
+        <label>Name of Field 3</label>
+        <hint>If you give this free field a name it will be activated</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_free_field_3_use_html" usage="REGULAR" update="OVERWRITE">
+      <value type="BOOLEAN">0</value>
+      <dialog set="Free Fields" page="Settings">
+        <label>Field 3 uses HTML</label>
+        <hint>Set to YES to activate HTML usage for this field</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_free_field_4" usage="REGULAR" update="OVERWRITE">
+      <value type="STRING"></value>
+      <dialog set="Free Fields" page="Settings">
+        <label>Name of Field 4</label>
+        <hint>If you give this free field a name it will be activated</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_free_field_4_use_html" usage="REGULAR" update="OVERWRITE">
+      <value type="BOOLEAN">0</value>
+      <dialog set="Free Fields" page="Settings">
+        <label>Field 4 uses HTML</label>
+        <hint>Set to YES to activate HTML usage for this field</hint>
+      </dialog>
+    </setting>
+    <setting name="cfg_event_free_field_5" usage="REGULAR" update="OVERWRITE">
+      <value type="STRING"></value>
+      <dialog set="Free Fields" page="Settings">
+        <label>Name of Field 5</label>
+        <hint>If you give this free field a name it will be activated</hint>
+      </dialog>
+    </setting> 
+    <setting name="cfg_event_free_field_5_use_html" usage="REGULAR" update="OVERWRITE">
+      <value type="BOOLEAN">0</value>
+      <dialog set="Free Fields" page="Settings">
+        <label>Field 5 uses HTML</label>
+        <hint>Set to YES to activate HTML usage for this field</hint>
+      </dialog>
+    </setting>       
   </module>
 </xmcfg>
