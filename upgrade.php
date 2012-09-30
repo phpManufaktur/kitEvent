@@ -185,6 +185,24 @@ if (!fieldExists('mod_kit_event', 'evt_qrcode_image')) {
 }
 
 // Release 0.40
+if (!fieldExists('mod_kit_event_item', 'item_free_1')) {
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_1` TEXT NOT NULL DEFAULT '' AFTER `item_costs`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_2` TEXT NOT NULL DEFAULT '' AFTER `item_free_1`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_3` TEXT NOT NULL DEFAULT '' AFTER `item_free_2`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_4` TEXT NOT NULL DEFAULT '' AFTER `item_free_3`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_5` TEXT NOT NULL DEFAULT '' AFTER `item_free_4`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+}
+
 if (file_exists(WB_PATH.'/modules/kit_event/htt')) {
   // check for individual presets and move them to the new template directory
   $directories = getSubDirectories(WB_PATH.'/modules/kit_event/htt');
