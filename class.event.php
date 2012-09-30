@@ -107,6 +107,11 @@ class dbEventItem extends dbConnectLE {
 	const field_desc_link						= 'item_desc_link';
 	const field_location						= 'item_location';
 	const field_costs								= 'item_costs';
+	const field_free_1              = 'item_free_1';
+	const field_free_2              = 'item_free_2';
+	const field_free_3              = 'item_free_3';
+	const field_free_4              = 'item_free_4';
+	const field_free_5              = 'item_free_5';
 	const field_timestamp						= 'item_timestamp';
 
 	private $createTables 		= false;
@@ -122,6 +127,11 @@ class dbEventItem extends dbConnectLE {
   	$this->addFieldDefinition(self::field_desc_link, "VARCHAR(255) NOT NULL DEFAULT ''");
   	$this->addFieldDefinition(self::field_location, "VARCHAR(255) NOT NULL DEFAULT ''");
   	$this->addFieldDefinition(self::field_costs, "FLOAT NOT NULL DEFAULT '-1'");
+  	$this->addFieldDefinition(self::field_free_1, "TEXT NOT NULL DEFAULT ''", false, false, true);
+  	$this->addFieldDefinition(self::field_free_2, "TEXT NOT NULL DEFAULT ''", false, false, true);
+  	$this->addFieldDefinition(self::field_free_3, "TEXT NOT NULL DEFAULT ''", false, false, true);
+  	$this->addFieldDefinition(self::field_free_4, "TEXT NOT NULL DEFAULT ''", false, false, true);
+  	$this->addFieldDefinition(self::field_free_5, "TEXT NOT NULL DEFAULT ''", false, false, true);
   	$this->addFieldDefinition(self::field_timestamp, "TIMESTAMP");
   	$this->checkFieldDefinitions();
   	// Tabelle erstellen
