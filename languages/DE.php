@@ -85,6 +85,10 @@ $LANG = array(
       => 'Gelöscht',
     'Description'
       => 'Beschreibung',
+    'Description, long'
+      => 'Beschreibung, lang',
+    'Description, short'
+      => 'Beschreibung, kurz',
     'Determine at which page the droplet [[kit_event]] is placed. This information is important for the automatic creation of the permaLinks'
       => 'Legen Sie die Seite fest, auf der das Droplet [[kit_event]] für diese Gruppe verwendet wird. Diese Festlegung ist wichtig, damit automatisch permaLinks erzeugt werden können.',
     'Determine if kitEvent should create iCal files'
@@ -93,6 +97,10 @@ $LANG = array(
       => 'Legen Sie fest, ob kitEvent permanente Links verwenden soll oder nicht.',
     'Determine if kitEvent should create QR-Codes'
       => 'Legen Sie fest, ob kitEvent QR-Codes erstellen soll oder nicht.',
+    'Determine if to use the long description'
+      => 'Legen Sie fest, ob kitEvent die Langbeschreibung bei den Veranstaltungen verwenden soll.',
+    'Determine if to use the short description'
+      => 'Legen Sie fest, ob kitEvent die Kurzbeschreibung bei den Veranstaltungen verwenden soll.',
     'Directory'
       => 'Verzeichnis',
     'Error: cannot create the file {{ file }}!'
@@ -127,12 +135,26 @@ $LANG = array(
       => 'Beginn',
     'Event title'
       => 'Schlagzeile für die Veranstaltung',
+    'Field 1 uses HTML'
+      => 'Feld 1 verwendet HTML',
+    'Field 2 uses HTML'
+      => 'Feld 2 verwendet HTML',
+    'Field 3 uses HTML'
+      => 'Feld 3 verwendet HTML',
+    'Field 4 uses HTML'
+      => 'Feld 4 verwendet HTML',
+    'Field 5 uses HTML'
+      => 'Feld 5 verwendet HTML',
+    'Free Fields'
+      => 'Freie Datenfelder',
     'go back ...'
       => 'Zurück',
     'Group'
       => 'Gruppe',
     'Group name'
       => 'Bezeichner für die Gruppe',
+    'If you give this free field a name it will be activated'
+      => 'Geben Sie diesem freien Datenfeld eine Bezeichnung um es zu aktivieren. Freie Datenfelder können HTML Code enthalten und werden in die Suchfunktion eingebunden.',
     'If you have defined a pattern in the group definition, kitEvent will create a permanet link at the first save of this event.'
       => 'Wenn Sie in der Gruppendefinition ein Muster für die Erzeugung eines permanenten Link angegeben haben, wird dieser <b>beim ersten Speichern</b> dieses Event automatisch erzeugt.',
     'List of the active events'
@@ -149,6 +171,16 @@ $LANG = array(
       => 'Randabstand des QR Code in Pixel, Vorgabe ist 2',
     'Message'
       => 'Mitteilung',
+    'Name of Field 1'
+      => 'Bezeichnung Feld 1',
+    'Name of Field 2'
+      => 'Bezeichnung Feld 2',
+    'Name of Field 3'
+      => 'Bezeichnung Feld 3',
+    'Name of Field 4'
+      => 'Bezeichnung Feld 4',
+    'Name of Field 5'
+      => 'Bezeichnung Feld 5',
     'Orders and messages'
       => 'Anmeldungen und Mitteilungen',
     'Page with details'
@@ -205,6 +237,8 @@ $LANG = array(
       => 'Auswählen',
     'Set the error correction level from 0 (low) to 3 (high), default is 2'
       => 'Legen Sie den Wert für die Fehlerkorrektur von 0 (niedrig) bis 3 (hoch) fest, Vorgabe ist 2',
+    'Set to YES to activate HTML usage for this field'
+      => 'Mit JA aktivieren Sie die HTML Ausgabe für dieses Feld',
     'Short Description'
       => 'Kurzbeschreibung (Pflicht)',
     'Show all events'
