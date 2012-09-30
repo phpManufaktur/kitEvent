@@ -26,7 +26,7 @@
     </colgroup>
     <tr><td colspan="2">&nbsp;</td></tr>
     <tr>
-      <td class="label_{$suggest_request}">{translate('Select')}</td>
+      <td class="label_{$suggest_request}">{translate('Copy Event')}</td>
       <td class="value_{$suggest_request}">
         <select name="{$suggest_request}">
         {foreach $suggest_options option}
@@ -35,9 +35,16 @@
         </select>
       </td>
     </tr>
+    <tr>
+      <td class="label_{$suggest_request}">&nbsp;</td>
+      <td>
+        <input type="checkbox" name="{$copy_all_request}" value="1" />&nbsp;{translate('Copy also date and time of the event')}
+      </td>
+    </tr>
     <tr><td colspan="2">&nbsp;</td></tr>
     <tr>
-      <td colspan="2">
+      <td>&nbsp;</td>
+      <td>
         <input type="submit" value="{translate('OK')}" />&nbsp;
         <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
       </td>

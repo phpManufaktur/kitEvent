@@ -191,6 +191,7 @@ input[name=item_costs]
   width: 120px;
 }
 
+td.label_sgg,
 td.data_evt_event_date_from,
 th.head_evt_event_date_from,
 td.data_evt_event_date_to,
