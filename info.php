@@ -5,8 +5,8 @@
  *
  * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
- * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
 // include class.secure.php to protect this file and the whole CMS!
@@ -33,12 +33,12 @@ else {
 $module_directory     = 'kit_event';
 $module_name          = 'kitEvent';
 $module_function      = 'tool';
-$module_version       = '0.30';
+$module_version       = '0.31';
 $module_status        = 'Beta';
 $module_platform      = '2.8';
 $module_author        = 'Ralf Hertsch, Berlin (Germany)';
-$module_license       = 'GNU General Public License';
-$module_description   = 'kitEvent is calendar extension for KeepInTouch (KIT)';
+$module_license       = 'MIT License (MIT)';
+$module_description   = 'kitEvent is a calendar extension for KeepInTouch (KIT)';
 $module_home          = 'https://addons.phpmanufaktur.de/name/kitEvent';
 $module_guid          = 'B8FE1F1C-D11D-45C2-8F1C-ED52A20346EE';
 

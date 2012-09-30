@@ -5,8 +5,8 @@
  *
  * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
- * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ * @copyright 2011 - 2012
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
 // include class.secure.php to protect this file and the whole CMS!
@@ -51,6 +51,7 @@ class eventBackend {
   const REQUEST_TIME_END = 'ete';
   const REQUEST_SUGGESTION = 'sgg';
   const REQUEST_SHOW_ALL = 'sa';
+  const REQUEST_COPY_ALL = 'ca';
 
   const ACTION_ABOUT = 'abt';
   const ACTION_CONFIG = 'cfg';
@@ -506,7 +507,8 @@ class eventBackend {
       'action_value' => self::ACTION_EDIT,
       'suggest_request' => self::REQUEST_SUGGESTION,
       'suggest_options' => $suggest_options,
-      'abort_location' => self::$page_link
+      'abort_location' => self::$page_link,
+      'copy_all_request' => self::REQUEST_COPY_ALL
     );
     return $this->getTemplate('event.suggest.dwoo', $data);
   } // dlgEventSuggestion()
@@ -564,6 +566,39 @@ class eventBackend {
       }
       $item = $item[0];
       $event = array_merge($event, $item);
+      // check if all data should be taken
+      if (isset($_REQUEST[self::REQUEST_COPY_ALL])) {
+        $where = array(
+            dbEvent::field_id => $_REQUEST[self::REQUEST_SUGGESTION]
+            );
+        $evt = array();
+        if (!$dbEvent->sqlSelectRecord($where, $evt)) {
+          $this->setError($dbEventItem->getError());
+          return false;
+        }
+        $evt = $evt[0];
+        // we dont need participants total and the permaLink
+        unset($evt[dbEvent::field_id]);
+        unset($evt[dbEvent::field_event_item]);
+        unset($evt[dbEvent::field_participants_total]);
+        unset($evt[dbEvent::field_perma_link]);
+        unset($evt[dbEvent::field_ical_file]);
+        unset($evt[dbEvent::field_qrcode_image]);
+        $evt[dbEvent::field_status] = dbEvent::status_active;
+        $event = array_merge($event, $evt);
+        if ((date('H', strtotime($event[dbEvent::field_event_date_from])) !== 0) && (date('i', strtotime($event[dbEvent::field_event_date_from])) !== 0)) {
+          $time_start = date(CFG_TIME_STR, strtotime($event[dbEvent::field_event_date_from]));
+        }
+        else {
+          $time_start = '';
+        }
+        if ((date('H', strtotime($event[dbEvent::field_event_date_to])) !== 0) && (date('i', strtotime($event[dbEvent::field_event_date_to])) !== 0)) {
+          $time_end = date(CFG_TIME_STR, strtotime($event[dbEvent::field_event_date_to]));
+        }
+        else {
+          $time_end = '';
+        }
+      }
       $this->setMessage($this->lang->translate('<p>This event was taken from the previous event with the ID {{ id }}</p>',
           array('id' => $_REQUEST[self::REQUEST_SUGGESTION])));
     }
@@ -815,6 +850,7 @@ class eventBackend {
     $message = '';
     $start_date_ok = false;
     $end_date_ok = false;
+
     foreach ($check_array as $request) {
       if (isset($_REQUEST[$request])) {
         switch ($request) :

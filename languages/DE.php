@@ -57,6 +57,10 @@ $LANG = array(
       => '<p>Es werden alle Events angezeigt, die nicht gelöscht wurden!</p>',
     'Content'
       => 'Inhalt',
+    'Copy also date and time of the event'
+      => 'auch Datum und Uhrzeit der ausgewählten Veranstaltung übernehmen',
+    'Copy Event'
+      => 'Kerndaten übernehmen von',
     'Copy event data'
       => 'Daten einer Veranstaltung übernehmen',
     'Costs'
@@ -208,7 +212,7 @@ $LANG = array(
     '<p>Please check the both dates from and to!</p>'
       => '<p>Prüfen Sie die Datumsangaben, das Enddatum für das Event liegt vor dem Beginn des Events!</p>',
     '<p>Please check the publishing date!</p>'
-      => '<p>Bitte prüfen Sie das Startdatum der Veröffentlichung!</p>',
+      => '<p>Bitte prüfen Sie das Veröffentlichungsdatum!</p>',
     'Please click to get more informations about the events of this day!'
       => 'Anklicken, um mehr über die Veranstaltungen an diesem Tag zu erfahren!',
     '<p>Please insert a event title!</p>'
@@ -262,17 +266,17 @@ $LANG = array(
     'The content of the QR-Code ()1=Perma Link, 2=iCal information), default is 2'
       => 'Inhalt, der im QR Code gespeichert wird (1=permaLink, 2=iCal Information), Vorgabe ist 1',
     '<p>The date {{ date }} for the field {{ field }} is invalid! Please type in the date in the format <i>mm-dd-YYYY</i>.</p>'
-      => '<p>Die Datumsangabe <b>%s</b> für das Feld <b>%s</b> ist ungültig und konnte nicht gelesen werden! Geben Sie das Datum in der Form <i>dd.mm.YYYY</i> an!</p>',
+      => '<p>Die Datumsangabe <b>{{ date }}</b> für das Feld <b>{{ field }}</b> ist ungültig und konnte nicht gelesen werden! Geben Sie das Datum in der Form <i>dd.mm.YYYY</i> an!</p>',
     '<p>The deadline is invalid, please check the date!</p>'
       => '<p>Das Datum des Anmeldeschluß liegt nach dem Event, bitte prüfen Sie das Datum!</p>',
     '<p>The event group must be named!</p>'
       => '<p>Der Gruppen Bezeichner darf nicht leer sein!</p>',
     '<p>The event group with the ID {{ id }} was successfull created.</p>'
-      => '<p>Die Gruppe mit der <b>ID %03d</b> wurde hinzufügt.</p>',
+      => '<p>Die Gruppe mit der <b>ID {{ id }}</b> wurde hinzufügt.</p>',
     '<p>The event group with the ID {{ id }} was successfull updated</p>'
       => '<p>Die Gruppe mit der <b>ID {{ id }}</b> wurde aktualisiert!',
     '<p>The event group with the name {{ name }} already exists!</p>'
-      => '<p>Es existiert bereits eine Gruppe mit dem Bezeichner <b>%s</b>, bitte wählen Sie einen anderen Bezeichner!</p>',
+      => '<p>Es existiert bereits eine Gruppe mit dem Bezeichner <b>{{ name }}</b>, bitte wählen Sie einen anderen Bezeichner!</p>',
     '<p>The event with the {{ id }} was successfull created.</p>'
       => '<p>Die Veranstaltung <b>{{ id }}</b> wurde erfolgreich angelegt!</p>',
     '<p>The event with the ID {{ id }} was successfull updated.</p>'
@@ -298,7 +302,7 @@ $LANG = array(
     '<p>There is no permaLink defined!</p>'
       => '<p>Es ist kein permaLink definiert!</p>',
     '<p>This event was taken from the previous event with the ID {{ id }}</p>'
-      => '<p>Es wurden Daten aus dem Event mit der <b>ID %03d</b> übernommen!</p>',
+      => '<p>Es wurden Daten aus dem Event mit der <b>ID {{ id }}</b> übernommen!</p>',
     'This list shows you all active events'
       => '<p>In dieser Liste sehen Sie alle aktuell anstehenden Veranstaltungen.</p>',
     'Time end'
