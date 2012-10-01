@@ -76,11 +76,15 @@ if (!function_exists('kit_event_droplet_search')) {
 																									eventFrontend::REQUEST_EVENT				=> eventFrontend::VIEW_ID,
 																									eventFrontend::REQUEST_EVENT_ID			=> $event[dbEvent::field_id],
 																									eventFrontend::REQUEST_EVENT_DETAIL => 1)),
-				'title'					=> $parser->get($tpl_title, array('date_time' => sprintf('%s %s h', date(CFG_DATETIME_STR, strtotime($event[dbEvent::field_event_date_from]))),
+				'title'					=> $parser->get($tpl_title, array('date_time' => sprintf('%s h', date(CFG_DATETIME_STR, strtotime($event[dbEvent::field_event_date_from]))),
 																													'title'			=> $event[dbEventItem::field_title])),
-				'description'		=> $parser->get($tpl_description, array('description' => strip_tags($event[dbEventItem::field_desc_short]),
+				'description'		=> $parser->get($tpl_description, array('description' => !empty($event[dbEventItem::field_desc_short]) ? eventFrontend::unsanitizeText($event[dbEventItem::field_desc_short]) : $event[dbEventItem::field_title],
 	                                                              'event'       => $parser_data)),
-				'text'					=> strip_tags($event[dbEventItem::field_desc_short]).' '.strip_tags($event[dbEventItem::field_desc_long]),
+				'text'					=> eventFrontend::unsanitizeText($event[dbEventItem::field_desc_short]).' '.eventFrontend::unsanitizeText($event[dbEventItem::field_desc_long]).' '.
+			                        $event[dbEvent::field_event_group].' '.$event[dbEventItem::field_location].' '.$event[dbEventItem::field_desc_link].' '.
+			                        eventFrontend::unsanitizeText($event[dbEventItem::field_free_1]).' '.eventFrontend::unsanitizeText($event[dbEventItem::field_free_2]).' '.
+			                        eventFrontend::unsanitizeText($event[dbEventItem::field_free_3]).' '.eventFrontend::unsanitizeText($event[dbEventItem::field_free_4]).' '.
+			                        eventFrontend::unsanitizeText($event[dbEventItem::field_free_5]),
 				'modified_when'	=> strtotime($event[dbEvent::field_timestamp]),
 				'modified_by'		=> 1 // admin
 			);
