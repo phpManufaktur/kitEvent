@@ -468,15 +468,7 @@ class eventFrontend
     public static function unsanitizeText($text)
     {
         $text = stripcslashes($text);
-        $text = str_replace(array(
-            "&lt;",
-            "&gt;",
-            "&quot;",
-            "&#039;"), array(
-            "<",
-            ">",
-            "\"",
-            "'"), $text);
+        $text = str_replace(array("&lt;","&gt;","&quot;","&#039;"), array("<",">","\"","'"), $text);
         return $text;
     } // unsanitizeText()
 
