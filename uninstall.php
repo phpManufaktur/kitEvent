@@ -61,7 +61,7 @@ global $database;
 $error = '';
 
 // delete tables
-$tables = array('mod_kit_event','mod_kit_event_config','mod_kit_event_group','mod_kit_event_item','mod_kit_event_order');
+$tables = array('mod_kit_event','mod_kit_event_group','mod_kit_event_item','mod_kit_event_order');
 
 foreach ($tables as $table) {
 	$database->query("DROP TABLE IF EXISTS `".TABLE_PREFIX."$table`");
@@ -70,9 +70,9 @@ foreach ($tables as $table) {
 }
 
 // delete the kitEvent Droplets
-$doplets = array('kit_event', 'kit_monthly_calendar');
+$droplets = array('kit_event');
 
-foreach ($droplets as $doplet) {
+foreach ($droplets as $droplet) {
   $database->query("DELETE FROM `".TABLE_PREFIX."mod_droplets` WHERE `name`='$droplet'");
   if ($database->is_error())
     $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());

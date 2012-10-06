@@ -57,7 +57,7 @@ require_once WB_PATH.'/modules/manufaktur_config/library.php';
 
 global $admin;
 
-$tables = array('dbEventCfg', 'dbEvent', 'dbEventGroup', 'dbEventItem', 'dbEventOrder');
+$tables = array('dbEvent', 'dbEventGroup', 'dbEventItem', 'dbEventOrder');
 $error = '';
 
 foreach ($tables as $table) {

@@ -90,15 +90,6 @@ $check = array(
         ),
     );
 
-// this check is important - the early versions of kitEvent can't be upgraded!
-if (file_exists(WB_PATH.'/modules/kit_event/info.php')) {
-  $check['kitEvent'] = array(
-      'directory' => 'kit_event',
-      'version' => '0.25',
-      'problem' => 'Sorry, cannot upgrade kitEvent versions earlier than <b>0.25</b>!<br />Please uninstall kitEvent and try again!'
-      );
-}
-
 $versionSQL = "SELECT `version` FROM `".TABLE_PREFIX."addons` WHERE `directory`='%s'";
 
 foreach ($check as $name => $addon) {
