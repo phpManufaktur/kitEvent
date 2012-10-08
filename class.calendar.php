@@ -35,6 +35,11 @@ if (defined('WB_PATH')) {
 require_once (WB_PATH . '/modules/' . basename(dirname(__FILE__)) .
          '/initialize.php');
 
+require_once LEPTON_PATH . '/modules/manufaktur_config/library.php';
+global $manufakturConfig;
+if (!is_object($manufakturConfig))
+  $manufakturConfig = new manufakturConfig('kit_event');
+
 class monthlyCalendar
 {
 

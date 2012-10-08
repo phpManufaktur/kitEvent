@@ -7,7 +7,8 @@ http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 0.32 - NOT PUBLISHED, JUST IN PROGRESS
 
 * removed check for early kitEvent versions from precheck.php
-* fixed: install try to initialize the old configuration table
+* fixed: install.php try to create the old configuration table
+* added missing initalization for manufakturConfig in class monthlyCalendar
 
 0.31 - 2012-10-01
 
