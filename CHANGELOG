@@ -4,11 +4,15 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
-0.32 - NOT PUBLISHED, JUST IN PROGRESS
+0.32 - 2012-10-18
 
 * removed check for early kitEvent versions from precheck.php
 * fixed: install.php try to create the old configuration table
 * added missing initalization for manufakturConfig in class monthlyCalendar
+* added jQuery DataTable for usage in the backend
+* changed layout for the event and order list for usage of jQuery DataTable
+* added a "delete" button to the order list
+* redesigned the order detail dialog (backend)
 
 0.31 - 2012-10-01
 

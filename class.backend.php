@@ -56,6 +56,7 @@ class eventBackend {
   const ACTION_ABOUT = 'abt';
   const ACTION_CONFIG = 'cfg';
   const ACTION_DEFAULT = 'def';
+  const ACTION_DELETE = 'del';
   const ACTION_EDIT = 'edt';
   const ACTION_EDIT_CHECK = 'edtc';
   const ACTION_GROUP = 'grp';
@@ -296,6 +297,9 @@ class eventBackend {
       case self::ACTION_CONFIG :
         $this->show(self::ACTION_CONFIG, $this->dlgConfig());
         break;
+      case self::ACTION_DELETE:
+        $this->show(self::ACTION_MESSAGES, $this->actionDelete());
+        break;
       case self::ACTION_EDIT :
         $this->show(self::ACTION_EDIT, $this->dlgEditEvent());
         break;
@@ -423,6 +427,21 @@ class eventBackend {
         'title_name' => dbEventItem::field_title,
         'title' => $event[dbEventItem::field_title]
       );
+    }
+
+    // check if libraryAdmin exists
+    if (file_exists(WB_PATH.'/modules/libraryadmin/inc/class.LABackend.php')) {
+      require_once WB_PATH.'/modules/libraryadmin/inc/class.LABackend.php';
+      // create instance; if you're not using OOP, use a simple var, like $la
+      $libraryAdmin = new LABackend();
+      // load the preset
+      $libraryAdmin->loadPreset(array(
+          'module' => 'kit_event',
+          'lib'    => 'lib_jquery',
+          'preset' => 'dataTable'
+      ));
+      // print the preset
+      $libraryAdmin->printPreset();
     }
 
     $data = array(
@@ -1776,6 +1795,24 @@ class eventBackend {
     return $this->getTemplate('about.dwoo', $data);
   } // dlgAbout()
 
+  protected function actionDelete() {
+    global $dbEventOrder;
+
+    if (!isset($_REQUEST[dbEventOrder::field_id])) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => -1))));
+      return false;
+    }
+    $where = array(
+        dbEventOrder::field_id => (int) $_REQUEST[dbEventOrder::field_id]
+        );
+    if (!$dbEventOrder->sqlDeleteRecord($where)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEventOrder->getError()));
+      return false;
+    }
+    $this->setMessage($this->lang->translate('The message with the ID {{ id }} was successfull deleted.', array('id' => $_REQUEST[dbEventOrder::field_id])));
+    return $this->dlgMessages();
+  } // actionDelete()
+
   public function dlgMessages() {
     global $dbEventOrder;
     global $dbEvent;
@@ -1803,8 +1840,28 @@ class eventBackend {
         'event' => $message[dbEventItem::field_title],
         'event_date' => date(CFG_DATE_STR, strtotime($message[dbEvent::field_event_date_from])),
         'declared' => $declared,
-        'message' => $message[dbEventOrder::field_message]
+        'message' => $message[dbEventOrder::field_message],
+        'delete_link' => sprintf('%s&%s', self::$page_link, http_build_query(array(
+            self::REQUEST_ACTION => self::ACTION_DELETE,
+            dbEventOrder::field_id => $message[dbEventOrder::field_id]
+            ))),
+        'delete_image' => WB_URL.'/modules/kit_event/images/delete_icon.png'
       );
+    }
+
+    // check if libraryAdmin exists
+    if (file_exists(WB_PATH.'/modules/libraryadmin/inc/class.LABackend.php')) {
+      require_once WB_PATH.'/modules/libraryadmin/inc/class.LABackend.php';
+      // create instance; if you're not using OOP, use a simple var, like $la
+      $libraryAdmin = new LABackend();
+      // load the preset
+      $libraryAdmin->loadPreset(array(
+          'module' => 'kit_event',
+          'lib'    => 'lib_jquery',
+          'preset' => 'dataTable'
+      ));
+      // print the preset
+      $libraryAdmin->printPreset();
     }
 
     $data = array(
