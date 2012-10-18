@@ -287,6 +287,8 @@ $LANG = array(
       => 'Das /MEDIA Verzeichnis für <b>iCal</b> <i>*.ics</i> Dateien',
     'The /MEDIA directory for QR Code files'
       => 'Das /MEDIA Verzeichnis für QR Code Dateien',
+    'The message with the ID {{ id }} was successfull deleted.'
+      => 'Die Mitteilung mit der ID {{ id }} wurde gelöscht.',
     '<p>The permaLink {{ link }} was created!</p>'
       => '<p>Der permaLink <b>{{ link }}</b> wurde angelegt.</p>',
     '<p>The permaLink {{ link }} was deleted!</p>'
