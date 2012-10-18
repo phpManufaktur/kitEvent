@@ -23,38 +23,44 @@
     {/if}
   </div>
   <div class="additional"><a href="{$show_all_link}">{translate('Show all events')}</a></div>
-  <table width="100%">
-    <colgroup>
-      <col width="5%" />
-      <col width="12%" />
-      <col width="12%" />
-      <col width="10%" />
-      <col width="8%" />
-      <col width="8%" />
-      <col width="10%" />
-      <col width="35%" />
-    </colgroup>
-    <tr>
-      <th class="head_evt_id">{translate('ID')}</th>
-      <th class="head_evt_event_date_from">{translate('Event Start')}</th>
-      <th class="head_evt_event_date_to">{translate('Event End')}</th>
-      <th class="head_group_id">{translate('Group')}</th>
-      <th class="head_evt_participants_max">{translate('Part. max.')}</th>
-      <th class="head_evt_participants_total">{translate('Part. total')}</th>
-      <th class="head_evt_deadline">{translate('Deadline')}</th>
-      <th class="head_item_title">{translate('Title')}</th>
-    </tr>
+  <table class="display" id="dataTable" width="100%">
+    <thead>
+      <tr>
+        <th>{translate('ID')}</th>
+        <th>{translate('Event Start')}</th>
+        <th>{translate('Event End')}</th>
+        <th>{translate('Group')}</th>
+        <th>{translate('Part. max.')}</th>
+        <th>{translate('Part. total')}</th>
+        <th>{translate('Deadline')}</th>
+        <th>{translate('Title')}</th>
+      </tr>
+    </thead>
+    <tbody>
     {foreach $rows row}
-    <tr class="{cycle values=array('flip', 'flop')}">
-      <td class="data_{$row.id_name}"><a href="{$row.id_link}">{$row.id}</a></td>
-      <td class="data_{$row.date_from_name}">{$row.date_from}</td>
-      <td class="data_{$row.date_to_name}">{$row.date_to}</td>
-      <td class="data_{$row.group_name}">{$row.group}</td>
-      <td class="data_{$row.part_max_name}">{$row.part_max}</td>
-      <td class="data_{$row.part_total_name}">{$row.part_total}</td>
-      <td class="data_{$row.deadline_name}">{$row.deadline}</td>
-      <td class="data_{$row.title_name}">{$row.title}</td>
-    </tr>
+      <tr>
+        <td><a href="{$row.id_link}">{$row.id}</a></td>
+        <td>{$row.date_from}</td>
+        <td>{$row.date_to}</td>
+        <td>{$row.group}</td>
+        <td>{$row.part_max}</td>
+        <td>{$row.part_total}</td>
+        <td>{$row.deadline}</td>
+        <td>{$row.title}</td>
+      </tr>
     {/foreach}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th>{translate('ID')}</th>
+        <th>{translate('Event Start')}</th>
+        <th>{translate('Event End')}</th>
+        <th>{translate('Group')}</th>
+        <th>{translate('Part. max.')}</th>
+        <th>{translate('Part. total')}</th>
+        <th>{translate('Deadline')}</th>
+        <th>{translate('Title')}</th>
+      </tr>
+    </tfoot>
   </table>
 </div>
