@@ -1,0 +1,40 @@
+<link media="screen" rel="stylesheet" type="text/css" href="{LIB_URL}/kit/presets/DataTables/media/css/demo_page.css" />
+<link media="screen" rel="stylesheet" type="text/css" href="{LIB_URL}/kit/presets/DataTables/media/css/demo_table.css" />
+<link media="screen" rel="stylesheet" type="text/css" href="{LIB_URL}/kit/presets/DataTables/extras/TableTools/media/css/TableTools.css" />  
+<script type="text/javascript" src="{LIB_URL}/kit/presets/DataTables/media/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="{LIB_URL}/kit/presets/DataTables/extras/TableTools/media/js/ZeroClipboard.js"></script>
+<script type="text/javascript" charset="utf-8" src="{LIB_URL}/kit/presets/DataTables/extras/TableTools/media/js/TableTools.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+  $(document).ready( function () {
+    var oTable = $('#dataTable').dataTable({
+      "sDom": 'T<"clear">lfrtip',
+      "iDisplayLength": 50,
+      "oLanguage": {
+        "sSearch": "Suche:",
+        "sZeroRecords": "- keine Treffer -",
+        "sLengthMenu": 'Zeige <select name="dataTable_length">'+
+          '<option value="1">1</option>'+
+          '<option value="20">20</option>'+
+          '<option value="50">50</option>'+
+          '<option value="100">100</option>'+
+          '<option value="250">250</option>'+
+          '<option value="-1">- alle -</option>'+
+          '</select> Datensätze',
+        "sInfoThousands": ".",
+        "sInfoFiltered": " - es wurden _MAX_ Datensätze durchsucht -",
+        "sInfoEmpty": "- es sind keine Datensätze zum Anzeigen vorhanden -",
+        "sInfo": "Datensätze _START_ bis _END_ von insgesamt _TOTAL_",
+        "sEmptyTable": "- die Tabelle ist leer -",
+        "oPaginate": {
+          "sPrevious": "Vorherige Seite",
+          "sNext": "Nächste Seite",
+          "sLast": "Letzte Seite",
+          "sFirst": "Erste Seite" 
+          }           
+      }      
+    });
+    var oTableTools = new TableTools(oTable, {
+      "sSwfPath": "../../modules/kit/presets/DataTables/extras/TableTools/media/swf/copy_csv_xls_pdf.swf"
+    }); 
+  } );
+</script>
