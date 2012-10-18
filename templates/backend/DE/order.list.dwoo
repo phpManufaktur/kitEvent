@@ -18,35 +18,44 @@
   {if (count_characters($intro) > 0)}
   <div class="{if $is_intro == 1}intro{else}message{/if}">{$intro}</div>
   {/if}
-  <table width="100%">
-    <colgroup>
-      <col width="15%" />
-      <col width="15%" />
-      <col width="15%" />
-      <col width="15%" />
-      <col width="5%" />
-      <col width="5%" />
-      <col width="30%" />
-    </colgroup>
-    <tr>
-      <th class="head_ord_date">{translate('Date/time')}</th>
-      <th class="head_ord_email">{translate('E-Mail')}</th>
-      <th class="head_ord_last_name">{translate('Name')}</th>
-      <th class="head_evt_id">{translate('Event')}</th>
-      <th class="head_evt_event_date_from">{translate('Date')}</th>
-      <th class="head_ord_confirm">{translate('Declared')}</th>
-      <th class="head_ord_message">{translate('Message')}</th>
-    </tr>
+  <table class="display" id="dataTable" width="100%">
+    <thead>
+      <tr>
+        <th>{translate('Date/time')}</th>
+        <th>{translate('E-Mail')}</th>
+        <th>{translate('Name')}</th>
+        <th>{translate('Event')}</th>
+        <th>{translate('Date')}</th>
+        <th>{translate('Declared')}</th>
+        <th>{translate('Message')}</th>
+        <th>{translate('')}</th>
+      </tr>
+    </thead>
+    <tbody>
     {foreach $rows row}
-    <tr class="{cycle values=array('flip','flop')}">
-      <td class="data_{$order_date_name}"><a href="{$row.order_date_link}">{$row.order_date}</a></td>
-      <td class="data_{$email_name}"><a href="mailto:{$row.email}">{$row.email}</a></td>
-      <td class="data_{$name_name}">{$row.name}</td>
-      <td class="data_{$event_name}">{$row.event}</td>
-      <td class="data_{$event_date_name}">{$row.event_date}</td>
-      <td class="data_{$declared_name}">{$row.declared}</td>
-      <td class="data_{$message_name}">{$row.message}</td>
-    </tr>
+      <tr>
+        <td><a href="{$row.order_date_link}">{$row.order_date}</a></td>
+        <td><a href="mailto:{$row.email}">{$row.email}</a></td>
+        <td><a href="{$row.order_date_link}">{$row.name}</a></td>
+        <td>{$row.event}</td>
+        <td>{$row.event_date}</td>
+        <td>{$row.declared}</td>
+        <td>{$row.message}</td>
+        <td><a href="{$row.delete_link}"><img src="{$row.delete_image}" width="12" height="12" alt="{translate('Delete')}" title=""{translate('Delete')} /></a></td>
+      </tr>
     {/foreach}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th>{translate('Date/time')}</th>
+        <th>{translate('E-Mail')}</th>
+        <th>{translate('Name')}</th>
+        <th>{translate('Event')}</th>
+        <th>{translate('Date')}</th>
+        <th>{translate('Declared')}</th>
+        <th>{translate('Message')}</th>
+        <th>{translate('')}</th>
+      </tr>
+    </tfoot>
   </table>
 </div>
