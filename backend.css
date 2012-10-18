@@ -50,6 +50,12 @@ select
   width: 98%;
   font-size:8pt;
 }
+#dataTable_length select {
+  width: 100px;
+}
+#dataTable_filter input {
+  width: 300px;
+}
 textarea
 {
   width: 98%;
@@ -207,4 +213,22 @@ th.head_ord_confirm,
 td.data_ord_confirm
 {
   text-align: center;
+}
+
+.order_detail {
+  font-size: 8pt;
+}
+
+.order_label {
+  float: left;
+  width: 15%;
+  font-style: italic;
+}
+.order_value {
+  float: left;
+  width: 85%;
+}
+.clear {
+  height: 8px;
+  clear: both;
 }
