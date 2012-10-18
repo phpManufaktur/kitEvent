@@ -14,23 +14,61 @@
  * Use {dump()} to get a list of all in this template available variables!
  *}
 <div class="order_detail">
-  <p>{$title}<br />
-  {$first_name} {$last_name}<br />
-  {$company}<br />
-  {$street}<br />
-  {$zip} {$city}</p>
-  <p>{translate('E-Mail')} <a href="mailto:{$email}">{$email}</a></p>
-  <p>{translate('Phone')} {$phone} <i>{$best_time}</i></p>
-  <p>&nbsp;</p>
-  <p>{translate('Event')}: {$event}</p>
-  <p>{translate('Date')}: {$event_date}</p>
-  <p>{translate('Declared')}: {$declared}</p>
-  <p>{translate('Message')}:</p>
-  <p>{$message}</p>
-  <p>{translate('Free field {{ number }}', array(number='1'))}: {$free_1}</p>
-  <p>{translate('Free field {{ number }}', array(number='2'))}: {$free_2}</p>
-  <p>{translate('Free field {{ number }}', array(number='3'))}: {$free_3}</p>
-  <p>{translate('Free field {{ number }}', array(number='4'))}: {$free_4}</p>
-  <p>{translate('Free field {{ number }}', array(number='5'))}: {$free_5}</p>
-  <p><a href="{$back_link}">{translate('go back ...')}</a></p>
+  <div class="order_label">&nbsp;</div>
+  <div class="order_value">
+    <p>{$title}<br />
+    {$first_name} {$last_name}<br />
+    {$company}<br />
+    {$street}<br />
+    {$zip} {$city}</p>
+  </div>
+  <div class="clear"></div>
+  
+  <div class="order_label">{translate('E-Mail')}</div>
+  <div class="order_value"><a href="mailto:{$email}">{$email}</a></div>
+  <div class="clear"></div>
+  
+  <div class="order_label">{translate('Phone')}</div>
+  <div class="order_value">{$phone} <i>{$best_time}</i></div>
+  <div class="clear"></div>
+  
+  <div class="order_label">{translate('Event')}</div>
+  <div class="order_value">{$event}</div>
+  <div class="clear"></div>
+  
+  <div class="order_label">{translate('Date')}</div>
+  <div class="order_value">{$event_date}</div>
+  <div class="clear"></div>
+  
+  <div class="order_label">{translate('Declared')}</div>
+  <div class="order_value">{$declared}</div>
+  <div class="clear"></div>
+  
+  <div class="order_label">{translate('Message')}</div>
+  <div class="order_value">{$message}</div>
+  <div class="clear"></div>
+  
+  <div class="order_label">{translate('Free field {{ number }}', array(number='1'))}</div>
+  <div class="order_value">{$free_1}</div>
+  <div class="clear"></div>
+  
+  <div class="order_label">{translate('Free field {{ number }}', array(number='2'))}</div>
+  <div class="order_value">{$free_2}</div>
+  <div class="clear"></div>
+  
+  <div class="order_label">{translate('Free field {{ number }}', array(number='3'))}</div>
+  <div class="order_value">{$free_3}</div>
+  <div class="clear"></div>
+  
+  <div class="order_label">{translate('Free field {{ number }}', array(number='4'))}</div>
+  <div class="order_value">{$free_4}</div>
+  <div class="clear"></div>
+  
+  <div class="order_label">{translate('Free field {{ number }}', array(number='5'))}</div>
+  <div class="order_value">{$free_5}</div>
+  <div class="clear"></div>
+  
+  <div class="order_label">&nbsp;</div>
+  <div class="order_value"><a href="{$back_link}">{translate('go back ...')}</a></div>
+  <div class="clear"></div>
 </div>
