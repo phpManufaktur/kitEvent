@@ -32,8 +32,8 @@ else {
 // end include class.secure.php
 
 if ('á' != "\xc3\xa1") {
-	// important: language files must be saved as UTF-8 (without BOM)
-	trigger_error('The language file <b>'.basename(__FILE__).'</b> is damaged, it must be saved <b>UTF-8</b> encoded!', E_USER_ERROR);
+  // important: language files must be saved as UTF-8 (without BOM)
+  trigger_error('The language file <b>'.basename(__FILE__).'</b> is damaged, it must be saved <b>UTF-8</b> encoded!', E_USER_ERROR);
 }
 
 $LANG = array(
@@ -161,6 +161,8 @@ $LANG = array(
       => 'Geben Sie diesem freien Datenfeld eine Bezeichnung um es zu aktivieren. Freie Datenfelder können HTML Code enthalten und werden in die Suchfunktion eingebunden.',
     'If you have defined a pattern in the group definition, kitEvent will create a permanet link at the first save of this event.'
       => 'Wenn Sie in der Gruppendefinition ein Muster für die Erzeugung eines permanenten Link angegeben haben, wird dieser <b>beim ersten Speichern</b> dieses Event automatisch erzeugt.',
+    'Lady'
+        => 'Frau',
     'List of the active events'
       => 'Liste der aktuellen Veranstaltungen',
     'Location'
@@ -175,6 +177,8 @@ $LANG = array(
       => 'Randabstand des QR Code in Pixel, Vorgabe ist 2',
     'Message'
       => 'Mitteilung',
+    'Mister'
+        => 'Herr',
     'Name of Field 1'
       => 'Bezeichnung Feld 1',
     'Name of Field 2'
@@ -288,7 +292,7 @@ $LANG = array(
     'The /MEDIA directory for QR Code files'
       => 'Das /MEDIA Verzeichnis für QR Code Dateien',
     'The message with the ID {{ id }} was successfull deleted.'
-      => 'Die Mitteilung mit der ID {{ id }} wurde gelöscht.',
+      => '<p>Die Mitteilung mit der ID {{ id }} wurde gelöscht.</p><p>Bitte vergessen Sie nicht, den eventuell frei gewordenen Platz bei den Events zu berücksichtigen.</p>',
     '<p>The permaLink {{ link }} was created!</p>'
       => '<p>Der permaLink <b>{{ link }}</b> wurde angelegt.</p>',
     '<p>The permaLink {{ link }} was deleted!</p>'
