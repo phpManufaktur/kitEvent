@@ -4,6 +4,12 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+0.33 - 2012-10-19
+
+* added missing translate() commands in the templates
+* fixed wrong path to jQuery dataTable
+* updated DE language file
+
 0.32 - 2012-10-18
 
 * removed check for early kitEvent versions from precheck.php
@@ -22,11 +28,11 @@ http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 * moved all templates from /htt to /templates, separate by frontend, enable
   custom templates for the backend and for the search results
 * changed license from GNU GPL to MIT license (MIT)
-* updated all header informations  
+* updated all header informations
 * removed class.droplets.php - no longer needed
 * renamed frontend.css to kit_event.css to force improved loading by the
   dropletsExtension
-* removed class.editor.php - no longer needed 
+* removed class.editor.php - no longer needed
 * removed backend_body.js - no longer needed
 * changed all language strings to I18n mode
 
@@ -42,7 +48,7 @@ http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 0.28 - 2012-06-01
 
 * fixed - xssPrevent() is too grabby, reduced to own requests
-* changed: introduce $_SESSION['KIT_HTML_REQUEST'] to mark fields which should 
+* changed: introduce $_SESSION['KIT_HTML_REQUEST'] to mark fields which should
   not processed by xssPrevent()
 * moved repository from SVN to GitHub
 * updated all header informations
@@ -58,12 +64,12 @@ http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
 0.26 - 2011-05-22
 
-* Added interaction with droplets_extension, enabling full WebsiteBaker search 
+* Added interaction with droplets_extension, enabling full WebsiteBaker search
   and adding header information on detail page (title, description, keywords)
 
 0.25 - 2011-03-26
 
-* New BETA Release, start adding and changing basic function which are not 
+* New BETA Release, start adding and changing basic function which are not
   compatible to the previous releases
 
 0.11 - 0.24 - 2011-03-25
