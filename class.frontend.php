@@ -907,6 +907,8 @@ class eventFrontend
 
         return $this->getTemplate('frontend.event.order.dwoo', $data);
     } // orderEvent()
+
+
     public function showEvent($show_view = -1)
     {
         if (!isset($_REQUEST[self::REQUEST_EVENT]) && ($show_view == -1)) {
