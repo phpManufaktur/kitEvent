@@ -1,9 +1,9 @@
-<link media="screen" rel="stylesheet" type="text/css" href="{LIB_URL}/kit/presets/DataTables/media/css/demo_page.css" />
-<link media="screen" rel="stylesheet" type="text/css" href="{LIB_URL}/kit/presets/DataTables/media/css/demo_table.css" />
-<link media="screen" rel="stylesheet" type="text/css" href="{LIB_URL}/kit/presets/DataTables/extras/TableTools/media/css/TableTools.css" />  
-<script type="text/javascript" src="{LIB_URL}/kit/presets/DataTables/media/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" charset="utf-8" src="{LIB_URL}/kit/presets/DataTables/extras/TableTools/media/js/ZeroClipboard.js"></script>
-<script type="text/javascript" charset="utf-8" src="{LIB_URL}/kit/presets/DataTables/extras/TableTools/media/js/TableTools.min.js"></script>
+<link media="screen" rel="stylesheet" type="text/css" href="{LIB_URL}/kit_event/presets/DataTables/media/css/demo_page.css" />
+<link media="screen" rel="stylesheet" type="text/css" href="{LIB_URL}/kit_event/presets/DataTables/media/css/demo_table.css" />
+<link media="screen" rel="stylesheet" type="text/css" href="{LIB_URL}/kit_event/presets/DataTables/extras/TableTools/media/css/TableTools.css" />
+<script type="text/javascript" src="{LIB_URL}/kit_event/presets/DataTables/media/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="{LIB_URL}/kit_event/presets/DataTables/extras/TableTools/media/js/ZeroClipboard.js"></script>
+<script type="text/javascript" charset="utf-8" src="{LIB_URL}/kit_event/presets/DataTables/extras/TableTools/media/js/TableTools.min.js"></script>
 <script type="text/javascript" charset="utf-8">
   $(document).ready( function () {
     var oTable = $('#dataTable').dataTable({
@@ -29,12 +29,12 @@
           "sPrevious": "Vorherige Seite",
           "sNext": "Nächste Seite",
           "sLast": "Letzte Seite",
-          "sFirst": "Erste Seite" 
-          }           
-      }      
+          "sFirst": "Erste Seite"
+          }
+      }
     });
     var oTableTools = new TableTools(oTable, {
-      "sSwfPath": "../../modules/kit/presets/DataTables/extras/TableTools/media/swf/copy_csv_xls_pdf.swf"
-    }); 
+      "sSwfPath": "../../modules/kit_event/presets/DataTables/extras/TableTools/media/swf/copy_csv_xls_pdf.swf"
+    });
   } );
 </script>
