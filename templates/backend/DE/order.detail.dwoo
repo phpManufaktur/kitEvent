@@ -16,7 +16,7 @@
 <div class="order_detail">
   <div class="order_label">&nbsp;</div>
   <div class="order_value">
-    <p>{$title}<br />
+    <p>{translate($title)}<br />
     {$first_name} {$last_name}<br />
     {$company}<br />
     {$street}<br />

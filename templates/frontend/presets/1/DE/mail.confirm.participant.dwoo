@@ -19,7 +19,7 @@ vielen Dank für Ihr Interesse an unserer Veranstaltung {$event.headline} am {$e
 
 Sie haben uns folgende Informationen übermittelt:
 
-{$order.title}
+{translate($order.title)}
 {$order.first_name} {$order.last_name}
 {$order.street}
 {$order.zip} {$order.city}

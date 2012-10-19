@@ -15,7 +15,7 @@
  *}
 Zu der Veranstaltung {$event.headline} am {$event.start.datetime} Uhr ist soeben folgende Mitteilung eingegangen:
 
-{$order.title}
+{translate($order.title)}
 {$order.first_name} {$order.last_name}
 {$order.street}
 {$order.zip} {$order.city}
