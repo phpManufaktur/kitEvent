@@ -85,6 +85,8 @@ $LANG = array(
       => 'Anmeldeschluß',
     'Declared'
       => 'Angemeldet',
+    'Delete'
+        => 'Löschen',
     'DELETED'
       => 'Gelöscht',
     'Description'
