@@ -41,7 +41,7 @@
         <td>{$row.event_date}</td>
         <td>{$row.declared}</td>
         <td>{$row.message}</td>
-        <td><a href="{$row.delete_link}"><img src="{$row.delete_image}" width="12" height="12" alt="{translate('Delete')}" title=""{translate('Delete')} /></a></td>
+        <td><a href="{$row.delete_link}"><img src="{$row.delete_image}" width="12" height="12" alt="{translate('Delete')}" title="{translate('Delete')}" /></a></td>
       </tr>
     {/foreach}
     </tbody>
