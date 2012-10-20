@@ -3,16 +3,16 @@
 <script type="text/javascript">
   if( typeof 'jQuery' != 'undefined' ) {
     jQuery(document).ready(function($) {
-  		$("#datepicker_1").datepicker();
-  		$("#datepicker_2").datepicker();
+      $("#datepicker_1").datepicker();
+      $("#datepicker_2").datepicker();
       $("#datepicker_3").datepicker();
       $("#datepicker_4").datepicker();
       $("#datepicker_5").datepicker();
-      $("#datepicker_6").datepicker();      
-	  });
+      $("#datepicker_6").datepicker();
+    });
   }
 </script>
 <!-- position: head -->
 <script type="text/javascript" src="{LIB_URL}/lib_jquery/jquery-ui/ui/jquery.ui.datepicker.min.js"></script>
 <script type="text/javascript" src="{LIB_URL}/lib_jquery/jquery-ui/ui/i18n/jquery.ui.datepicker-de.min.js"></script>
-<link type="text/css" href="{LIB_URL}/lib_jquery/jquery-ui/themes/base/jquery-ui.css" rel="stylesheet" />
+<link type="text/css" href="{LIB_URL}/kit_event/presets/css/jquery-ui.css" rel="stylesheet" />
