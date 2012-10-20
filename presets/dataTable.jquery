@@ -31,8 +31,11 @@
           "sLast": "Letzte Seite",
           "sFirst": "Erste Seite"
           }
-      }
+        }
     });
+    // Sort immediately with column 0, possible directions: 'asc' and 'desc'
+    oTable.fnSort([[0,'desc']]);
+    // set the path for the flash extension
     var oTableTools = new TableTools(oTable, {
       "sSwfPath": "../../modules/kit_event/presets/DataTables/extras/TableTools/media/swf/copy_csv_xls_pdf.swf"
     });
