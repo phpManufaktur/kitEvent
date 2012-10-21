@@ -4,6 +4,13 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+0.34 - 2012-10-21
+
+* updated DE language file
+* moved CSS file for the DatePicker to /presets/css
+* added parameter fnSort for preselect sorting to /presets/dataTable.jquery
+* fixed a wrong declaration in /templates/backend/DE/order.list.dwoo
+
 0.33 - 2012-10-19
 
 * added missing translate() commands in the templates
