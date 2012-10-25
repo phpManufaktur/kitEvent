@@ -6,7 +6,7 @@
  * @copyright 2011 - 2012
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  *
- * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * Please consult the Dwoo Documentation & WIKI to get further informations
  * and hints for the usage of the Dwoo template engine.
  *
  * @link http://wiki.dwoo.org/
@@ -31,7 +31,7 @@
       <div class="message">{$response}</div>
     {/if}
     <div class="evt_order_event_desc">
-      {$event.desc_short}
+      {$event.description.short}
     </div>
     <table width="100%">
       <colgroup>

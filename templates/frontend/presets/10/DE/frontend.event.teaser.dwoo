@@ -6,7 +6,7 @@
  * @copyright 2011 - 2012
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  *
- * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * Please consult the Dwoo Documentation & WIKI to get further informations
  * and hints for the usage of the Dwoo template engine.
  *
  * @link http://wiki.dwoo.org/
@@ -43,10 +43,10 @@
          * Beschreibung der Veranstaltung sowie die zusätzlichen Angaben
          * ausgegeben.
          *}
-        <div class="evt_cal_group_desc">{$event.group_desc}</div>
+        <div class="evt_cal_group_desc">{$event.group.description}</div>
         <div class="evt_cal_headline">{$event.headline}</div>
-        {$event.desc_short}
-        <div class="evt_cal_read_more"><a href="{$event.link_detail}">mehr erfahren...</a></div>
+        {$event.description.short}
+        <div class="evt_cal_read_more"><a href="{$event.link.detail}">mehr erfahren...</a></div>
       </td>
         {*
          * Es wird der Gruppen Bezeichner genutzt um auf der rechten Seite einen
