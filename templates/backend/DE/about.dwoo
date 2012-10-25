@@ -14,12 +14,14 @@
  * Use {dump()} to get a list of all in this template available variables!
  *}
 <div class="about">
+  {if isset($img_url)}
   <div class="about_logo">
-    <img src="{$img_url}" width="424" height="283" alt="kitEventCalendar" />
+    <img src="{$img_url}" width="424" height="283" alt="kitEvent" />
   </div>
+  {/if}
   <div class="about_text">
     <h2>kitEvent</h2>
-    <p>Release {$version}</b> - &copy 2010 by phpManufaktur, Ralf Hertsch (Berlin)</p>
+    <p>Release {$version}</b> - &copy 2011-2012 by phpManufaktur, Ralf Hertsch (Berlin)</p>
     <p class="about_address"><b>phpManufaktur</b><br />Ralf Hertsch<br />Stockholmer Str. 31<br />13359 Berlin</p>
     <p class="about_contact">
       <a href="http://phpmanufaktur.de" target="_blank">http://phpManufaktur.de</a><br />
@@ -27,8 +29,11 @@
       phone +49 (0)30 68813647
     </p>
     <div class="about_release">
-      <p><b>History:</b></p>
-      <pre>{$release_notes}</pre>
+      {if $release.use_markdown}
+        {$release.notes}
+      {else}
+        <pre>{$release.notes}</pre>
+      {/if}
     </div>
   </div>
 </div>
