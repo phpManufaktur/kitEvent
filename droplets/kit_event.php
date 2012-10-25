@@ -8,6 +8,14 @@
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
+if (file_exists(WB_PATH.'/modules/libraryadmin/include.php') && (isset($tablesorter) && strtolower($tablesorter) == 'true')) {
+    // load the jQuery tableSorter if needed
+    include_once WB_PATH.'/modules/libraryadmin/include.php';
+    $new_page = includePreset($wb_page_data, 'lib_jquery', 'tableSorter', 'kit_event', NULL, false, NULL, NULL );
+    if (!empty($new_page))
+      $wb_page_data = $new_page;
+}
+
 if (file_exists(WB_PATH.'/modules/kit_event/class.frontend.php')) {
   require_once(WB_PATH.'/modules/kit_event/class.frontend.php');
   $event = new eventFrontend();
