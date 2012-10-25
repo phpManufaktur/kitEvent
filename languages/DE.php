@@ -109,6 +109,8 @@ $LANG = array(
       => 'Legen Sie fest, ob kitEvent die Kurzbeschreibung bei den Veranstaltungen verwenden soll.',
     'Directory'
       => 'Verzeichnis',
+    'End'
+        => 'Ende',
     'Error: cannot create the file {{ file }}!'
       => '<p>Die Datei <b>{{ file }}</b> konnte nicht geschrieben werden!</p>',
     'Error: cannot send the email to {{ email }}!'
@@ -243,6 +245,8 @@ $LANG = array(
       => 'Veröffentlichen bis',
     'QR-Code Size'
       => 'QR-Code Größe',
+    'Register'
+        => 'Anmelden',
     'Select'
       => 'Auswählen',
     'Set the error correction level from 0 (low) to 3 (high), default is 2'
@@ -253,6 +257,10 @@ $LANG = array(
       => 'Kurzbeschreibung (Pflicht)',
     'Show all events'
       => 'Alle Veranstaltungen anzeigen',
+    'Sign up'
+        => 'Anmelden',
+    'Start'
+        => 'Beginn',
     'Status'
       => 'Status',
     'TAB_ABOUT'
@@ -325,6 +333,8 @@ $LANG = array(
       => 'Perma Links verwenden',
     '<p>Use this dialog to create or edit a group.</p><p>The name of the group should be a single word, it will be used as parameter for the droplet [[kit_event]]</p>'
       => '<p>Mit diesem Dialog können Sie eine neue Gruppe für ein Event (Ereignis) anlegen oder eine bestehende Gruppe bearbeiten.</p><p>Die <i>Bezeichner</i> für die Gruppen sollten möglichst aus einem einzelnen Wort bestehen und keine Leerzeichen, Sonderzeichen enthalten. Sie verwenden den Bezeichner als Parameter beim Aufruf des Droplets [[kit_event]].</p>',
+    'Vacancies'
+        => 'Freie Plätze',
     'With this dialog you can create a new event or edit an existing event.'
       => '<p>Mit diesem Dialog können Sie ein neues Event (Ereignis) anlegen oder ein bestehendes bearbeiten.</p>',
     'You can copy the data from a previous event to a new event, just select an event from the list.'
