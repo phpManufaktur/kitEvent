@@ -17,15 +17,48 @@
   {$template_path}
   {dump()}
 {/if} 
+{*
+  This Sample shows how to create a table as event list.
+  kitEvent comes with the jQuery motTableSorter which enables a easy sorting
+  of table contents. To use the motTableSorter add  the class "tablesorter"
+  to your table and enshure using the <thead> and <tbody> tags in the table.
+  To prevent overhead kitEvent does not load the motTableSorter by default, you 
+  switch it on with the kit_event droplet using the paramt tablesorter=true:
+  
+        [[kit_event?preset=11&tablesorter=true]]
+  
+  If you want to get a list of all available placeholders just use the DEBUG
+  parameter in the droplet:
+  
+        [[kit_event?preset=11&tablesorter=true&debug=true]]
+        
+  this will prompt a complete list of all available placeholders and values at
+  the beginning of the form.
+*}
 <div id="evt_view_active">
-  <h2>Die nächsten Termine der Internet Usergroup Berlin</h2>
-  <div class="evt_view_event">
+  <h2>{translate('Active events')}</h2>
+  <table class="tablesorter" width="100%">
+    <thead>
+    <tr>
+      <th>{translate('Event')}</th>
+      <th>{translate('Start')}</th>
+      <th>{translate('End')}</th>
+      <th>{translate('Location')}</th>
+      <th>{translate('Vacancies')}</th>
+      <th>{translate('Register')}</th>
+    </tr>
+    </thead> 
+    <tbody>
     {foreach $events event}
-      {if $show_details == 1}
-        {include('frontend.event.detail.dwoo')}
-      {else}
-        {include('frontend.event.teaser.dwoo')}
-      {/if}
+    <tr>
+      <td>{$event.headline}</td>  
+      <td>{$event.start.date}</td>
+      <td>{$event.end.date}</td>
+      <td>{$event.location}</td>
+      <td>{$event.participants.free}</td>
+      <td><a href="{$event.link.register}">{translate('Sign up')}</a></td>
+    </tr>
     {/foreach}
-  </div>
+    </tbody>
+  </table>
 </div>
