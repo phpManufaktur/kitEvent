@@ -237,23 +237,23 @@ class eventBackend {
    * @return boolean|Ambigous <string, mixed>
    */
   protected function getTemplate($template, $template_data, $trigger_error=false) {
-  	global $parser;
+    global $parser;
 
-  	// check if a language depending template exists
-  	$template_path = (file_exists(self::$template_path.LANGUAGE.'/'.$template)) ? self::$template_path.LANGUAGE.'/' : self::$template_path.'DE/';
-  	// check if a custom template exists ...
-  	$load_template = (file_exists($template_path.'custom.'.$template)) ? $template_path.'custom.'.$template : $template_path.$template;
-  	try {
-  		$result = $parser->get($load_template, $template_data);
-  	}
-  	catch (Exception $e) {
-  		$this->setError($this->lang->translate('Error executing the template <b>{{ template }}</b>: {{ error }}',
-  		    array('template' => basename($load_template), 'error' => $e->getMessage())));
-  		if ($trigger_error)
-  			trigger_error($this->getError(), E_USER_ERROR);
-  		return false;
-  	}
-  	return $result;
+    // check if a language depending template exists
+    $template_path = (file_exists(self::$template_path.LANGUAGE.'/'.$template)) ? self::$template_path.LANGUAGE.'/' : self::$template_path.'DE/';
+    // check if a custom template exists ...
+    $load_template = (file_exists($template_path.'custom.'.$template)) ? $template_path.'custom.'.$template : $template_path.$template;
+    try {
+      $result = $parser->get($load_template, $template_data);
+    }
+    catch (Exception $e) {
+      $this->setError($this->lang->translate('Error executing the template <b>{{ template }}</b>: {{ error }}',
+          array('template' => basename($load_template), 'error' => $e->getMessage())));
+      if ($trigger_error)
+        trigger_error($this->getError(), E_USER_ERROR);
+      return false;
+    }
+    return $result;
   } // getTemplate()
 
 
@@ -1787,10 +1787,20 @@ class eventBackend {
   } // checkEditGroup()
 
   public function dlgAbout() {
+    $notes = file_get_contents(LEPTON_PATH . '/modules/' . basename(dirname(__FILE__)) . '/CHANGELOG');
+    $use_markdown = 0;
+    if (file_exists(LEPTON_PATH.'/modules/lib_markdown/standard/markdown.php')) {
+      require_once LEPTON_PATH.'/modules/lib_markdown/standard/markdown.php';
+      $notes = Markdown($notes);
+      $use_markdown = 1;
+    }
     $data = array(
-      'version' => sprintf('%01.2f', $this->getVersion()),
-      'img_url' => self::$img_url . '/kit_event_logo_424x283.jpg',
-      'release_notes' => file_get_contents(WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/CHANGELOG')
+        'version' => sprintf('%01.2f', $this->getVersion()),
+        'img_url' => self::$img_url . '/kit_event_logo_424x283.jpg',
+        'release' => array(
+            'use_markdown' => $use_markdown,
+            'notes' => $notes
+        )
     );
     return $this->getTemplate('about.dwoo', $data);
   } // dlgAbout()
