@@ -1269,7 +1269,7 @@ class eventFrontend
             $parser_data = array();
             if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data))
                 return false;
-            $event_items[] = $parser_data;
+            $event_items[$event[dbEvent::field_id]] = $parser_data;
         }
         $show_details = (isset($_REQUEST[self::PARAM_VIEW])) ? (bool) $_REQUEST[self::PARAM_VIEW] : $this->params[self::PARAM_DETAIL];
         $data = array(
