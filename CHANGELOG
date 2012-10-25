@@ -4,6 +4,17 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+0.35 - 2012-10-25
+
+* fixed changed placeholder names in the templates ($event.group.description,
+  $event.description.short, $event.description.long, $event.link.detail a.o.)
+* changed about dialog for usage of Markdown syntax
+* added jQuery motTableSorter
+* updated Droplets for usage of jQuery motTableSorter - use parameter
+  tablesorter=true to activate the table sorter for your form
+* added sample template /templates/frontend/presets/11/DE to show how to display
+  events in a list, using motTableSorter for sorting
+
 0.34 - 2012-10-21
 
 * updated DE language file
