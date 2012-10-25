@@ -1,0 +1,49 @@
+  <script type="text/javascript" src="{LIB_URL}/kit_event/presets/motTableSorter/js/jquery.tablesorter.min.js"></script>
+  <script type="text/javascript" src="{LIB_URL}/kit_event/presets/motTableSorter/addons/pager/jquery.tablesorter.pager.min.js"></script>
+  <link media="screen" rel="stylesheet" type="text/css" href="{LIB_URL}/lib_jquery/jquery-ui/themes/base/jquery-ui.css" />
+  <link rel="stylesheet" type="text/css" href="{LIB_URL}/kit_event/presets/motTableSorter/css/ui/style.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="{LIB_URL}/kit_event/presets/motTableSorter/addons/pager/jquery.tablesorter.pager.css" media="screen" />
+
+  <script type="text/javascript">
+  if( typeof 'jQuery' != 'undefined' ) {
+    jQuery(document).ready(function($) {
+      // add ui theme widget
+      $.tablesorter.addWidget({
+        id: "uitheme",
+        format: function(table) {
+          var c = table.config,
+            // ["up/down arrow (cssHeaders, unsorted)", "down arrow (cssDesc, descending)", "up arrow (cssAsc, ascending)" ]
+            icons = c.uitheme || ["ui-icon-arrowthick-2-n-s", "ui-icon-arrowthick-1-s", "ui-icon-arrowthick-1-n"],
+            klass, rmv = icons.join(' ');
+          if (!$(c.headerList[0]).is('.ui-theme')) {
+            $(table).addClass('ui-widget ui-widget-content ui-corner-all');
+            $.each(c.headerList, function(){
+              $(this)
+                // using "ui-theme" class in case the user adds their own ui-icon using onRenderHeader
+                .addClass('ui-widget-header ui-corner-all ui-theme')
+                .append('<span class="ui-theme"/>');
+            });
+          }
+          $.each(c.headerList, function(i){
+            if (c.headers[i] && c.headers[i].sorter === false) {
+              // no sort arrows for disabled columns!
+              $(this).find('span.ui-theme').removeClass(rmv + ' ui-icon');
+            } else {
+              //
+              klass = ($(this).is('.' + c.cssAsc)) ? icons[1] : ($(this).is('.' + c.cssDesc)) ? icons[2] : $(this).is('.' + c.cssHeader) ? icons[0] : '';
+              $(this).find('span.ui-theme').removeClass(rmv).addClass(klass + ' ui-icon');
+            }
+          });
+        }
+      });
+      // call the tablesorter plugin and apply the ui theme widget
+      $(".tablesorter")
+        .tablesorter({
+          widgets : ['uitheme'],
+        })
+        .tablesorterPager({
+          container: $("#pager")
+        }); ;
+    });
+  }
+  </script>
