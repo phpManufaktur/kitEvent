@@ -4,6 +4,11 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+0.36 - NOT PUBLISHED
+
+* fixed: update script reset the individual configuration settings
+* fixed: invalid constant in droplet kit_monthly_calendar
+
 0.35 - 2012-10-25
 
 * fixed changed placeholder names in the templates ($event.group.description,

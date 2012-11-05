@@ -92,19 +92,19 @@ function directoryTree($dir) {
   while ($stack) {
     $thisdir = array_pop($stack);
     if (false !== ($dircont = scandir($thisdir))) {
-    		$i=0;
-    		while (isset($dircont[$i])) {
-    		  if ($dircont[$i] !== '.' && $dircont[$i] !== '..') {
-    		    $current_file = "{$thisdir}/{$dircont[$i]}";
-    		    if (is_file($current_file)) {
-    		      $path[] = "{$thisdir}/{$dircont[$i]}";
-    		    }
-    		    elseif (is_dir($current_file)) {
-    		      $stack[] = $current_file;
-    		    }
-    		  }
-    		  $i++;
-    		}
+        $i=0;
+        while (isset($dircont[$i])) {
+          if ($dircont[$i] !== '.' && $dircont[$i] !== '..') {
+            $current_file = "{$thisdir}/{$dircont[$i]}";
+            if (is_file($current_file)) {
+              $path[] = "{$thisdir}/{$dircont[$i]}";
+            }
+            elseif (is_dir($current_file)) {
+              $stack[] = $current_file;
+            }
+          }
+          $i++;
+        }
     }
   }
   return $path;
@@ -118,17 +118,17 @@ function getSubDirectories($dir) {
   while ($stack) {
     $thisdir = array_pop($stack);
     if (false !== ($dircont = scandir($thisdir))) {
-    		$i=0;
-    		while (isset($dircont[$i])) {
-    		  if ($dircont[$i] !== '.' && $dircont[$i] !== '..') {
-    		    $current_file = "{$thisdir}/{$dircont[$i]}";
-    		    if (is_dir($current_file)) {
-    		      $path[] = "{$thisdir}/{$dircont[$i]}";
-    		      $stack[] = $current_file;
-    		    }
-    		  }
-    		  $i++;
-    		}
+        $i=0;
+        while (isset($dircont[$i])) {
+          if ($dircont[$i] !== '.' && $dircont[$i] !== '..') {
+            $current_file = "{$thisdir}/{$dircont[$i]}";
+            if (is_dir($current_file)) {
+              $path[] = "{$thisdir}/{$dircont[$i]}";
+              $stack[] = $current_file;
+            }
+          }
+          $i++;
+        }
     }
   }
   return $path;
@@ -311,7 +311,7 @@ wb_unpack_and_import(WB_PATH.'/modules/kit_event/droplets/droplet_kit_monthly_ca
 
 // initialize the configuration
 $config = new manufakturConfig();
-if (!$config->readXMLfile(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/config/kitEvent.xml', 'kit_event', true)) {
+if (!$config->readXMLfile(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/config/kitEvent.xml', 'kit_event', false)) {
   $error .= $config->getError();
 }
 

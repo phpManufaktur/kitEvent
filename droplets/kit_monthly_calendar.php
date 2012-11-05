@@ -21,7 +21,7 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.calendar.php')) {
   $params[monthlyCalendar::PARAM_SELECT_MONTH] = (isset($month)) ? (int) $month : 0;
   $params[monthlyCalendar::PARAM_SELECT_YEAR] = (isset($year)) ? (int) $year : 0;
   $params[monthlyCalendar::PARAM_GROUP] = (isset($group)) ? $group : '';
-  $params[monthlyCalendar::PARAM_ACTION] = (isset($action)) ? $action : monthlyCalendar::action_show_month;
+  $params[monthlyCalendar::PARAM_ACTION] = (isset($action)) ? $action : monthlyCalendar::ACTION_SHOW_MONTH;
   $params[monthlyCalendar::PARAM_PRESET] = (isset($preset)) ? $preset : 1;
   $params[monthlyCalendar::PARAM_LINK_MONTH] = (isset($link_month) && (strtolower($link_month) == 'true')) ? true : false;
   $params[monthlyCalendar::PARAM_DEBUG] = (isset($debug) && strtolower($debug) == 'true') ? true : false;
