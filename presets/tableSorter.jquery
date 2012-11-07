@@ -37,13 +37,14 @@
         }
       });
       // call the tablesorter plugin and apply the ui theme widget
-      $(".tablesorter")
-        .tablesorter({
+      $(".tablesorter").tablesorter({
           widgets : ['uitheme'],
-        })
-        .tablesorterPager({
-          container: $("#pager")
-        }); ;
+        });
+      /* If you want to use the paging function of tableSorter uncomment
+       * the following block and uncomment the pager container in the
+       * frontend.view.active.dwoo template!
+       */
+      // $(".tablesorter").tablesorterPager({container: $("#pager")}); 
     });
   }
   </script>

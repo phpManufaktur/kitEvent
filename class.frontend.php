@@ -1274,7 +1274,12 @@ class eventFrontend
         $show_details = (isset($_REQUEST[self::PARAM_VIEW])) ? (bool) $_REQUEST[self::PARAM_VIEW] : $this->params[self::PARAM_DETAIL];
         $data = array(
             'events' => $event_items,
-            'show_details' => ($show_details) ? 1 : 0);
+            'show_details' => ($show_details) ? 1 : 0,
+            'module' => array(
+                'directory' => WB_URL.'/modules/kit_event',
+                'path' => WB_PATH.'/modules/kit_event'
+                )
+            );
         return $this->getTemplate('frontend.view.active.dwoo', $data);
     } // viewEventActive
 
