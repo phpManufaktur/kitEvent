@@ -508,9 +508,11 @@ class eventFrontend
             return false;
         }
         if (count($group) > 0) {
+            $group_id = $group[0][dbEventGroup::field_id];
             $group_name = $group[0][dbEventGroup::field_name];
             $group_desc = $group[0][dbEventGroup::field_desc];
         } else {
+            $group_id = -1;
             $group_name = '';
             $group_desc = '';
         }
@@ -566,6 +568,7 @@ class eventFrontend
             'headline' => $event_data[dbEventItem::field_title],
             'id' => $event_data[dbEvent::field_id],
             'group' => array(
+                'id' => $group_id,
                 'name' => $group_name,
                 'description' => $group_desc),
             'start' => $this->getStartEndDates($event_data, true),
@@ -926,7 +929,7 @@ class eventFrontend
             register_droplet_header('kit_event', PAGE_ID, 'kit_event');
         }
         if (function_exists('is_registered_droplet_css') && ($this->params[self::PARAM_CSS] && !is_registered_droplet_css('kit_event', PAGE_ID))) {
-            register_droplet_css('kit_event', PAGE_ID, 'kit_event', 'frontend.css');
+            register_droplet_css('kit_event', PAGE_ID, 'kit_event', 'kit_event.css');
         }
 
         switch ($event_view) :

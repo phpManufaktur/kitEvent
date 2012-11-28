@@ -40,6 +40,9 @@ global $manufakturConfig;
 if (!is_object($manufakturConfig))
   $manufakturConfig = new manufakturConfig('kit_event');
 
+require_once (WB_PATH . '/modules/droplets_extension/interface.php');
+
+
 class monthlyCalendar
 {
 

@@ -4,13 +4,14 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
-0.36 - NOT PUBLISHED
+0.36 - 2012-11-28
 
 * fixed: update script reset the individual configuration settings
 * fixed: invalid constant in droplet kit_monthly_calendar
 * added: paging function for the tableSorter in tableSorter.jquery and the
   in /templates/frontend/preset/11/DE/frontend.view.active.dwoo - you must
   uncomment the paging function to activate it.
+* fixed: added missing initializing for dropletsExtension in class.calendar.php
 
 0.35 - 2012-10-25
 
