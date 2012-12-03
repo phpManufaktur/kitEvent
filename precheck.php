@@ -45,27 +45,27 @@ $PRECHECK['PHP_VERSION'] = array(
 $check = array(
     'dbConnect_LE' => array(
         'directory' => 'dbconnect_le',
-        'version' => '0.68',
+        'version' => '0.70',
         'problem' => 'dbConnect_LE => <b><a href="https://addons.phpmanufaktur.de/download.php?file=dbConnect_LE" target="_blank">Download actual version</a></b>'
         ),
     'Dwoo' => array(
         'directory' => 'dwoo',
-        'version' => '0.15',
+        'version' => '0.17',
         'problem' => 'Dwoo => <b><a href="https://addons.phpmanufaktur.de/download.php?file=Dwoo" target="_blank">Download actual version</a></b>'
         ),
     'dropletsExtension' => array(
         'directory' => 'droplets_extension',
-        'version' => '0.18',
+        'version' => '0.24',
         'problem' => 'dropletsExtension => <b><a href="https://addons.phpmanufaktur.de/download.php?file=dropletsExtension" target="_blank">Download actual version</a></b>'
         ),
     'kitTools' => array(
         'directory' => 'kit_tools',
-        'version' => '0.16',
+        'version' => '0.18',
         'problem' => 'kitTools => <b><a href="https://addons.phpmanufaktur.de/download.php?file=kitTools" target="_blank">Download actual version</a></b>'
         ),
     'manufakturConfig' => array(
         'directory' => 'manufaktur_config',
-        'version' => '0.15',
+        'version' => '0.16',
         'problem' => 'manufakturConfig => <b><a href="https://addons.phpmanufaktur.de/download.php?file=manufakturConfig" target="_blank">Download actual version</a></b>'
         ),
     'permaLink' => array(
