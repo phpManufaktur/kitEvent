@@ -29,6 +29,8 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.frontend.php')) {
   $params[eventFrontend::PARAM_HEADER] = (isset($header) && strtolower($header) == 'true') ? true : false;
   $params[eventFrontend::PARAM_CSS] = (isset($load_css) && strtolower($load_css) == 'false') ? false : true;
   $params[eventFrontend::PARAM_DEBUG] = (isset($debug) && strtolower($debug) == 'true') ? true : false;
+  $params[eventFrontend::PARAM_RESPONSE_ID] = (isset($response_id)) ? $response_id : -1;
+  $params[eventFrontend::PARAM_IGNORE_TOPICS] = (isset($ignore_topics) && strtolower($ignore_topics) == 'true') ? true : false;
   $event->setParams($params);
   return $event->action();
 }
