@@ -4,6 +4,10 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+0.37 - 2012-12-28
+
+* fixed: permaLinks uses the wrong action parameter, so they don't work
+
 0.36 - 2012-11-28
 
 * fixed: update script reset the individual configuration settings

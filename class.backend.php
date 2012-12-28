@@ -65,6 +65,13 @@ class eventBackend {
   const ACTION_MESSAGES = 'msg';
   const ACTION_MESSAGES_DETAIL = 'msgd';
 
+  // needed for permaLink - must be similiar to the const in class.frontend.php!
+  const REQUEST_EVENT = 'evt';
+  const REQUEST_EVENT_DETAIL = 'det';
+  const REQUEST_EVENT_ID = 'id';
+  const ACTION_EVENT = 'evt';
+  const VIEW_ID = 'id';
+
   private static $tab_navigation_array = array(
     self::ACTION_LIST => 'TAB_LIST',
     self::ACTION_EDIT => 'TAB_EDIT',
@@ -1341,10 +1348,10 @@ class eventBackend {
         $redirect = $group[dbEventGroup::field_redirect_page];
         // REDIRECT mit den erforderlichen Parametern ergaenzen
         $redirect = sprintf('%s%s%s', $redirect, (strpos($redirect, '?') !== false) ? '&' : '?', http_build_query(array(
-          'act' => 'evt',
-          'evt' => 'id',
-          'det' => '1',
-          'id' => $event[dbEvent::field_id]
+          self::REQUEST_ACTION => self::ACTION_EVENT,
+          self::REQUEST_EVENT => self::VIEW_ID,
+          self::REQUEST_EVENT_DETAIL => '1',
+          self::REQUEST_EVENT_ID => $event[dbEvent::field_id]
         )));
         // kein Muster und Redirect definiert, kein permaLink gesetzt - nix zu
         // tun
@@ -1418,10 +1425,10 @@ class eventBackend {
         }
         // REDIRECT mit den erforderlichen Parametern ergaenzen
         $redirect = sprintf('%s%s%s', $redirect, (strpos($redirect, '?') !== false) ? '&' : '?', http_build_query(array(
-          'act' => 'evt',
-          'evt' => 'id',
-          'det' => '1',
-          'id' => $event[dbEvent::field_id]
+          self::REQUEST_ACTION => self::ACTION_EVENT,
+          self::REQUEST_EVENT => self::VIEW_ID,
+          self::REQUEST_EVENT_DETAIL => '1',
+          self::REQUEST_EVENT_ID => $event[dbEvent::field_id]
         )));
         $permaLink = new permaLink();
         $pid = -1;
@@ -1476,10 +1483,10 @@ class eventBackend {
         }
         // REDIRECT mit den erforderlichen Parametern ergaenzen
         $redirect = sprintf('%s%s%s', $redirect, (strpos($redirect, '?') !== false) ? '&' : '?', http_build_query(array(
-          'act' => 'evt',
-          'evt' => 'id',
-          'det' => '1',
-          'id' => $event[dbEvent::field_id]
+          self::REQUEST_ACTION => self::ACTION_EVENT,
+          self::REQUEST_EVENT => self::VIEW_ID,
+          self::REQUEST_EVENT_DETAIL => '1',
+          self::REQUEST_EVENT_ID => $event[dbEvent::field_id]
         )));
         $permaLink = new permaLink();
         $pid = -1;
@@ -1561,10 +1568,10 @@ class eventBackend {
         }
         // REDIRECT mit den erforderlichen Parametern ergaenzen
         $redirect = sprintf('%s%s%s', $redirect, (strpos($redirect, '?') !== false) ? '&' : '?', http_build_query(array(
-          'act' => 'evt',
-          'evt' => 'id',
-          'det' => '1',
-          'id' => $event[dbEvent::field_id]
+          self::REQUEST_ACTION => self::ACTION_EVENT,
+          self::REQUEST_EVENT => self::VIEW_ID,
+          self::REQUEST_EVENT_DETAIL => '1',
+          self::REQUEST_EVENT_ID => $event[dbEvent::field_id]
         )));
         $permaLink = new permaLink();
         $pid = -1;
