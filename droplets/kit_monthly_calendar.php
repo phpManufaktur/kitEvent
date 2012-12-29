@@ -26,6 +26,8 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.calendar.php')) {
   $params[monthlyCalendar::PARAM_LINK_MONTH] = (isset($link_month) && (strtolower($link_month) == 'true')) ? true : false;
   $params[monthlyCalendar::PARAM_DEBUG] = (isset($debug) && strtolower($debug) == 'true') ? true : false;
   $params[monthlyCalendar::PARAM_CSS] = (isset($css) && strtolower($css) == 'false') ? false : true;
+  $params[monthlyCalendar::PARAM_ORDER] = isset($order) ? strtolower($order) : 'none';
+  $params[monthlyCalendar::PARAM_LIMIT] = isset($limit) ? (int) $limit : -1;
   $calendar->setParams($params);
   return $calendar->action();
 }
