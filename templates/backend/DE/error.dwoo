@@ -1,0 +1,24 @@
+{*
+ * kitEvent
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/manufakturConfig
+ * @copyright 2011 - 2013 phpManufaktur by Ralf Hertsch
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="evt_error">
+  <h2>{translate('Error message')}</h2>
+  <div class="evt_error_message">
+    {$content}
+  </div>
+  <div class="evt_error_reporting">
+    {translate('<p>Please help to improve open source software and report this problem to the <b><a href="{{ support }}" target="_blank">Addons Support Group</a></b> of the <b><a href="{{ phpmanufaktur }}" target="_blank">phpManufaktur</a></b>.</p>', array(support='https://phpmanufaktur.de/support',phpmanufaktur='http://addons.phpmanufaktur.de'))}
+  </div>
+</div>   
