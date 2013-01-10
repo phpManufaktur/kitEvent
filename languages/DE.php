@@ -223,6 +223,8 @@ $LANG = array(
       => '<p>Bitte prüfen Sie das Veröffentlichungsdatum!</p>',
     'Please click to get more informations about the events of this day!'
       => 'Anklicken, um mehr über die Veranstaltungen an diesem Tag zu erfahren!',
+    '<p>Please help to improve open source software and report this problem to the <b><a href="{{ support }}" target="_blank">Addons Support Group</a></b> of the <b><a href="{{ phpmanufaktur }}" target="_blank">phpManufaktur</a></b>.</p>'
+      => 'Bitte helfen Sie mit, diese Open Source Software zu verbessern und melden Sie das aufgetretene Problem in der <strong><a href="{{ support }}" target="_blank">Addons Support Group</a></strong> dem Team der <strong><a href="{{ phpmanufaktur }}" target="_blank">phpManufaktur</a></strong>.',
     '<p>Please insert a event title!</p>'
       => '<p>Bitte geben Sie eine Schlagzeile für das Event an!</p>',
     '<p>Please type in the city!</p>'
@@ -268,13 +270,13 @@ $LANG = array(
     'TAB_CONFIG'
       => 'Einstellungen',
     'TAB_EDIT'
-      => 'Bearbeiten',
+      => 'Veranstaltung',
     'TAB_GROUP'
       => 'Gruppen',
     'TAB_LIST'
-      => 'Liste',
+      => 'Aktuelle Veranstaltungen',
     'TAB_MESSAGES'
-      => 'Mitteilungen',
+      => 'Anmeldungen',
     '<p>The CAPTCHA is invalid!</p>'
       => '<p>Der übermittelte Wert stimmt nicht mit dem Captcha überein.</p>',
     'The content of the QR-Code ()1=Perma Link, 2=iCal information), default is 2'
@@ -321,6 +323,8 @@ $LANG = array(
       => '<p>Es wurden Daten aus dem Event mit der <b>ID {{ id }}</b> übernommen!</p>',
     'This list shows you all active events'
       => '<p>In dieser Liste sehen Sie alle aktuell anstehenden Veranstaltungen.</p>',
+    '<p>This list shows you all registrations for your events.</p>'
+      => '<p>Diese Liste zeigt Ihnen alle Anmeldungen sowie Anfragen zu Ihren Veranstaltungen.</p>',
     'Time end'
       => 'Uhrzeit: Ende',
     'Time start'
@@ -338,5 +342,5 @@ $LANG = array(
     'With this dialog you can create a new event or edit an existing event.'
       => '<p>Mit diesem Dialog können Sie ein neues Event (Ereignis) anlegen oder ein bestehendes bearbeiten.</p>',
     'You can copy the data from a previous event to a new event, just select an event from the list.'
-      => '<p>Sie können Daten eines früheren Event für das neue Event übernehmen. Wählen Sie dazu das passende Event aus.</p>'
+      => '<p>Sie können die Daten einer früheren Veranstaltung für die Anlage einer neuen Veranstaltung übernehmen. Wählen Sie dazu einfach die passende Veranstaltung aus.</p><p>Wenn Sie eine neue Veranstaltung ohne Vorbelegung erstellen möchten, klicken Sie einfach auf <kbd>OK</kbd>, Sie gelangen dann direkt in den Dialog zum Bearbeiten der Veranstaltung.</p>'
     );

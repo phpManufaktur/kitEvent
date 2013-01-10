@@ -26,11 +26,9 @@
     {/if}
   {/foreach}
   </ul>
-{if $error == 1}
-  <div class="error">
-{else}
-  <div>
-{/if}
+  {if $error == 1}
+    {include('error.dwoo')}
+  {else}
     {$content}
-  </div>
+  {/if}
 </div>

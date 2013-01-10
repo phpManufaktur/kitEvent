@@ -35,7 +35,7 @@ if (!defined('KIT_DEBUG')) define('KIT_DEBUG', false);
 
 // Prompt all errors and use own error_handler
 if (KIT_DEBUG == true) {
-	ini_set('error_reporting', E_ALL);
+  ini_set('error_reporting', E_ALL);
 }
 
 // wb2lepton compatibility
@@ -62,7 +62,7 @@ else
 
 
 if (!class_exists('dbconnectle')) 				require_once(WB_PATH.'/modules/dbconnect_le/include.php');
-if (!class_exists('kitToolsLibrary'))   	require_once(WB_PATH.'/modules/kit_tools/class.tools.php');
+if (!class_exists('kitEventToolsLibrary'))   	require_once(WB_PATH.'/modules/kit_event/class.tools.php');
 
 if (!class_exists('Dwoo')) {
   require_once WB_PATH.'/modules/dwoo/include.php';
@@ -84,13 +84,11 @@ require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.event.php')
 global $dbEvent;
 global $dbEventGroup;
 global $dbEventItem;
-global $dbEventOrder;
-global $kitLibrary;
+global $kitEventTools;
 
 if (!is_object($dbEvent)) $dbEvent = new dbEvent();
 if (!is_object($dbEventGroup)) $dbEventGroup = new dbEventGroup();
 if (!is_object($dbEventItem)) $dbEventItem = new dbEventItem();
-if (!is_object($dbEventOrder)) $dbEventOrder = new dbEventOrder();
-if (!is_object($kitLibrary)) $kitLibrary = new kitToolsLibrary();
+if (!is_object($kitEventTools)) $kitEventTools = new kitEventToolsLibrary();
 
 ?>

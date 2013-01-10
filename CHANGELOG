@@ -4,10 +4,19 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+0.39 - NOT PUBLISHED
+
+* fixed: jQuery Datepicker missed some Icons in kitEvent backend.
+* fixed: on add-on updates the kitEvent.xml overwrites already existing settings
+* removed: no longer needed template /backend/DE/config.dwoo
+* changed: kitEvent no longer need the kitTools
+* changed: class.frontend.php passes calls from DropletsExtension to avoid
+  double form submissions
+
 0.38 - 2012-12-29
 
 * added: parameter ORDER and LIMIT for the droplet kit_monthly_calender, please
-  check http://yals.de/QZ8DpQ for more informations.
+  check <http://yals.de/QZ8DpQ> for more informations.
 
 0.37 - 2012-12-28
 

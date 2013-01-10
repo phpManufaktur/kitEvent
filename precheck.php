@@ -58,11 +58,6 @@ $check = array(
         'version' => '0.24',
         'problem' => 'dropletsExtension => <b><a href="https://addons.phpmanufaktur.de/download.php?file=dropletsExtension" target="_blank">Download actual version</a></b>'
         ),
-    'kitTools' => array(
-        'directory' => 'kit_tools',
-        'version' => '0.18',
-        'problem' => 'kitTools => <b><a href="https://addons.phpmanufaktur.de/download.php?file=kitTools" target="_blank">Download actual version</a></b>'
-        ),
     'manufakturConfig' => array(
         'directory' => 'manufaktur_config',
         'version' => '0.16',

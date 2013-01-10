@@ -233,6 +233,8 @@ if (file_exists(WB_PATH.'/modules/kit_event/htt')) {
 @unlink(WB_PATH.'/modules/kit_event/backend_body.js');
 rm_full_dir(WB_PATH.'/modules/kit_event/include/jquery');
 
+@unlink(WB_PATH.'/modules/kit_event/templates/backend/DE/config.dwoo');
+
 // install or upgrade droplets
 if (file_exists(WB_PATH.'/modules/droplets/functions.inc.php')) {
   include_once(WB_PATH.'/modules/droplets/functions.inc.php');
@@ -319,5 +321,3 @@ if (!$config->readXMLfile(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/conf
 if (!empty($error)) {
   $admin->print_error($error, 'javascript:history_back();');
 }
-
-?>

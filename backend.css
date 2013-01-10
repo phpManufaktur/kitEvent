@@ -178,7 +178,7 @@ textarea
   line-height: 120%;
 }
 .additional {
-  margin: 10px 0 5px 0;
+  margin: 20px 0 5px 0;
   text-align: right;
   font-size: 8pt;
 }
@@ -231,4 +231,59 @@ td.data_ord_confirm
 .clear {
   height: 8px;
   clear: both;
+}
+#evt_suggest,
+#evt_groups,
+#evt_order_list,
+#evt_error,
+#evt_list {
+  background-image: url(templates/backend/DE/images/list.png);
+  background-position: top right;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  margin: 0;
+  padding: 5px 10px 20px 10px;
+}
+#evt_error {
+  background-image: url(templates/backend/DE/images/error.png);
+}
+#evt_order_list {
+  background-image: url(templates/backend/DE/images/order-list.png);
+}
+#evt_groups {
+  background-image: url(templates/backend/DE/images/groups.png);
+}
+#evt_suggest {
+  background-image: url(templates/backend/DE/images/suggest.png);
+}
+.evt_suggest_spacer,
+.evt_groups_spacer,
+.evt_order_list_spacer {
+  width: 1px;
+  height: 20px;
+}
+.evt_error_message,
+.evt_message,
+.evt_intro {
+  color: #fff;
+  background-color: #5b768a;
+  margin: 15px 120px 10px 0;
+  padding: 10px;
+  font-size: 10px;
+  min-height: 45px;
+}
+.evt_message {
+  color: #363636;
+  background-color: #d6c48d;
+}
+.evt_error_message {
+  color: #fff;
+  background-color: #992826;
+}
+.evt_error_reporting {
+  margin: 30px 120px 0 0;
+  padding: 10px;
+  color: #992826;
+  background-color: #fff;
+  border: 1px solid #992826;
 }

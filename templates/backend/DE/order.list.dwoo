@@ -13,11 +13,18 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
-<div class="evt_list">
+<div id="evt_order_list">
   <h2>{translate('Orders and messages')}</h2>
-  {if (count_characters($intro) > 0)}
-  <div class="{if $is_intro == 1}intro{else}message{/if}">{$intro}</div>
+  {if $is_intro == 0}
+    <div class="evt_message">
+      {$intro}
+    </div>
+  {else}
+    <div class="evt_intro">
+      {translate('<p>This list shows you all registrations for your events.</p>')}
+    </div>
   {/if}
+  <div class="evt_order_list_spacer"></div>
   <table class="display" id="dataTable" width="100%">
     <thead>
       <tr>

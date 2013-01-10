@@ -111,11 +111,11 @@ class monthlyCalendar
     protected $lang = null;
 
     public function __construct() {
-        global $kitLibrary;
+        global $kitEventTools;
         global $I18n;
 
         self::$template_path = WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/templates/frontend/presets/';
-        $kitLibrary->getUrlByPageID(PAGE_ID, $this->page_link);
+        $kitEventTools->getUrlByPageID(PAGE_ID, $this->page_link);
         date_default_timezone_set(CFG_TIME_ZONE);
         $this->lang = $I18n;
     } // __construct()
@@ -334,7 +334,7 @@ class monthlyCalendar
 
     public function showCalendar()
     {
-        global $kitLibrary;
+        global $kitEventTools;
         global $parser;
 
         if (($this->params[self::PARAM_SELECT_MONTH] > 0)
@@ -372,7 +372,7 @@ class monthlyCalendar
         $month_name = $this->getMonthName($month);
 
         if ($this->params[self::PARAM_RESPONSE_ID] > 0) {
-            $kitLibrary
+            $kitEventTools
                     ->getUrlByPageID($this->params[self::PARAM_RESPONSE_ID],
                             $this->response_link,
                             $this->params[self::PARAM_IGNORE_TOPICS]);
@@ -601,7 +601,7 @@ class monthlyCalendar
     } // unsanitizeText()
 
     public function showList() {
-        global $kitLibrary;
+        global $kitEventTools;
         global $dbEvent;
         global $dbEventItem;
         global $dbEventGroup;
@@ -633,7 +633,7 @@ class monthlyCalendar
         }
 
         if ($this->params[self::PARAM_RESPONSE_ID] > 0) {
-            $kitLibrary->getUrlByPageID(
+            $kitEventTools->getUrlByPageID(
                 $this->params[self::PARAM_RESPONSE_ID],
                 $this->response_link,
                 $this->params[self::PARAM_IGNORE_TOPICS]);

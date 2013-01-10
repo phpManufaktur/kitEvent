@@ -13,78 +13,84 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
-<form name="{$form_name}" action="{$form_action}" method="post">
-  <input type="hidden" name="{$action_name}" value="{$action_value}" />
-  <h2>{translate('Create or edit group')}</h2>
-  <div class="{if $message.active == 1}message{else}intro{/if}">
+<div id="evt_groups"> 
+  <form name="{$form_name}" action="{$form_action}" method="post">
+    <input type="hidden" name="{$action_name}" value="{$action_value}" />
+    <h2>{translate('Create or edit group')}</h2>
     {if $message.active == 1}
-      {$message.content}
+      <div class="evt_message">
+        {$message.content}
+      </div>
     {else}
-      {translate('<p>Use this dialog to create or edit a group.</p><p>The name of the group should be a single word, it will be used as parameter for the droplet [[kit_event]]</p>')}
+      <div class="evt_intro">
+        {translate('<p>Use this dialog to create or edit a group.</p><p>The name of the group should be a single word, it will be used as parameter for the droplet [[kit_event]]</p>')}
+      </div>
     {/if}
-  </div>
-  <table width="100%">
-    <colgroup>
-      <col width="180" />
-      <col width="*" />
-      <col width="300" />
-    </colgroup>
-    <tr>
-      <td class="group_label">{translate('Select')}</td>
-      <td class="group_value">
-        <select id="{$group.group.name}" name="{$group.group.name}" onchange="{$group.group.location}">
-          {foreach $group.group.value grp}
-          <option value="{$grp.value}"{if $grp.selected == 1} selected="selected"{/if}>{$grp.text}</option>
-          {/foreach}
-        </select>
-      </td>
-      <td class="group_hint">&nbsp;</td>
-    </tr>
-    <tr>
-      <td class="group_label">{translate('Group name')}</td>
-      <td class="group_value"><input type="text" name="{$group.name.name}" value="{$group.name.value}" /></td>
-      <td class="group_hint">&nbsp;</td>
-    </tr>
-    <tr>
-      <td class="group_label">{translate('Page with details')}</td>
-      <td class="group_value">
-        <select name="{$group.redirect_page.name}"> 
-          {foreach $group.redirect_page.options option}
-          <option value="{$option.value}"{if $group.redirect_page.value == $option.value} selected="selected"{/if}>{$option.text}</option>
-          {/foreach}
-        </select>
-      </td>
-      <td class="group_hint">{translate('Determine at which page the droplet [[kit_event]] is placed. This information is important for the automatic creation of the permaLinks')}</td>
-    </tr>
-    <tr>
-      <td class="group_label">{translate('Permanent Link Pattern')}</td>
-      <td class="group_value"><input type="text" name="{$group.perma_pattern.name}" value="{$group.perma_pattern.value}" /></td>
-      <td class="group_hint">{translate('Pattern for the automatic generation of permanent links. Possible placeholders are <b>{&#x0024;ID}, {&#x0024;NAME}, {&#x0024;YEAR}, {&#x0024;MONTH}, {&#x0024;DAY}</b> and <b>{&#x0024;EXT}</b>.<br />The assigned permaLink is relative to the page directory, must star6t with a slash / and is closed by the file extension.<br />Sample: <b>/termine/{&#x0024;NAME}-{&#x0024;YEAR}{&#x0024;MONTH}{&#x0024;DAY}{&#x0024;EXT}</b>')}</td>
-    </tr>
-    <tr>
-      <td class="group_label">{translate('Description')}</td>
-      <td class="group_value">
-        <textarea name="{$group.desc.name}">{$group.desc.value}</textarea>
-      </td>
-      <td class="group_hint">&nbsp;</td>
-    </tr>
-    <tr>
-      <td class="group_label">{translate('Status')}</td>
-      <td class="group_value">
-        <select name="{$group.status.name}">
-          {foreach $group.status.value status}
-          <option value="{$status.value}"{if $status.selected == 1} selected="selected"{/if}>{translate($status.text)}</option>
-          {/foreach}
-        </select>
-      </td>
-      <td class="group_hint">&nbsp;</td>
-    </tr>
-    <tr><td colspan="3">&nbsp;</td></tr>
-    <tr>
-      <td colspan="3">
-        <input type="submit" value="{translate('OK')}" />&nbsp;
-        <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
-      </td>
-    </tr>
-  </table>
-</form>
+    <div class="evt_groups_spacer"></div>
+    <table width="100%">
+      <colgroup>
+        <col width="180" />
+        <col width="*" />
+        <col width="300" />
+      </colgroup>
+      <tr>
+        <td class="group_label">{translate('Select')}</td>
+        <td class="group_value">
+          <select id="{$group.group.name}" name="{$group.group.name}" onchange="{$group.group.location}">
+            {foreach $group.group.value grp}
+            <option value="{$grp.value}"{if $grp.selected == 1} selected="selected"{/if}>{$grp.text}</option>
+            {/foreach}
+          </select>
+        </td>
+        <td class="group_hint">&nbsp;</td>
+      </tr>
+      <tr>
+        <td class="group_label">{translate('Group name')}</td>
+        <td class="group_value"><input type="text" name="{$group.name.name}" value="{$group.name.value}" /></td>
+        <td class="group_hint">&nbsp;</td>
+      </tr>
+      <tr>
+        <td class="group_label">{translate('Page with details')}</td>
+        <td class="group_value">
+          <select name="{$group.redirect_page.name}"> 
+            {foreach $group.redirect_page.options option}
+            <option value="{$option.value}"{if $group.redirect_page.value == $option.value} selected="selected"{/if}>{$option.text}</option>
+            {/foreach}
+          </select>
+        </td>
+        <td class="group_hint">{translate('Determine at which page the droplet [[kit_event]] is placed. This information is important for the automatic creation of the permaLinks')}</td>
+      </tr>
+      <tr>
+        <td class="group_label">{translate('Permanent Link Pattern')}</td>
+        <td class="group_value"><input type="text" name="{$group.perma_pattern.name}" value="{$group.perma_pattern.value}" /></td>
+        <td class="group_hint">{translate('Pattern for the automatic generation of permanent links. Possible placeholders are <b>{&#x0024;ID}, {&#x0024;NAME}, {&#x0024;YEAR}, {&#x0024;MONTH}, {&#x0024;DAY}</b> and <b>{&#x0024;EXT}</b>.<br />The assigned permaLink is relative to the page directory, must star6t with a slash / and is closed by the file extension.<br />Sample: <b>/termine/{&#x0024;NAME}-{&#x0024;YEAR}{&#x0024;MONTH}{&#x0024;DAY}{&#x0024;EXT}</b>')}</td>
+      </tr>
+      <tr>
+        <td class="group_label">{translate('Description')}</td>
+        <td class="group_value">
+          <textarea name="{$group.desc.name}">{$group.desc.value}</textarea>
+        </td>
+        <td class="group_hint">&nbsp;</td>
+      </tr>
+      <tr>
+        <td class="group_label">{translate('Status')}</td>
+        <td class="group_value">
+          <select name="{$group.status.name}">
+            {foreach $group.status.value status}
+            <option value="{$status.value}"{if $status.selected == 1} selected="selected"{/if}>{translate($status.text)}</option>
+            {/foreach}
+          </select>
+        </td>
+        <td class="group_hint">&nbsp;</td>
+      </tr>
+      <tr><td colspan="3">&nbsp;</td></tr>
+      <tr>
+        <td class="group_label">&nbsp;</td>
+        <td colspan="2">
+          <input type="submit" value="{translate('OK')}" />&nbsp;
+          <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
+        </td>
+      </tr>
+    </table>
+  </form>
+</div>

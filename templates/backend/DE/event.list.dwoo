@@ -13,15 +13,17 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
-<div class="evt_list">
+<div id="evt_list">
   <h2>{translate('List of the active events')}</h2>
-  <div class="{if $message.active == 1}message{else}intro{/if}">
-    {if $message.active == 1}
+  {if $message.active == 1}
+    <div class="evt_message">
       {$message.content}
-    {else}
+    </div>
+  {else}
+    <div class="evt_intro">
       {translate('This list shows you all active events')}
-    {/if}
-  </div>
+    </div>
+  {/if}
   <div class="additional"><a href="{$show_all_link}">{translate('Show all events')}</a></div>
   <table class="display" id="dataTable" width="100%">
     <thead>

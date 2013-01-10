@@ -79,7 +79,7 @@ class eventFrontend
     const PARAM_GROUP = 'group';
     const PARAM_EVENT_ID = 'event_id';
     const PARAM_IGNORE_TOPICS = 'ignore_topics';
-    const PARAM_RESPONSE_ID = 'response_id'; // noch inaktiv!!!
+    // const PARAM_RESPONSE_ID = 'response_id'; // noch inaktiv!!!
     const PARAM_SEARCH = 'search';
     const PARAM_HEADER = 'header';
     const PARAM_CSS = 'css';
@@ -97,12 +97,13 @@ class eventFrontend
         self::PARAM_DETAIL => false,
         self::PARAM_GROUP => '',
         self::PARAM_EVENT_ID => -1,
-        self::PARAM_RESPONSE_ID => -1,
+        // self::PARAM_RESPONSE_ID => -1, // inactive - not used!
         self::PARAM_IGNORE_TOPICS => false,
         self::PARAM_SEARCH => false,
         self::PARAM_HEADER => false,
         self::PARAM_CSS => true,
-        self::PARAM_DEBUG => false);
+        self::PARAM_DEBUG => false
+        );
 
     private static $template_path;
     private static $page_link;
@@ -127,13 +128,13 @@ class eventFrontend
 
     public function __construct()
     {
-        global $kitLibrary;
+        global $kitEventTools;
         global $manufakturConfig;
         global $I18n;
 
         $url = '';
         $_SESSION['FRONTEND'] = true;
-        $kitLibrary->getPageLinkByPageID(PAGE_ID, $url);
+        $kitEventTools->getPageLinkByPageID(PAGE_ID, $url);
         self::$page_link = $url;
         self::$template_path = WB_PATH . '/modules/kit_event/templates/frontend/presets/';
         date_default_timezone_set(CFG_TIME_ZONE);
@@ -341,6 +342,10 @@ class eventFrontend
     {
         if ($this->isError())
             return $this->getError();
+
+        // we can ignore calls by DropletsExtions...
+        if (isset($_SESSION['DROPLET_EXECUTED_BY_DROPLETS_EXTENSION'])) return '- passed call by DropletsExtension -';
+
         $html_allowed = array();
         foreach ($_REQUEST as $key => $value) {
             if (stripos($key, 'amp;') == 0) {
@@ -486,7 +491,7 @@ class eventFrontend
         global $dbEvent;
         global $dbEventItem;
         global $dbEventGroup;
-        global $kitLibrary;
+        global $kitEventTools;
 
         $SQL = sprintf('SELECT * FROM %1$s, %2$s WHERE %1$s.%3$s = %2$s.%4$s AND %1$s.%5$s=\'%6$s\'', $dbEvent->getTableName(), $dbEventItem->getTableName(), dbEvent::field_event_item, dbEventItem::field_id, dbEvent::field_id, $event_id);
         $event_data = array();
@@ -530,8 +535,8 @@ class eventFrontend
         // QR Code
         if (self::$cfgQRCodeCreate) {
             // QR Code verwenden
-            $dir = $kitLibrary->removeLeadingSlash(self::$cfgQRCodeDir);
-            $dir = $kitLibrary->addSlash($dir);
+            $dir = $kitEventTools->removeLeadingSlash(self::$cfgQRCodeDir);
+            $dir = $kitEventTools->addSlash($dir);
             $dir_path = WB_PATH . MEDIA_DIRECTORY . '/' . $dir;
             $filename = $event_data[dbEvent::field_qrcode_image];
             if (!empty($filename) && file_exists($dir_path . $filename)) {
@@ -555,8 +560,8 @@ class eventFrontend
         }
         // iCal
         if (self::$cfgICalCreate && !empty($event_data[dbEvent::field_ical_file])) {
-            $dir = $kitLibrary->removeLeadingSlash(self::$cfgICalDir);
-            $dir = $kitLibrary->addSlash($dir);
+            $dir = $kitEventTools->removeLeadingSlash(self::$cfgICalDir);
+            $dir = $kitEventTools->addSlash($dir);
             $dir_url = WB_URL . MEDIA_DIRECTORY . '/' . $dir;
             $filename = $event_data[dbEvent::field_ical_file];
             $ical_link = $dir_url . $filename;
@@ -636,12 +641,11 @@ class eventFrontend
      *
      * @return FALSE on error or DIALOG/MESSAGE on success
      */
-    public function checkOrder()
-    {
-        global $kitLibrary;
+    public function checkOrder() {
+        global $kitEventTools;
         global $dbEvent;
-        global $dbEventOrder;
         global $wb;
+        global $database;
 
         if (!isset($_REQUEST[self::REQUEST_EVENT_ID]) && !isset($_REQUEST[dbEvent::field_id])) {
             $this->setError($this->lang->translate('Error: This event is invalid!'));
@@ -670,7 +674,7 @@ class eventFrontend
                         $message .= $this->lang->translate('<p>Please type in the city!</p>');
                     break;
                 case self::REQUEST_EMAIL:
-                    if (!isset($_REQUEST[self::REQUEST_EMAIL]) || !$kitLibrary->validateEMail($_REQUEST[self::REQUEST_EMAIL])) {
+                    if (!isset($_REQUEST[self::REQUEST_EMAIL]) || !$kitEventTools->validateEMail($_REQUEST[self::REQUEST_EMAIL])) {
                         $message .= $this->lang->translate('<p>The email address <b>{{ email }}</b> is not valid!</p>', array(
                             'email' => $_REQUEST[self::REQUEST_EMAIL]));
                     }
@@ -715,35 +719,43 @@ class eventFrontend
         $free_fields = (isset($_REQUEST[self::REQUEST_FREE_FIELDS])) ? explode(',', $_REQUEST[self::REQUEST_FREE_FIELDS]) : array();
 
         $orderData = array(
-            dbEventOrder::field_best_time => (isset($_REQUEST[self::REQUEST_BEST_TIME])) ? $_REQUEST[self::REQUEST_BEST_TIME] : '',
-            dbEventOrder::field_city => (isset($_REQUEST[self::REQUEST_CITY])) ? $_REQUEST[self::REQUEST_CITY] : '',
-            dbEventOrder::field_company => (isset($_REQUEST[self::REQUEST_COMPANY])) ? $_REQUEST[self::REQUEST_COMPANY] : '',
-            dbEventOrder::field_confirm_order => (isset($_REQUEST[self::REQUEST_CONFIRM])) ? date('Y-m-d H:i:s') : '0000-00-00 00:00:00',
-            dbEventOrder::field_email => strtolower($_REQUEST[self::REQUEST_EMAIL]),
-            dbEventOrder::field_event_id => $event_id,
-            dbEventOrder::field_first_name => (isset($_REQUEST[self::REQUEST_FIRST_NAME])) ? $_REQUEST[self::REQUEST_FIRST_NAME] : '',
-            dbEventOrder::field_last_name => (isset($_REQUEST[self::REQUEST_LAST_NAME])) ? $_REQUEST[self::REQUEST_LAST_NAME] : '',
-            dbEventOrder::field_message => (isset($_REQUEST[self::REQUEST_MESSAGE])) ? $_REQUEST[self::REQUEST_MESSAGE] : '',
-            dbEventOrder::field_order_date => date('Y-m-d H:i:s'),
-            dbEventOrder::field_phone => (isset($_REQUEST[self::REQUEST_PHONE])) ? $_REQUEST[self::REQUEST_PHONE] : '',
-            dbEventOrder::field_street => (isset($_REQUEST[self::REQUEST_STREET])) ? $_REQUEST[self::REQUEST_STREET] : '',
-            dbEventOrder::field_title => (isset($_REQUEST[self::REQUEST_TITLE])) ? $_REQUEST[self::REQUEST_TITLE] : '',
-            dbEventOrder::field_zip => (isset($_REQUEST[self::REQUEST_ZIP])) ? $_REQUEST[self::REQUEST_ZIP] : '',
-            dbEventOrder::field_free_1 => (isset($_REQUEST[dbEventOrder::field_free_1])) ? (isset($free_fields[0])) ? $free_fields[0] . '|' . $_REQUEST[dbEventOrder::field_free_1] : '|' . $_REQUEST[dbEventOrder::field_free_1] : '',
-            dbEventOrder::field_free_2 => (isset($_REQUEST[dbEventOrder::field_free_2])) ? (isset($free_fields[1])) ? $free_fields[1] . '|' . $_REQUEST[dbEventOrder::field_free_2] : '|' . $_REQUEST[dbEventOrder::field_free_2] : '',
-            dbEventOrder::field_free_3 => (isset($_REQUEST[dbEventOrder::field_free_3])) ? (isset($free_fields[2])) ? $free_fields[2] . '|' . $_REQUEST[dbEventOrder::field_free_3] : '|' . $_REQUEST[dbEventOrder::field_free_3] : '',
-            dbEventOrder::field_free_4 => (isset($_REQUEST[dbEventOrder::field_free_4])) ? (isset($free_fields[3])) ? $free_fields[3] . '|' . $_REQUEST[dbEventOrder::field_free_4] : '|' . $_REQUEST[dbEventOrder::field_free_4] : '',
-            dbEventOrder::field_free_5 => (isset($_REQUEST[dbEventOrder::field_free_5])) ? (isset($free_fields[4])) ? $free_fields[4] . '|' . $_REQUEST[dbEventOrder::field_free_5] : '|' . $_REQUEST[dbEventOrder::field_free_5] : '');
+            'ord_best_time' => (isset($_REQUEST[self::REQUEST_BEST_TIME])) ? $_REQUEST[self::REQUEST_BEST_TIME] : '',
+            'ord_city' => (isset($_REQUEST[self::REQUEST_CITY])) ? $_REQUEST[self::REQUEST_CITY] : '',
+            'ord_company' => (isset($_REQUEST[self::REQUEST_COMPANY])) ? $_REQUEST[self::REQUEST_COMPANY] : '',
+            'ord_confirm' => (isset($_REQUEST[self::REQUEST_CONFIRM])) ? date('Y-m-d H:i:s') : '0000-00-00 00:00:00',
+            'ord_email' => strtolower($_REQUEST[self::REQUEST_EMAIL]),
+            'evt_id' => $event_id,
+            'ord_first_name' => (isset($_REQUEST[self::REQUEST_FIRST_NAME])) ? $_REQUEST[self::REQUEST_FIRST_NAME] : '',
+            'ord_last_name' => (isset($_REQUEST[self::REQUEST_LAST_NAME])) ? $_REQUEST[self::REQUEST_LAST_NAME] : '',
+            'ord_message' => (isset($_REQUEST[self::REQUEST_MESSAGE])) ? $_REQUEST[self::REQUEST_MESSAGE] : '',
+            'ord_date' => date('Y-m-d H:i:s'),
+            'ord_phone' => (isset($_REQUEST[self::REQUEST_PHONE])) ? $_REQUEST[self::REQUEST_PHONE] : '',
+            'ord_street' => (isset($_REQUEST[self::REQUEST_STREET])) ? $_REQUEST[self::REQUEST_STREET] : '',
+            'ord_title' => (isset($_REQUEST[self::REQUEST_TITLE])) ? $_REQUEST[self::REQUEST_TITLE] : '',
+            'ord_zip' => (isset($_REQUEST[self::REQUEST_ZIP])) ? $_REQUEST[self::REQUEST_ZIP] : '',
+            'ord_free_1' => (isset($_REQUEST['ord_free_1'])) ? (isset($free_fields[0])) ? $free_fields[0] . '|' . $_REQUEST['ord_free_1'] : '|' . $_REQUEST['ord_free_1'] : '',
+            'ord_free_2' => (isset($_REQUEST['ord_free_2'])) ? (isset($free_fields[1])) ? $free_fields[1] . '|' . $_REQUEST['ord_free_2'] : '|' . $_REQUEST['ord_free_2'] : '',
+            'ord_free_3' => (isset($_REQUEST['ord_free_3'])) ? (isset($free_fields[2])) ? $free_fields[2] . '|' . $_REQUEST['ord_free_3'] : '|' . $_REQUEST['ord_free_3'] : '',
+            'ord_free_4' => (isset($_REQUEST['ord_free_4'])) ? (isset($free_fields[3])) ? $free_fields[3] . '|' . $_REQUEST['ord_free_4'] : '|' . $_REQUEST['ord_free_4'] : '',
+            'ord_free_5' => (isset($_REQUEST['ord_free_5'])) ? (isset($free_fields[4])) ? $free_fields[4] . '|' . $_REQUEST['ord_free_5'] : '|' . $_REQUEST['ord_free_5'] : '');
 
-        $order_id = -1;
-        if (!$dbEventOrder->sqlInsertRecord($orderData, $order_id)) {
-            $this->setError($dbEventOrder->getError());
-            return false;
+        $fields = '';
+        $values = '';
+        $start = true;
+        foreach ($item as $field => $value) {
+          $fields .= (!$start) ? ",`$field`" : "`$field`";
+          $values .= (!$start) ? ",'$value'" : "'$value'";
+          $start = false;
         }
+        $SQL = "INSERT INTO `".TABLE_PREFIX."mod_kit_event_order` ($fields) VALUES ($values)";
+        if (null === $database->query($SQL)) {
+          $this->setError($database->get_error());
+          return false;
+        }
+        $order_id = mysql_insert_id();
 
-        // wenn eine Anmeldung erfolgt ist, muss der Zaehler bei dbEvent erhoeht
-        // werden!
-        if (false !== ($dt = $orderData[dbEventOrder::field_confirm_order])) {
+        // wenn eine Anmeldung erfolgt ist, muss der Zaehler bei dbEvent erhoeht werden!
+        if (false !== ($dt = $orderData['ord_confirm'])) {
             $SQL = sprintf("SELECT %s FROM %s WHERE %s='%s'", dbEvent::field_participants_total, $dbEvent->getTableName(), dbEvent::field_id, $event_id);
             $counter = array();
             if (!$dbEvent->sqlExec($SQL, $counter)) {
@@ -767,24 +779,24 @@ class eventFrontend
 
         // Bestaetigungsmail an den Kunden
         $order = array(
-            'title' => $orderData[dbEventOrder::field_title],
-            'first_name' => $orderData[dbEventOrder::field_first_name],
-            'last_name' => $orderData[dbEventOrder::field_last_name],
-            'company' => $orderData[dbEventOrder::field_company],
-            'street' => $orderData[dbEventOrder::field_street],
-            'zip' => $orderData[dbEventOrder::field_zip],
-            'city' => $orderData[dbEventOrder::field_city],
-            'email' => $orderData[dbEventOrder::field_email],
-            'phone' => $orderData[dbEventOrder::field_phone],
-            'best_time' => $orderData[dbEventOrder::field_best_time],
-            'message' => $orderData[dbEventOrder::field_message],
-            'confirm_datetime' => (!strtotime($orderData[dbEventOrder::field_confirm_order])) ? NULL : date(CFG_DATETIME_STR, strtotime($orderData[dbEventOrder::field_confirm_order])),
-            'confirm_timestamp' => (!strtotime($orderData[dbEventOrder::field_confirm_order])) ? NULL : strtotime($orderData[dbEventOrder::field_confirm_order]),
-            'free_1' => substr($orderData[dbEventOrder::field_free_1], strpos($orderData[dbEventOrder::field_free_1], '|') + 1),
-            'free_2' => substr($orderData[dbEventOrder::field_free_2], strpos($orderData[dbEventOrder::field_free_2], '|') + 1),
-            'free_3' => substr($orderData[dbEventOrder::field_free_3], strpos($orderData[dbEventOrder::field_free_3], '|') + 1),
-            'free_4' => substr($orderData[dbEventOrder::field_free_4], strpos($orderData[dbEventOrder::field_free_4], '|') + 1),
-            'free_5' => substr($orderData[dbEventOrder::field_free_5], strpos($orderData[dbEventOrder::field_free_5], '|') + 1));
+            'title' => $orderData['ord_title'],
+            'first_name' => $orderData['ord_first_name'],
+            'last_name' => $orderData['ord_last_name'],
+            'company' => $orderData['ord_company'],
+            'street' => $orderData['ord_street'],
+            'zip' => $orderData['ord_zip'],
+            'city' => $orderData['ord_city'],
+            'email' => $orderData['ord_email'],
+            'phone' => $orderData['ord_phone'],
+            'best_time' => $orderData['ord_best_time'],
+            'message' => $orderData['ord_message'],
+            'confirm_datetime' => (!strtotime($orderData['ord_confirm'])) ? NULL : date(CFG_DATETIME_STR, strtotime($orderData['ord_confirm'])),
+            'confirm_timestamp' => (!strtotime($orderData['ord_confirm'])) ? NULL : strtotime($orderData['ord_confirm']),
+            'free_1' => substr($orderData['ord_free_1'], strpos($orderData['ord_free_1'], '|') + 1),
+            'free_2' => substr($orderData['ord_free_2'], strpos($orderData['ord_free_2'], '|') + 1),
+            'free_3' => substr($orderData['ord_free_3'], strpos($orderData['ord_free_3'], '|') + 1),
+            'free_4' => substr($orderData['ord_free_4'], strpos($orderData['ord_free_4'], '|') + 1),
+            'free_5' => substr($orderData['ord_free_5'], strpos($orderData['ord_free_5'], '|') + 1));
 
         $event = array();
         $event_parser = array();
@@ -796,28 +808,25 @@ class eventFrontend
 
         if (false == ($body = $this->getTemplate('mail.confirm.participant.dwoo', $data)))
             return false;
-        if (!$wb->mail(SERVER_EMAIL, $orderData[dbEventOrder::field_email], $event[dbEventItem::field_title], $body)) {
+        if (!$wb->mail(SERVER_EMAIL, $orderData['ord_email'], $event['item_title'], $body)) {
             $this->setError($this->lang->translate('Error: cannot send the email to {{ email }}!', array(
-                'email' => $orderData[dbEventOrder::field_email])));
+                'email' => $orderData['ord_email'])));
             return false;
         }
 
         // Datensatz aktualisieren
-        $update = array(
-            dbEventOrder::field_send_mail => date('Y-m-d H:i:s'));
-        $where = array(
-            dbEventOrder::field_id => $order_id);
-        if (!$dbEventOrder->sqlUpdateRecord($update, $where)) {
-            $this->setError($dbEventOrder->getError());
-            return false;
+        $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event_order` SET `ord_send_mail`='".date('Y-m-d H:i:s')."' WHERE `ord_id`='$order_id'";
+        if (null === $database->query($SQL)) {
+          $this->setError($database->get_error());
+          return false;
         }
 
         // E-Mail an Seitenbetreiber
         if (false == ($body = $this->getTemplate('mail.confirm.admin.dwoo', $data)))
             return false;
-        if (!$wb->mail(SERVER_EMAIL, SERVER_EMAIL, $event[dbEventItem::field_title], $body)) {
+        if (!$wb->mail(SERVER_EMAIL, SERVER_EMAIL, $event['item_title'], $body)) {
             $this->setError($this->lang->translate('Error: cannot send the email to {{ email }}!', array(
-                'email' => $orderData[dbEventOrder::field_email])));
+                'email' => $orderData['ord_email'])));
             return false;
         }
 
@@ -879,11 +888,11 @@ class eventFrontend
             'confirm_order' => self::REQUEST_CONFIRM,
             'confirm_terms' => self::REQUEST_TERMS,
             'confirm_privacy' => self::REQUEST_PRIVACY,
-            'free_1' => dbEventOrder::field_free_1,
-            'free_2' => dbEventOrder::field_free_2,
-            'free_3' => dbEventOrder::field_free_3,
-            'free_4' => dbEventOrder::field_free_4,
-            'free_5' => dbEventOrder::field_free_5);
+            'free_1' => 'ord_free_1',
+            'free_2' => 'ord_free_2',
+            'free_3' => 'ord_free_3',
+            'free_4' => 'ord_free_4',
+            'free_5' => 'ord_free_5');
         foreach ($input_array as $field => $name) {
             $request[$field]['name'] = $name;
             $request[$field]['value'] = (isset($_REQUEST[$name])) ? $_REQUEST[$name] : NULL;

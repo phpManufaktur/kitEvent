@@ -75,8 +75,8 @@ class eventBackend {
   private static $tab_navigation_array = array(
     self::ACTION_LIST => 'TAB_LIST',
     self::ACTION_EDIT => 'TAB_EDIT',
-    self::ACTION_GROUP => 'TAB_GROUP',
     self::ACTION_MESSAGES => 'TAB_MESSAGES',
+    self::ACTION_GROUP => 'TAB_GROUP',
     self::ACTION_CONFIG => 'TAB_CONFIG',
     self::ACTION_ABOUT => 'TAB_ABOUT'
   );
@@ -361,38 +361,37 @@ class eventBackend {
 
   public function dlgList() {
     global $dbEvent;
-    global $dbEventItem;
     global $dbEventGroup;
     global $parser;
 
     if (isset($_REQUEST[self::REQUEST_SHOW_ALL]) && ($_REQUEST[self::REQUEST_SHOW_ALL] == 1)) {
       $SQL = sprintf("SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s!='%s' ORDER BY %s ASC",
-          TABLE_PREFIX.'mod_kit_event', //$dbEvent->getTableName(),
-          TABLE_PREFIX.'mod_kit_event_item', //$dbEventItem->getTableName(),
-          TABLE_PREFIX.'mod_kit_event', //$dbEvent->getTableName(),
-          'item_id', //dbEvent::field_event_item,
-          TABLE_PREFIX.'mod_kit_event_item', //$dbEventItem->getTableName(),
-          'item_id', //dbEventItem::field_id,
-          'evt_status', //dbEvent::field_status,
-          '-1', //dbEvent::status_deleted,
-          'evt_event_date_from' //dbEvent::field_event_date_from
+          TABLE_PREFIX.'mod_kit_event',
+          TABLE_PREFIX.'mod_kit_event_item',
+          TABLE_PREFIX.'mod_kit_event',
+          'item_id',
+          TABLE_PREFIX.'mod_kit_event_item',
+          'item_id',
+          'evt_status',
+          '-1',
+          'evt_event_date_from'
           );
       $this->setMessage($this->lang->translate('<p>All events are shown!</p>'));
     }
     else {
       $start_date = date('Y-m-d H:i:s', mktime(0, 0, 0, date('m'), date('d') - 2, date('Y')));
       $SQL = sprintf("SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s!='%s' AND %s>='%s' ORDER BY %s ASC",
-          TABLE_PREFIX.'mod_kit_event', //$dbEvent->getTableName(),
-          TABLE_PREFIX.'mod_kit_event_item', //$dbEventItem->getTableName(),
-          TABLE_PREFIX.'mod_kit_event', //$dbEvent->getTableName(),
-          'item_id', //dbEvent::field_event_item,
-          TABLE_PREFIX.'mod_kit_event_item', //$dbEventItem->getTableName(),
-          'item_id', //dbEventItem::field_id,
-          'evt_status', //dbEvent::field_status,
-          '-1', //dbEvent::status_deleted,
-          'evt_event_date_from', //dbEvent::field_event_date_from,
+          TABLE_PREFIX.'mod_kit_event',
+          TABLE_PREFIX.'mod_kit_event_item',
+          TABLE_PREFIX.'mod_kit_event',
+          'item_id',
+          TABLE_PREFIX.'mod_kit_event_item',
+          'item_id',
+          'evt_status',
+          '-1',
+          'evt_event_date_from',
           $start_date,
-          'evt_event_date_from' //dbEvent::field_event_date_from
+          'evt_event_date_from'
           );
     }
     $events = array();
@@ -504,13 +503,15 @@ class eventBackend {
 
 
   public function dlgSuggestEvent() {
-    global $dbEvent;
-    global $dbEventItem;
+    global $database;
 
-    $SQL = sprintf("SELECT %s.%s,%s,%s FROM %s, %s WHERE %s.%s = %s.%s AND %s!='%s' ORDER BY %s DESC", $dbEventItem->getTableName(), dbEventItem::field_id, dbEvent::field_event_date_from, dbEventItem::field_title, $dbEvent->getTableName(), $dbEventItem->getTableName(), $dbEvent->getTableName(), dbEvent::field_event_item, $dbEventItem->getTableName(), dbEventItem::field_id, dbEvent::field_status, dbEvent::status_deleted, dbEvent::field_event_date_from);
-    $events = array();
-    if (!$dbEvent->sqlExec($SQL, $events)) {
-      $this->setError($dbEvent->getError());
+    $tke = TABLE_PREFIX.'mod_kit_event';
+    $tkei = TABLE_PREFIX.'mod_kit_event_item';
+
+    $SQL = "SELECT $tkei.item_id, evt_event_date_from, item_title FROM `$tke`, `$tkei` ".
+        "WHERE $tke.item_id=$tkei.item_id AND `evt_status`!='-1' ORDER BY `evt_event_date_from`";
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->get_error());
       return false;
     }
 
@@ -519,10 +520,11 @@ class eventBackend {
       'value' => -1,
       'text' => $this->lang->translate('- do not use data from a previous event -')
     );
-    foreach ($events as $event) {
+
+    while (false !== ($event = $query->fetchRow(MYSQL_ASSOC))) {
       $suggest_options[] = array(
         'value' => $event[dbEventItem::field_id],
-        'text' => sprintf('[ %s ] %s', date(CFG_DATE_STR, strtotime($event[dbEvent::field_event_date_from])), $event[dbEventItem::field_title])
+        'text' => sprintf('[ %s ] %s', date(CFG_DATE_STR, strtotime($event['evt_event_date_from'])), $event['item_title'])
       );
     }
 
@@ -540,33 +542,34 @@ class eventBackend {
   } // dlgEventSuggestion()
 
   public function dlgEditEvent() {
-    global $dbEvent;
-    global $dbEventGroup;
-    global $dbEventItem;
-    global $parser;
+    global $database;
 
     $event_id = (isset($_REQUEST[dbEvent::field_id]) && ($_REQUEST[dbEvent::field_id] > 0)) ? $_REQUEST[dbEvent::field_id] : -1;
+
     if ($event_id !== -1) {
-      $SQL = sprintf("SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s.%s='%s'", $dbEvent->getTableName(), $dbEventItem->getTableName(), $dbEvent->getTableName(), dbEvent::field_event_item, $dbEventItem->getTableName(), dbEventItem::field_id, $dbEvent->getTableName(), dbEvent::field_id, $event_id);
-      $event = array();
-      if (!$dbEvent->sqlExec($SQL, $event)) {
-        $this->setError($dbEvent->getError());
+      $tke = TABLE_PREFIX.'mod_kit_event';
+      $tkei = TABLE_PREFIX.'mod_kit_event_item';
+      $SQL = "SELECT * FROM `$tke`, `$tkei` WHERE $tke.item_id=$tkei.item_id AND $tke.evt_id='$event_id'";
+
+      if (null === ($query = $database->query($SQL))) {
+        $this->setError($database->get_error());
         return false;
       }
-      if (count($event) < 1) {
+      if ($query->numRows() < 1) {
         $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id)));
         return false;
       }
-      $event = $event[0];
-      $item_id = $event[dbEvent::field_event_item];
-      if ((date('H', strtotime($event[dbEvent::field_event_date_from])) !== 0) && (date('i', strtotime($event[dbEvent::field_event_date_from])) !== 0)) {
-        $time_start = date(CFG_TIME_STR, strtotime($event[dbEvent::field_event_date_from]));
+      $event = $query->fetchRow(MYSQL_ASSOC);
+
+      $item_id = $event['item_id'];
+      if ((date('H', strtotime($event['evt_event_date_from'])) !== 0) && (date('i', strtotime($event['evt_event_date_from'])) !== 0)) {
+        $time_start = date(CFG_TIME_STR, strtotime($event['evt_event_date_from']));
       }
       else {
         $time_start = '';
       }
-      if ((date('H', strtotime($event[dbEvent::field_event_date_to])) !== 0) && (date('i', strtotime($event[dbEvent::field_event_date_to])) !== 0)) {
-        $time_end = date(CFG_TIME_STR, strtotime($event[dbEvent::field_event_date_to]));
+      if ((date('H', strtotime($event['evt_event_date_to'])) !== 0) && (date('i', strtotime($event['evt_event_date_to'])) !== 0)) {
+        $time_end = date(CFG_TIME_STR, strtotime($event['evt_event_date_to']));
       }
       else {
         $time_end = '';
@@ -578,48 +581,55 @@ class eventBackend {
     }
     elseif (isset($_REQUEST[self::REQUEST_SUGGESTION]) && ($_REQUEST[self::REQUEST_SUGGESTION] != -1)) {
       $item_id = -1;
-      $event = $dbEvent->getFields();
-      $event[dbEvent::field_status] = dbEvent::status_active;
-      $time_start = '';
-      $time_end = '';
-      $where = array(
-        dbEventItem::field_id => $_REQUEST[self::REQUEST_SUGGESTION]
-      );
-      $item = array();
-      if (!$dbEventItem->sqlSelectRecord($where, $item)) {
-        $this->setError($dbEventItem->getError());
+      // get the field names from mod_kit_event
+      $SQL = "SHOW FIELDS FROM `".TABLE_PREFIX."mod_kit_event`";
+      if (null === ($query = $database->query($SQL))) {
+        $this->setError($database->get_error());
         return false;
       }
-      $item = $item[0];
+      $event = array();
+      while (false !== ($field = $query->fetchRow(MYSQL_ASSOC)))
+        $event[$field['Field']] = null;
+
+      $event['evt_status'] = 1;
+      $time_start = '';
+      $time_end = '';
+      $item_id = (int) $_REQUEST[self::REQUEST_SUGGESTION];
+      $SQL = "SELECT * FROM `".TABLE_PREFIX."mod_kit_event_item` WHERE `item_id`='$item_id'";
+      if (null === ($query = $database->query($SQL))) {
+        $this->setError($database->get_error());
+        return false;
+      }
+      $item = $query->fetchRow(MYSQL_ASSOC);
+
       $event = array_merge($event, $item);
       // check if all data should be taken
       if (isset($_REQUEST[self::REQUEST_COPY_ALL])) {
-        $where = array(
-            dbEvent::field_id => $_REQUEST[self::REQUEST_SUGGESTION]
-            );
-        $evt = array();
-        if (!$dbEvent->sqlSelectRecord($where, $evt)) {
-          $this->setError($dbEventItem->getError());
+        $suggest_id = (int) $_REQUEST[self::REQUEST_SUGGESTION];
+        $SQL = "SELECT * FROM `".TABLE_PREFIX."mod_kit_event` WHERE `evt_id`='$suggest_id'";
+        if (null === ($query = $database->query($SQL))) {
+          $this->setError($database->get_error());
           return false;
         }
-        $evt = $evt[0];
+        $evt = $query->fetchRow(MYSQL_ASSOC);
+
         // we dont need participants total and the permaLink
-        unset($evt[dbEvent::field_id]);
-        unset($evt[dbEvent::field_event_item]);
-        unset($evt[dbEvent::field_participants_total]);
-        unset($evt[dbEvent::field_perma_link]);
-        unset($evt[dbEvent::field_ical_file]);
-        unset($evt[dbEvent::field_qrcode_image]);
-        $evt[dbEvent::field_status] = dbEvent::status_active;
+        unset($evt['evt_id']);
+        unset($evt['item_id']);
+        unset($evt['evt_participants_total']);
+        unset($evt['evt_perma_link']);
+        unset($evt['evt_ical_file']);
+        unset($evt['evt_qrcode_image']);
+        $evt['evt_status'] = 1;
         $event = array_merge($event, $evt);
-        if ((date('H', strtotime($event[dbEvent::field_event_date_from])) !== 0) && (date('i', strtotime($event[dbEvent::field_event_date_from])) !== 0)) {
-          $time_start = date(CFG_TIME_STR, strtotime($event[dbEvent::field_event_date_from]));
+        if ((date('H', strtotime($event['evt_event_date_from'])) !== 0) && (date('i', strtotime($event['evt_event_date_from'])) !== 0)) {
+          $time_start = date(CFG_TIME_STR, strtotime($event['evt_event_date_from']));
         }
         else {
           $time_start = '';
         }
-        if ((date('H', strtotime($event[dbEvent::field_event_date_to])) !== 0) && (date('i', strtotime($event[dbEvent::field_event_date_to])) !== 0)) {
-          $time_end = date(CFG_TIME_STR, strtotime($event[dbEvent::field_event_date_to]));
+        if ((date('H', strtotime($event['evt_event_date_to'])) !== 0) && (date('i', strtotime($event['evt_event_date_to'])) !== 0)) {
+          $time_end = date(CFG_TIME_STR, strtotime($event['evt_event_date_to']));
         }
         else {
           $time_end = '';
@@ -630,9 +640,27 @@ class eventBackend {
     }
     else {
       $item_id = -1;
-      $event = $dbEvent->getFields();
-      $event[dbEvent::field_status] = dbEvent::status_active;
-      $items = $dbEventItem->getFields();
+      // get the field names from mod_kit_event
+      $SQL = "SHOW FIELDS FROM `".TABLE_PREFIX."mod_kit_event`";
+      if (null === ($query = $database->query($SQL))) {
+        $this->setError($database->get_error());
+        return false;
+      }
+      $event = array();
+      while (false !== ($field = $query->fetchRow(MYSQL_ASSOC)))
+        $event[$field['Field']] = null;
+      // set status to active
+      $event['evt_status'] = 1;
+      // get the field names from mod_kit_event_item
+      $SQL = "SHOW FIELDS FROM `".TABLE_PREFIX."mod_kit_event_item`";
+      if (null === ($query = $database->query($SQL))) {
+        $this->setError($database->get_error());
+        return false;
+      }
+      $items = array();
+      while (false !== ($field = $query->fetchRow(MYSQL_ASSOC)))
+        $items[$field['Field']] = null;
+
       $event = array_merge($event, $items);
       $time_start = '';
       $time_end = '';
@@ -662,46 +690,56 @@ class eventBackend {
     if (isset($_REQUEST[self::REQUEST_TIME_END])) $time_end = $_REQUEST[self::REQUEST_TIME_END];
 
     // event group
-    $SQL = sprintf("SELECT * FROM %s WHERE %s='%s'", $dbEventGroup->getTableName(), dbEventGroup::field_status, dbEventGroup::status_active);
-    $grps = array();
-    if (!$dbEventGroup->sqlExec($SQL, $grps)) {
-      $this->setError($dbEventGroup->getError());
+    $SQL = "SELECT * FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_status`='1'";
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->get_error());
       return false;
     }
+    $grps = array();
+    while (false !== ($grp = $query->fetchRow(MYSQL_ASSOC)))
+      $grps[] = $grp;
     $group = array();
     $group[] = array(
-      'selected' => ($event[dbEvent::field_event_group] == -1) ? 1 : 0,
+      'selected' => ($event['group_id'] == -1) ? 1 : 0,
       'value' => -1,
       'text' => $this->lang->translate('- no group -')
     );
     foreach ($grps as $grp) {
       $group[] = array(
-        'selected' => ($grp[dbEventGroup::field_id] == $event[dbEvent::field_event_group]) ? 1 : 0,
-        'value' => $grp[dbEventGroup::field_id],
-        'text' => $grp[dbEventGroup::field_name]
+        'selected' => ($grp['group_id'] == $event['group_id']) ? 1 : 0,
+        'value' => $grp['group_id'],
+        'text' => $grp['group_name']
       );
     }
 
-    // status
-    $status = array();
-    foreach ($dbEvent->status_array as $value => $text) {
-      $status[] = array(
-        'selected' => ($event[dbEvent::field_status] == $value) ? 1 : 0,
-        'value' => $value,
-        'text' => $text
-      );
-    }
+    $status = array(
+        'ACTIVE' => array(
+            'selected' => ($event['evt_status'] == 1) ? 1 : 0,
+            'value' => 1,
+            'text' => 'ACTIVE'
+            ),
+        'LOCKED' => array(
+            'selected' => ($event['evt_status'] == 0) ? 1 : 0,
+            'value' => 0,
+            'text' => 'LOCKED'
+            ),
+        'DELETED' => array(
+            'selected' => ($event['evt_status'] == -1) ? 1 : 0,
+            'value' => -1,
+            'text' => 'DELETED'
+            )
+        );
 
     $fields = array(
       'date_from' => array(
-        'name' => dbEvent::field_event_date_from,
+        'name' => 'evt_event_date_from',
         'id' => 'datepicker_1',
-        'value' => (false !== ($x = strtotime($event[dbEvent::field_event_date_from]))) ? date(CFG_DATE_STR, $x) : ''
+        'value' => (false !== ($x = strtotime($event['evt_event_date_from']))) ? date(CFG_DATE_STR, $x) : ''
       ),
       'date_to' => array(
-        'name' => dbEvent::field_event_date_to,
+        'name' => 'evt_event_date_to',
         'id' => 'datepicker_2',
-        'value' => (false !== ($x = strtotime($event[dbEvent::field_event_date_to]))) ? date(CFG_DATE_STR, $x) : ''
+        'value' => (false !== ($x = strtotime($event['evt_event_date_to']))) ? date(CFG_DATE_STR, $x) : ''
       ),
       'time_start' => array(
         'name' => self::REQUEST_TIME_START,
@@ -712,100 +750,100 @@ class eventBackend {
         'value' => $time_end
       ),
       'publish_date_from' => array(
-        'name' => dbEvent::field_publish_date_from,
-        'value' => (false !== ($x = strtotime($event[dbEvent::field_publish_date_from]))) ? date(CFG_DATE_STR, $x) : '',
+        'name' => 'evt_publish_date_from',
+        'value' => (false !== ($x = strtotime($event['evt_publish_date_from']))) ? date(CFG_DATE_STR, $x) : '',
         'id' => 'datepicker_3'
       ),
       'publish_date_to' => array(
-        'name' => dbEvent::field_publish_date_to,
-        'value' => (false !== ($x = strtotime($event[dbEvent::field_publish_date_to]))) ? date(CFG_DATE_STR, $x) : '',
+        'name' => 'evt_publish_date_to',
+        'value' => (false !== ($x = strtotime($event['evt_publish_date_to']))) ? date(CFG_DATE_STR, $x) : '',
         'id' => 'datepicker_4'
       ),
       'participants_max' => array(
-        'name' => dbEvent::field_participants_max,
-        'value' => $event[dbEvent::field_participants_max]
+        'name' => 'evt_participants_max',
+        'value' => $event['evt_participants_max']
       ),
       'participants_total' => array(
-        'name' => dbEvent::field_participants_total,
-        'value' => $event[dbEvent::field_participants_total]
+        'name' => 'evt_participants_total',
+        'value' => $event['evt_participants_total']
       ),
       'deadline' => array(
-        'name' => dbEvent::field_deadline,
-        'value' => (false !== ($x = strtotime($event[dbEvent::field_deadline]))) ? date(CFG_DATE_STR, $x) : '',
+        'name' => 'evt_deadline',
+        'value' => (false !== ($x = strtotime($event['evt_deadline']))) ? date(CFG_DATE_STR, $x) : '',
         'id' => 'datepicker_5'
       ),
       'costs' => array(
-        'name' => dbEventItem::field_costs,
-        'value' => sprintf(CFG_CURRENCY, number_format((float) $event[dbEventItem::field_costs], 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR))
+        'name' => 'item_costs',
+        'value' => sprintf(CFG_CURRENCY, number_format((float) $event['item_costs'], 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR))
       ),
       'group' => array(
-        'name' => dbEvent::field_event_group,
+        'name' => 'group_id',
         'value' => $group
       ),
       'status' => array(
-        'name' => dbEvent::field_status,
+        'name' => 'evt_status',
         'value' => $status
       ),
       'title' => array(
-        'name' => dbEventItem::field_title,
-        'value' => $event[dbEventItem::field_title]
+        'name' => 'item_title',
+        'value' => $event['item_title']
       ),
       'short_description' => array(
-        'name' => dbEventItem::field_desc_short,
-        'value' => self::unsanitizeText($event[dbEventItem::field_desc_short])
+        'name' => 'item_desc_short',
+        'value' => self::unsanitizeText($event['item_desc_short'])
       ),
       'long_description' => array(
-        'name' => dbEventItem::field_desc_long,
-        'value' => self::unsanitizeText($event[dbEventItem::field_desc_long])
+        'name' => 'item_desc_long',
+        'value' => self::unsanitizeText($event['item_desc_long'])
       ),
       'free_field' => array(
           1 => array(
               'active' => (int) !empty(self::$cfgFreeFieldLabel_1),
               'use_html' => (int) self::$cfgFreeFieldUseHTML_1,
-              'name' => dbEventItem::field_free_1,
+              'name' => 'item_free_1',
               'label' => self::$cfgFreeFieldLabel_1,
-              'value' => self::unsanitizeText($event[dbEventItem::field_free_1])
+              'value' => self::unsanitizeText($event['item_free_1'])
               ),
           2 => array(
               'active' => (int) !empty(self::$cfgFreeFieldLabel_2),
               'use_html' => (int) self::$cfgFreeFieldUseHTML_2,
-              'name' => dbEventItem::field_free_2,
+              'name' => 'item_free_2',
               'label' => self::$cfgFreeFieldLabel_2,
-              'value' => self::unsanitizeText($event[dbEventItem::field_free_2])
+              'value' => self::unsanitizeText($event['item_free_2'])
               ),
           3 => array(
               'active' => (int) !empty(self::$cfgFreeFieldLabel_3),
               'use_html' => (int) self::$cfgFreeFieldUseHTML_3,
-              'name' => dbEventItem::field_free_3,
+              'name' => 'item_free_3',
               'label' => self::$cfgFreeFieldLabel_3,
-              'value' => self::unsanitizeText($event[dbEventItem::field_free_3])
+              'value' => self::unsanitizeText($event['item_free_3'])
               ),
           4 => array(
               'active' => (int) !empty(self::$cfgFreeFieldLabel_4),
               'use_html' => (int) self::$cfgFreeFieldUseHTML_4,
-              'name' => dbEventItem::field_free_4,
+              'name' => 'item_free_4',
               'label' => self::$cfgFreeFieldLabel_4,
-              'value' => self::unsanitizeText($event[dbEventItem::field_free_4])
+              'value' => self::unsanitizeText($event['item_free_4'])
               ),
           5 => array(
               'active' => (int) !empty(self::$cfgFreeFieldLabel_5),
               'use_html' => (int) self::$cfgFreeFieldUseHTML_5,
-              'name' => dbEventItem::field_free_5,
+              'name' => 'item_free_5',
               'label' => self::$cfgFreeFieldLabel_5,
-              'value' => self::unsanitizeText($event[dbEventItem::field_free_5])
+              'value' => self::unsanitizeText($event['item_free_5'])
               )
           ),
       'location' => array(
-        'name' => dbEventItem::field_location,
-        'value' => $event[dbEventItem::field_location]
+        'name' => 'item_location',
+        'value' => $event['item_location']
       ),
       'link' => array(
-        'name' => dbEventItem::field_desc_link,
-        'value' => $event[dbEventItem::field_desc_link]
+        'name' => 'item_desc_link',
+        'value' => $event['item_desc_link']
       ),
       'perma_link' => array(
-        'name' => dbEvent::field_perma_link,
-        'value' => $event[dbEvent::field_perma_link],
+        'name' => 'evt_perma_link',
+        'value' => $event['evt_perma_link'],
       )
     );
 
@@ -830,9 +868,9 @@ class eventBackend {
       'action_name' => self::REQUEST_ACTION,
       'action_value' => self::ACTION_EDIT_CHECK,
       'language' => (LANGUAGE == 'EN') ? '' : strtolower(LANGUAGE),
-      'event_name' => dbEvent::field_id,
+      'event_name' => 'evt_id',
       'event_value' => $event_id,
-      'item_name' => dbEventItem::field_id,
+      'item_name' => 'item_id',
       'item_value' => $item_id,
       'suggestion_name' => self::REQUEST_SUGGESTION,
       'suggestion_value' => -1,
@@ -856,20 +894,21 @@ class eventBackend {
     global $dbEvent;
     global $dbEventItem;
     global $manufakturConfig;
+    global $database;
 
-    $event_id = (isset($_REQUEST[dbEvent::field_id]) && ($_REQUEST[dbEvent::field_id] > 0)) ? $_REQUEST[dbEvent::field_id] : -1;
-    $item_id = (isset($_REQUEST[dbEvent::field_event_item])) && ($_REQUEST[dbEvent::field_event_item] > 0) ? $_REQUEST[dbEvent::field_event_item] : -1;
+    $event_id = (isset($_REQUEST['evt_id']) && ($_REQUEST['evt_id'] > 0)) ? (int) $_REQUEST['evt_id'] : -1;
+    $item_id = (isset($_REQUEST['item_id'])) && ($_REQUEST['item_id'] > 0) ? $_REQUEST['item_id'] : -1;
 
     $check_array = array(
-      dbEvent::field_event_date_from,
-      dbEvent::field_event_date_to,
-      dbEvent::field_publish_date_from,
-      dbEvent::field_publish_date_to,
-      dbEvent::field_participants_max,
-      dbEvent::field_deadline,
-      dbEventItem::field_costs,
-      dbEventItem::field_title,
-      dbEventItem::field_desc_short
+      'evt_event_date_from',
+      'evt_event_date_to',
+      'evt_publish_date_from',
+      'evt_publish_date_to',
+      'evt_participants_max',
+      'evt_deadline',
+      'item_costs',
+      'item_title',
+      'item_desc_short'
     );
     // check request
     $checked = true;
@@ -880,7 +919,7 @@ class eventBackend {
     foreach ($check_array as $request) {
       if (isset($_REQUEST[$request])) {
         switch ($request) :
-          case dbEvent::field_event_date_from :
+          case 'evt_event_date_from' :
             if (false !== ($x = strtotime($_REQUEST[$request]))) {
               $_REQUEST[$request] = date('Y-m-d H:i:s', $x);
               if (isset($_REQUEST[self::REQUEST_TIME_START]) && !empty($_REQUEST[self::REQUEST_TIME_START])) {
@@ -916,11 +955,11 @@ class eventBackend {
                   array('field' => $this->lang->translate('Date from'), 'date' => $_REQUEST[$request]));
             }
             break;
-          case dbEvent::field_event_date_to :
+          case 'evt_event_date_to' :
             // check event date TO
             $x = strtotime($_REQUEST[$request]);
             if (!$x && $start_date_ok) {
-              $x = strtotime($_REQUEST[dbEvent::field_event_date_from]);
+              $x = strtotime($_REQUEST['evt_event_date_from']);
             }
             elseif (!$x) {
               $checked = false;
@@ -930,7 +969,7 @@ class eventBackend {
             }
             // check time
             $_REQUEST[$request] = date('Y-m-d H:i:s', $x);
-            $y = strtotime($_REQUEST[dbEvent::field_event_date_from]);
+            $y = strtotime($_REQUEST['evt_event_date_from']);
             if (mktime(0, 0, 0, date('m', $x), date('d', $x), date('Y', $x)) < mktime(0, 0, 0, date('m', $y), date('d', $y), date('Y', $y))) {
               $checked = false;
               $message .= $this->lang->translate('<p>Please check the both dates from and to!</p>');
@@ -965,9 +1004,9 @@ class eventBackend {
               $end_date_ok = true;
             }
             break;
-          case dbEvent::field_publish_date_from :
+          case 'evt_publish_date_from' :
             if (false !== ($x = strtotime($_REQUEST[$request]))) {
-              $y = strtotime($_REQUEST[dbEvent::field_event_date_from]);
+              $y = strtotime($_REQUEST['evt_event_date_from']);
               if ($start_date_ok && (mktime(0, 0, 0, date('m', $x), date('d', $x), date('Y', $x)) > mktime(0, 0, 0, date('m', $y), date('d', $y), date('Y', $y)))) {
                 $message .= $this->lang->translate('<p>Please check the publishing date!</p>');
                 $checked = false;
@@ -976,7 +1015,7 @@ class eventBackend {
               $_REQUEST[$request] = date('Y-m-d H:i:s', mktime(0, 0, 0, date('m', $x), date('d', $x) - 14, date('Y', $x)));
             }
             elseif ($start_date_ok) {
-              $y = strtotime($_REQUEST[dbEvent::field_event_date_from]);
+              $y = strtotime($_REQUEST['evt_event_date_from']);
               $_REQUEST[$request] = date('Y-m-d H:i:s', mktime(0, 0, 0, date('m', $y), date('d', $y) - 14, date('Y', $y)));
             }
             else {
@@ -984,9 +1023,9 @@ class eventBackend {
               $checked = false;
             }
             break;
-          case dbEvent::field_publish_date_to :
+          case 'evt_publish_date_to' :
             if (false !== ($x = strtotime($_REQUEST[$request]))) {
-              $y = strtotime($_REQUEST[dbEvent::field_event_date_to]);
+              $y = strtotime($_REQUEST['evt_event_date_to']);
               if ($end_date_ok && (mktime(0, 0, 0, date('m', $x), date('d', $x), date('Y', $x)) < mktime(0, 0, 0, date('m', $y), date('d', $y), date('Y', $y)))) {
                 $message .= $this->lang->translate('<p>Please check the publishing date!</p>');
                 $checked = false;
@@ -995,7 +1034,7 @@ class eventBackend {
               $_REQUEST[$request] = date('Y-m-d H:i:s', mktime(23, 59, 59, date('n', $x), date('j', $x), date('Y', $x)));
             }
             elseif ($end_date_ok) {
-              $y = strtotime($_REQUEST[dbEvent::field_event_date_to]);
+              $y = strtotime($_REQUEST['evt_event_date_to']);
               $_REQUEST[$request] = date('Y-m-d H:i:s', mktime(23, 59, 59, date('m', $y), date('d', $y), date('Y', $y)));
             }
             else {
@@ -1003,24 +1042,24 @@ class eventBackend {
               $checked = false;
             }
             break;
-          case dbEvent::field_participants_max :
+          case 'evt_participants_max' :
             $x = (int) $_REQUEST[$request];
             if ($x < 1) $x = -1;
             $_REQUEST[$request] = $x;
             break;
-          case dbEvent::field_participants_total :
+          case 'evt_participants_total' :
             $x = (int) $_REQUEST[$request];
             if ($x < 1) $x = 0;
             $_REQUEST[$request] = $x;
             break;
-          case dbEventItem::field_costs :
+          case 'item_costs' :
             $x = (float) $_REQUEST[$request];
             if ($x < 1) $x = -1;
             $_REQUEST[$request] = $x;
             break;
-          case dbEvent::field_deadline :
+          case 'evt_deadline' :
             if (false !== ($x = strtotime($_REQUEST[$request]))) {
-              $y = strtotime($_REQUEST[dbEvent::field_event_date_from]);
+              $y = strtotime($_REQUEST['evt_event_date_from']);
               if ($start_date_ok && (mktime(0, 0, 0, date('m', $x), date('d', $x), date('Y', $x)) > mktime(0, 0, 0, date('m', $y), date('d', $y), date('Y', $y)))) {
                 // Deadline liegt nach dem Veranstaltungstermin
                 $message .= $this->lang->translate('<p>The deadline is invalid, please check the date!</p>');
@@ -1031,19 +1070,19 @@ class eventBackend {
               }
             }
             elseif ($start_date_ok) {
-              $_REQUEST[$request] = $_REQUEST[dbEvent::field_event_date_from];
+              $_REQUEST[$request] = $_REQUEST['evt_event_date_from'];
             }
             else {
               $_REQUEST[$request] = '';
             }
             break;
-          case dbEventItem::field_title :
+          case 'item_title' :
             if (empty($_REQUEST[$request])) {
               $message .= $this->lang->translate('<p>Please insert a event title!</p>');
               $checked = false;
             }
             break;
-          case dbEventItem::field_desc_short :
+          case 'item_desc_short' :
             if (empty($_REQUEST[$request]) && self::$cfgDescriptionShort) {
               $message .= $this->lang->translate('<p>Please type in the short description!</p>');
               $checked = false;
@@ -1057,15 +1096,15 @@ class eventBackend {
     if ($checked) {
       // Datensatz übernehmen
       $event = array(
-        dbEvent::field_deadline => $_REQUEST[dbEvent::field_deadline],
-        dbEvent::field_event_date_from => $_REQUEST[dbEvent::field_event_date_from],
-        dbEvent::field_event_date_to => $_REQUEST[dbEvent::field_event_date_to],
-        dbEvent::field_event_group => $_REQUEST[dbEvent::field_event_group],
-        dbEvent::field_participants_max => $_REQUEST[dbEvent::field_participants_max],
-        dbEvent::field_participants_total => $_REQUEST[dbEvent::field_participants_total],
-        dbEvent::field_publish_date_from => $_REQUEST[dbEvent::field_publish_date_from],
-        dbEvent::field_publish_date_to => $_REQUEST[dbEvent::field_publish_date_to],
-        dbEvent::field_status => $_REQUEST[dbEvent::field_status]
+        'evt_deadline' => $_REQUEST['evt_deadline'],
+        'evt_event_date_from' => $_REQUEST['evt_event_date_from'],
+        'evt_event_date_to' => $_REQUEST['evt_event_date_to'],
+        'group_id' => $_REQUEST['group_id'],
+        'evt_participants_max' => $_REQUEST['evt_participants_max'],
+        'evt_participants_total' => $_REQUEST['evt_participants_total'],
+        'evt_publish_date_from' => $_REQUEST['evt_publish_date_from'],
+        'evt_publish_date_to' => $_REQUEST['evt_publish_date_to'],
+        'evt_status' => $_REQUEST['evt_status']
       );
       $free_field = array();
       for ($i=1; $i<6; $i++) {
@@ -1077,22 +1116,23 @@ class eventBackend {
           $free_field[$i] = '';
       }
       $item = array(
-        dbEventItem::field_costs => $_REQUEST[dbEventItem::field_costs],
-        dbEventItem::field_desc_link => $_REQUEST[dbEventItem::field_desc_link],
-        dbEventItem::field_desc_long => self::$cfgDescriptionLong ? self::sanitizeText($_REQUEST[dbEventItem::field_desc_long]) : '',
-        dbEventItem::field_desc_short => self::$cfgDescriptionShort ? self::sanitizeText($_REQUEST[dbEventItem::field_desc_short]) : '',
-        dbEventItem::field_location => $_REQUEST[dbEventItem::field_location],
-        dbEventItem::field_title => $_REQUEST[dbEventItem::field_title],
-        dbEventItem::field_free_1 => $free_field[1],
-        dbEventItem::field_free_2 => $free_field[2],
-        dbEventItem::field_free_3 => $free_field[3],
-        dbEventItem::field_free_4 => $free_field[4],
-        dbEventItem::field_free_5 => $free_field[5]
+        'item_costs' => $_REQUEST['item_costs'],
+        'item_desc_link' => $_REQUEST['item_desc_link'],
+        'item_desc_long' => self::$cfgDescriptionLong ? self::sanitizeText($_REQUEST['item_desc_long']) : '',
+        'item_desc_short' => self::$cfgDescriptionShort ? self::sanitizeText($_REQUEST['item_desc_short']) : '',
+        'item_location' => $_REQUEST['item_location'],
+        'item_title' => $_REQUEST['item_title'],
+        'item_free_1' => $free_field[1],
+        'item_free_2' => $free_field[2],
+        'item_free_3' => $free_field[3],
+        'item_free_4' => $free_field[4],
+        'item_free_5' => $free_field[5]
       );
 
       if ($event_id == -1) {
         // neuer Datensatz
         $new_event = true;
+/*
         $item_id = -1;
         if (!$dbEventItem->sqlInsertRecord($item, $item_id)) {
           $this->setError($dbEventItem->getError());
@@ -1103,6 +1143,41 @@ class eventBackend {
           $this->setError($dbEvent->getError());
           return false;
         }
+*/
+        $fields = '';
+        $values = '';
+        $start = true;
+        foreach ($item as $field => $value) {
+          $fields .= (!$start) ? ",`$field`" : "`$field`";
+          $values .= (!$start) ? ",'$value'" : "'$value'";
+          $start = false;
+        }
+        $SQL = "INSERT INTO `".TABLE_PREFIX."mod_kit_event_item` ($fields) VALUES ($values)";
+        if (null === $database->query($SQL)) {
+          $this->setError($database->get_error());
+          return false;
+        }
+        // get the item ID
+        $item_id = mysql_insert_id();
+        // set the item ID
+        $event['item_id'] = $item_id;
+
+        $fields = '';
+        $values = '';
+        $start = true;
+        foreach ($event as $field => $value) {
+          $fields .= (!$start) ? ",`$field`" : "`$field`";
+          $values .= (!$start) ? ",'$value'" : "'$value'";
+          $start = false;
+        }
+        $SQL = "INSERT INTO `".TABLE_PREFIX."mod_kit_event` ($fields) VALUES ($values)";
+        if (null === $database->query($SQL)) {
+          $this->setError($database->get_error());
+          return false;
+        }
+        // get the item ID
+        $event_id = mysql_insert_id();
+
         $message .= $this->lang->translate('<p>The event with the {{ id }} was successfull created.</p>', array('id' => $event_id));
       }
       else {
@@ -1157,7 +1232,7 @@ class eventBackend {
 
   public function createQRCodeFile($event_id) {
     global $dbEvent;
-    global $kitLibrary;
+    global $kitEventTools;
 
     if (!self::$cfgQRCodeCreate) return true;
 
@@ -1177,8 +1252,8 @@ class eventBackend {
 
     if ($c_type == 2) {
       // iCal einlesen
-      $dir = $kitLibrary->removeLeadingSlash(self::$cfgICalDir);
-      $dir = $kitLibrary->addSlash($dir);
+      $dir = $kitEventTools->removeLeadingSlash(self::$cfgICalDir);
+      $dir = $kitEventTools->addSlash($dir);
       $dir_path = WB_PATH . MEDIA_DIRECTORY . '/' . $dir;
       $filename = $event[dbEvent::field_ical_file];
       if (empty($filename)) {
@@ -1205,8 +1280,8 @@ class eventBackend {
     $margin = self::$cfgQRCodeMargin;
 
     $filename = sprintf('%s-%05d.png', date('Ymd-Hi', strtotime($event[dbEvent::field_event_date_from])), $event[dbEvent::field_id]);
-    $dir = $kitLibrary->removeLeadingSlash(self::$cfgQRCodeDir);
-    $dir = $kitLibrary->addSlash($dir);
+    $dir = $kitEventTools->removeLeadingSlash(self::$cfgQRCodeDir);
+    $dir = $kitEventTools->addSlash($dir);
     $dir_path = WB_PATH . MEDIA_DIRECTORY . '/' . $dir;
     if (!file_exists($dir_path)) {
       if (!mkdir($dir_path, 0755)) {
@@ -1235,7 +1310,7 @@ class eventBackend {
   public function createICalFile($event_id) {
     global $dbEvent;
     global $dbEventItem;
-    global $kitLibrary;
+    global $kitEventTools;
 
     if (!self::$cfgICalCreate) {
       // keine iCal Dateien anlegen
@@ -1276,8 +1351,8 @@ class eventBackend {
     $evt->setProperty('location', $event[dbEventItem::field_location]);
     $ical = $vCal->createCalendar();
     $filename = sprintf('%s-%05d.ics', date('Ymd-Hi', strtotime($event[dbEvent::field_event_date_from])), $event[dbEvent::field_id]);
-    $dir = $kitLibrary->removeLeadingSlash(self::$cfgICalDir);
-    $dir = $kitLibrary->addSlash($dir);
+    $dir = $kitEventTools->removeLeadingSlash(self::$cfgICalDir);
+    $dir = $kitEventTools->addSlash($dir);
     $dir_path = WB_PATH . MEDIA_DIRECTORY . '/' . $dir;
     if (!file_exists($dir_path)) {
       if (!mkdir($dir_path, 0755)) {
@@ -1307,7 +1382,7 @@ class eventBackend {
   public function checkPermaLink($event_id, $perma_link, $new_event = false) {
     global $dbEventGroup;
     global $dbEvent;
-    global $kitLibrary;
+    global $kitEventTools;
 
     if (!self::$cfgPermaLinkCreate) return true;
 
@@ -1358,7 +1433,7 @@ class eventBackend {
         if (empty($pattern) || empty($redirect)) return true;
         // Pattern aktivieren
         $wb_settings = array();
-        $kitLibrary->getWBSettings($wb_settings);
+        $kitEventTools->getWBSettings($wb_settings);
         $date = getdate(strtotime($event[dbEvent::field_event_date_from]));
         $pattern_array = array(
           '{$YEAR}',
@@ -1612,7 +1687,7 @@ class eventBackend {
   public function dlgEditGroup() {
     global $dbEventGroup;
     global $parser;
-    global $kitLibrary;
+    global $kitEventTools;
     global $database;
 
     $group_id = (isset($_REQUEST[dbEventGroup::field_id]) && ($_REQUEST[dbEventGroup::field_id] > 0)) ? $_REQUEST[dbEventGroup::field_id] : -1;
@@ -1674,7 +1749,7 @@ class eventBackend {
 
     // REDIRECT URLs Array erstellen
     $wb_settings = array();
-    $kitLibrary->getWBSettings($wb_settings);
+    $kitEventTools->getWBSettings($wb_settings);
     $ext = $wb_settings['page_extension'];
     $SQL = sprintf("SELECT link FROM %spages ORDER BY link ASC", TABLE_PREFIX);
     if (false == ($pages = $database->query($SQL))) {
@@ -1813,54 +1888,55 @@ class eventBackend {
   } // dlgAbout()
 
   protected function actionDelete() {
-    global $dbEventOrder;
+    global $database;
 
-    if (!isset($_REQUEST[dbEventOrder::field_id])) {
+    if (!isset($_REQUEST['ord_id'])) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => -1))));
       return false;
     }
-    $where = array(
-        dbEventOrder::field_id => (int) $_REQUEST[dbEventOrder::field_id]
-        );
-    if (!$dbEventOrder->sqlDeleteRecord($where)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEventOrder->getError()));
+    $event_id = (int) $_REQUEST['ord_id'];
+    $SQL = "DELETE FROM `".TABLE_PREFIX."mod_kit_event_order` WHERE `ord_id`='$event_id'";
+    $database->query($SQL);
+    if ($database->is_error()) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
       return false;
     }
-    $this->setMessage($this->lang->translate('The message with the ID {{ id }} was successfull deleted.', array('id' => $_REQUEST[dbEventOrder::field_id])));
+    $this->setMessage($this->lang->translate('The message with the ID {{ id }} was successfull deleted.',
+        array('id' => $_REQUEST['ord_id'])));
     return $this->dlgMessages();
   } // actionDelete()
 
   public function dlgMessages() {
-    global $dbEventOrder;
-    global $dbEvent;
-    global $dbEventItem;
+    global $database;
 
-    $SQL = sprintf("SELECT * FROM %s,%s,%s WHERE %s.%s=%s.%s AND %s.%s=%s.%s ORDER BY %s DESC LIMIT 100", $dbEvent->getTableName(), $dbEventOrder->getTableName(), $dbEventItem->getTableName(), $dbEvent->getTableName(), dbEvent::field_id, $dbEventOrder->getTableName(), dbEventOrder::field_event_id, $dbEvent->getTableName(), dbEvent::field_event_item, $dbEventItem->getTableName(), dbEventItem::field_id, dbEventOrder::field_order_date);
-    $messages = array();
-    if (!$dbEventOrder->sqlExec($SQL, $messages)) {
-      $this->setError($dbEventOrder->getError());
+    $tke = TABLE_PREFIX.'mod_kit_event';
+    $tkeo = TABLE_PREFIX.'mod_kit_event_order';
+    $tkei = TABLE_PREFIX.'mod_kit_event_item';
+    $SQL = "SELECT * FROM `$tke`, `$tkeo`, `$tkei` WHERE $tke.evt_id=$tkeo.evt_id AND $tke.item_id=$tkei.item_id ORDER BY `ord_date` LIMIT 100";
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->getError());
       return false;
     }
 
     $items = '';
     $rows = array();
-    foreach ($messages as $message) {
-      $dt = strtotime($message[dbEventOrder::field_confirm_order]);
+    while (false !== ($message = $query->fetchRow(MYSQL_ASSOC))) {
+      $dt = strtotime($message['ord_confirm']);
       $declared = (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? $this->lang->translate('Yes') : '';
-      $name = sprintf('%s, %s', $message[dbEventOrder::field_last_name], $message[dbEventOrder::field_first_name]);
+      $name = sprintf('%s, %s', $message['ord_last_name'], $message['ord_first_name']);
       if (strlen($name) < 3) $name = '';
       $rows[] = array(
-        'order_date_link' => sprintf('%s&%s=%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES_DETAIL, dbEventOrder::field_id, $message[dbEventOrder::field_id]),
-        'order_date' => date(CFG_DATETIME_STR, strtotime($message[dbEventOrder::field_order_date])),
-        'email' => $message[dbEventOrder::field_email],
+        'order_date_link' => sprintf('%s&%s=%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES_DETAIL, 'ord_id', $message['ord_id']),
+        'order_date' => date(CFG_DATETIME_STR, strtotime($message['ord_date'])),
+        'email' => $message['ord_email'],
         'name' => $name,
         'event' => $message[dbEventItem::field_title],
-        'event_date' => date(CFG_DATE_STR, strtotime($message[dbEvent::field_event_date_from])),
+        'event_date' => date(CFG_DATE_STR, strtotime($message['evt_event_date_from'])),
         'declared' => $declared,
-        'message' => $message[dbEventOrder::field_message],
+        'message' => $message['ord_message'],
         'delete_link' => sprintf('%s&%s', self::$page_link, http_build_query(array(
             self::REQUEST_ACTION => self::ACTION_DELETE,
-            dbEventOrder::field_id => $message[dbEventOrder::field_id]
+            'ord_id' => $message['ord_id']
             ))),
         'delete_image' => WB_URL.'/modules/kit_event/images/delete_icon.png'
       );
@@ -1885,66 +1961,66 @@ class eventBackend {
       'intro' => ($this->isMessage()) ? $this->getMessage() : '',
       'is_intro' => ($this->isMessage()) ? 0 : 1,
       'rows' => $rows,
-      'order_date_name' => dbEventOrder::field_order_date,
-      'email_name' => dbEventOrder::field_email,
-      'name_name' => dbEventOrder::field_last_name,
-      'event_name' => dbEventOrder::field_event_id,
-      'event_date_name' => dbEvent::field_event_date_from,
-      'declared_name' => dbEventOrder::field_confirm_order,
-      'message_name' => dbEventOrder::field_message,
+      'order_date_name' => 'ord_date',
+      'email_name' => 'ord_email',
+      'name_name' => 'ord_last_name',
+      'event_name' => 'evt_id',
+      'event_date_name' => 'evt_event_date_from',
+      'declared_name' => 'ord_confirm',
+      'message_name' => 'ord_message',
     );
     return $this->getTemplate('order.list.dwoo', $data);
   } // dlgMessages()
 
   public function dlgMessageDetail() {
-    global $dbEventOrder;
-    global $dbEvent;
-    global $dbEventItem;
-    global $parser;
+    global $database;
 
-    $order_id = (isset($_REQUEST[dbEventOrder::field_id])) ? (int) $_REQUEST[dbEventOrder::field_id] : -1;
+    $order_id = (isset($_REQUEST['ord_id'])) ? (int) $_REQUEST['ord_id'] : -1;
 
-    $SQL = sprintf("SELECT * FROM %s,%s,%s WHERE %s.%s=%s.%s AND %s.%s=%s.%s AND %s=%s", $dbEvent->getTableName(), $dbEventOrder->getTableName(), $dbEventItem->getTableName(), $dbEvent->getTableName(), dbEvent::field_id, $dbEventOrder->getTableName(), dbEventOrder::field_event_id, $dbEvent->getTableName(), dbEvent::field_event_item, $dbEventItem->getTableName(), dbEventItem::field_id, dbEventOrder::field_id, $order_id);
-    $detail = array();
-    if (!$dbEventOrder->sqlExec($SQL, $detail)) {
-      $this->setError($dbEventOrder->getError());
+    $tke = TABLE_PREFIX.'mod_kit_event';
+    $tkeo = TABLE_PREFIX.'mod_kit_event_order';
+    $tkei = TABLE_PREFIX.'mod_kit_event_item';
+
+    $SQL = "SELECT * FROM `$tke`, `$tkeo`, `$tkei` WHERE $tke.evt_id=$tkeo.evt_id AND $tke.item_id=$tkei.item_id AND `ord_id`='$order_id'";
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->get_error());
       return false;
     }
-    if (count($detail) < 1) {
+    if ($query->numRows() < 1) {
       $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $order_id)));
       return false;
     }
-    $detail = $detail[0];
+    $detail = $query->fetchRow(MYSQL_ASSOC);
 
-    $dt = strtotime($detail[dbEventOrder::field_confirm_order]);
+    $dt = strtotime($detail['ord_confirm']);
     $declared = (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? date(CFG_DATETIME_STR, $dt) : $this->lang->translate('No');
 
-    $label_free_1 = substr($detail[dbEventOrder::field_free_1], 0, strpos($detail[dbEventOrder::field_free_1], '|'));
-    $label_free_2 = substr($detail[dbEventOrder::field_free_2], 0, strpos($detail[dbEventOrder::field_free_2], '|'));
-    $label_free_3 = substr($detail[dbEventOrder::field_free_3], 0, strpos($detail[dbEventOrder::field_free_3], '|'));
-    $label_free_4 = substr($detail[dbEventOrder::field_free_4], 0, strpos($detail[dbEventOrder::field_free_4], '|'));
-    $label_free_5 = substr($detail[dbEventOrder::field_free_5], 0, strpos($detail[dbEventOrder::field_free_5], '|'));
+    $label_free_1 = substr($detail['ord_free_1'], 0, strpos($detail['ord_free_1'], '|'));
+    $label_free_2 = substr($detail['ord_free_2'], 0, strpos($detail['ord_free_2'], '|'));
+    $label_free_3 = substr($detail['ord_free_3'], 0, strpos($detail['ord_free_3'], '|'));
+    $label_free_4 = substr($detail['ord_free_4'], 0, strpos($detail['ord_free_4'], '|'));
+    $label_free_5 = substr($detail['ord_free_5'], 0, strpos($detail['ord_free_5'], '|'));
 
     $data = array(
-      'title' => $detail[dbEventOrder::field_title],
-      'first_name' => $detail[dbEventOrder::field_first_name],
-      'last_name' => $detail[dbEventOrder::field_last_name],
-      'company' => $detail[dbEventOrder::field_company],
-      'street' => $detail[dbEventOrder::field_street],
-      'zip' => $detail[dbEventOrder::field_zip],
-      'city' => $detail[dbEventOrder::field_city],
-      'email' => $detail[dbEventOrder::field_email],
-      'phone' => $detail[dbEventOrder::field_phone],
-      'best_time' => $detail[dbEventOrder::field_best_time],
-      'event' => $detail[dbEventItem::field_title],
-      'event_date' => date(CFG_DATE_STR, strtotime($detail[dbEvent::field_event_date_from])),
+      'title' => $detail['ord_title'],
+      'first_name' => $detail['ord_first_name'],
+      'last_name' => $detail['ord_last_name'],
+      'company' => $detail['ord_company'],
+      'street' => $detail['ord_street'],
+      'zip' => $detail['ord_zip'],
+      'city' => $detail['ord_city'],
+      'email' => $detail['ord_email'],
+      'phone' => $detail['ord_phone'],
+      'best_time' => $detail['ord_best_time'],
+      'event' => $detail['item_title'],
+      'event_date' => date(CFG_DATE_STR, strtotime($detail['evt_event_date_from'])),
       'declared' => $declared,
-      'message' => $detail[dbEventOrder::field_message],
-      'free_1' => substr($detail[dbEventOrder::field_free_1], strpos($detail[dbEventOrder::field_free_1], '|') + 1),
-      'free_2' => substr($detail[dbEventOrder::field_free_2], strpos($detail[dbEventOrder::field_free_2], '|') + 1),
-      'free_3' => substr($detail[dbEventOrder::field_free_3], strpos($detail[dbEventOrder::field_free_3], '|') + 1),
-      'free_4' => substr($detail[dbEventOrder::field_free_4], strpos($detail[dbEventOrder::field_free_4], '|') + 1),
-      'free_5' => substr($detail[dbEventOrder::field_free_5], strpos($detail[dbEventOrder::field_free_5], '|') + 1),
+      'message' => $detail['ord_message'],
+      'free_1' => substr($detail['ord_free_1'], strpos($detail['ord_free_1'], '|') + 1),
+      'free_2' => substr($detail['ord_free_2'], strpos($detail['ord_free_2'], '|') + 1),
+      'free_3' => substr($detail['ord_free_3'], strpos($detail['ord_free_3'], '|') + 1),
+      'free_4' => substr($detail['ord_free_4'], strpos($detail['ord_free_4'], '|') + 1),
+      'free_5' => substr($detail['ord_free_5'], strpos($detail['ord_free_6'], '|') + 1),
       'back_link' => sprintf('%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES),
     );
     return $this->getTemplate('order.detail.dwoo', $data);

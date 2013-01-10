@@ -56,19 +56,51 @@ require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.event.php')
 require_once WB_PATH.'/modules/manufaktur_config/library.php';
 
 global $admin;
+global $database;
 
-$tables = array('dbEvent', 'dbEventGroup', 'dbEventItem', 'dbEventOrder');
+$tables = array('dbEvent', 'dbEventGroup', 'dbEventItem');
 $error = '';
 
 foreach ($tables as $table) {
-	$create = null;
-	$create = new $table();
-	if (!$create->sqlTableExists()) {
-		if (!$create->sqlCreateTable()) {
-			$error .= sprintf('[INSTALLATION %s] %s', $table, $create->getError());
-		}
-	}
+  $create = null;
+  $create = new $table();
+  if (!$create->sqlTableExists()) {
+    if (!$create->sqlCreateTable()) {
+      $error .= sprintf('[INSTALLATION %s] %s', $table, $create->getError());
+    }
+  }
 }
+
+// create mod_kit_event_order table
+$SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_wincalc_items` ( ".
+    "`ord_id` INT(11) NOT NULL AUTO_INCREMENT, ".
+    "`evt_id` INT(11) NOT NULL DEFAULT '-1', ".
+    "`ord_date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
+    "`ord_first_name` VARCHAR(80) NOT NULL DEFAULT '', ".
+    "`ord_last_name` VARCHAR(80) NOT NULL DEFAULT '', ".
+    "`ord_title` VARCHAR(40) NOT NULL DEFAULT '', ".
+    "`ord_company` VARCHAR(80) NOT NULL DEFAULT '', ".
+    "`ord_street` VARCHAR(80) NOT NULL DEFAULT '', ".
+    "`ord_zip` VARCHAR(10) NOT NULL DEFAULT '', ".
+    "`ord_city` VARCHAR(80) NOT NULL DEFAULT '', ".
+    "`ord_email` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`ord_phone` VARCHAR(80) NOT NULL DEFAULT '', ".
+    "`ord_best_time` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`ord_message` TEXT NOT NULL, ".
+    "`ord_confirm` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
+    "`ord_send_mail` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
+    "`ord_free_1` TEXT NOT NULL, ".
+    "`ord_free_2` TEXT NOT NULL, ".
+    "`ord_free_3` TEXT NOT NULL, ".
+    "`ord_free_4` TEXT NOT NULL, ".
+    "`ord_free_5` TEXT NOT NULL, ".
+    "`timestamp` TIMESTAMP, ".
+    "PRIMARY KEY (`ord_id`) ".
+    ") ENGINE=MyIsam AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+
+if (!$database->query($SQL))
+  $admin->print_error($database->get_error());
+
 
 // install or upgrade droplets
 if (file_exists(WB_PATH.'/modules/droplets/functions.inc.php')) {
@@ -155,5 +187,5 @@ if (!$config->readXMLfile(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/conf
 
 // Prompt Errors
 if (!empty($error)) {
-	$admin->print_error($error);
+  $admin->print_error($error);
 }
