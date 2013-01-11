@@ -58,7 +58,7 @@ require_once WB_PATH.'/modules/manufaktur_config/library.php';
 global $admin;
 global $database;
 
-$tables = array('dbEvent', 'dbEventGroup', 'dbEventItem');
+$tables = array('dbEventGroup', 'dbEventItem');
 $error = '';
 
 foreach ($tables as $table) {
@@ -71,8 +71,68 @@ foreach ($tables as $table) {
   }
 }
 
+// create mod_kit_event table
+$SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event` ( ".
+    "`evt_id` INT(11) NOT NULL AUTO_INCREMENT, ".
+    "`item_id` INT(11) NOT NULL DEFAULT '-1', ".
+    "`group_id` INT(11) NOT NULL DEFAULT '-1', ".
+    "`evt_event_date_from` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
+    "`evt_event_date_to` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
+    "`evt_publish_date_from` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
+    "`evt_publish_date_to` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
+    "`evt_participants_max` INT(11) NOT NULL DEFAULT '-1', ".
+    "`evt_participants_total` INT(11) NOT NULL DEFAULT '0', ".
+    "`evt_deadline` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
+    "`evt_perma_link` VARCHAR(128) NOT NULL DEFAULT '', ".
+    "`evt_ical_file` VARCHAR(32) NOT NULL DEFAULT '', ".
+    "`evt_qrcode_image` VARCHAR(32) NOT NULL DEFAULT '', ".
+    "`evt_status` TINYINT NOT NULL DEFAULT '1', ".
+    "`evt_timestamp` TIMESTAMP, ".
+    "PRIMARY KEY (`ord_id`), ".
+    "KEY (`item_id`, `group_id`) ".
+    ") ENGINE=MyIsam AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+
+if (!$database->query($SQL))
+  $admin->print_error($database->get_error());
+
+// create mod_kit_event_item table
+$SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event_item` ( ".
+    "`item_id` INT(11) NOT NULL AUTO_INCREMENT, ".
+    "`item_title` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`item_desc_short` TEXT NOT NULL DEFAULT '', ".
+    "`item_desc_long` TEXT NOT NULL DEFAULT '', ".
+    "`item_desc_link` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`item_location` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`item_costs` FLOAT NOT NULL DEFAULT '-1', ".
+    "`item_free_1` TEXT NOT NULL DEFAULT '', ".
+    "`item_free_2` TEXT NOT NULL DEFAULT '', ".
+    "`item_free_3` TEXT NOT NULL DEFAULT '', ".
+    "`item_free_4` TEXT NOT NULL DEFAULT '', ".
+    "`item_free_5` TEXT NOT NULL DEFAULT '', ".
+    "`item_timestamp` TIMESTAMP, ".
+    "PRIMARY KEY (`ord_id`) ".
+    ") ENGINE=MyIsam AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+
+if (!$database->query($SQL))
+  $admin->print_error($database->get_error());
+
+// create mod_kit_event_group table
+$SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event_group` ( ".
+    "`group_id` INT(11) NOT NULL AUTO_INCREMENT, ".
+    "`group_name` VARCHAR(64) NOT NULL DEFAULT '', ".
+    "`group_redirect_page` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`group_perma_pattern` VARCHAR(128) NOT NULL DEFAULT '', ".
+    "`group_desc` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`group_status` TINYINT NOT NULL DEFAULT '1', ".
+    "`group_timestamp` TIMESTAMP, ".
+    "PRIMARY KEY (`ord_id`) ".
+    ") ENGINE=MyIsam AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+
+if (!$database->query($SQL))
+  $admin->print_error($database->get_error());
+
 // create mod_kit_event_order table
-$SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_wincalc_items` ( ".
+$SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event_order` ( ".
     "`ord_id` INT(11) NOT NULL AUTO_INCREMENT, ".
     "`evt_id` INT(11) NOT NULL DEFAULT '-1', ".
     "`ord_date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
@@ -94,7 +154,7 @@ $SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_wincalc_items` ( ".
     "`ord_free_3` TEXT NOT NULL, ".
     "`ord_free_4` TEXT NOT NULL, ".
     "`ord_free_5` TEXT NOT NULL, ".
-    "`timestamp` TIMESTAMP, ".
+    "`ord_timestamp` TIMESTAMP, ".
     "PRIMARY KEY (`ord_id`) ".
     ") ENGINE=MyIsam AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
