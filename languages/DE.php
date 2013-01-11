@@ -111,6 +111,8 @@ $LANG = array(
       => 'Verzeichnis',
     'End'
         => 'Ende',
+    'Error: cannot create the directory {{ directory }}!'
+      => '<p>Das Verzeichnis {{ directory }} konnte nicht angelegt werden!</p>',
     'Error: cannot create the file {{ file }}!'
       => '<p>Die Datei <b>{{ file }}</b> konnte nicht geschrieben werden!</p>',
     'Error: cannot send the email to {{ email }}!'
