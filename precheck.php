@@ -43,11 +43,6 @@ $PRECHECK['PHP_VERSION'] = array(
 
 // modified precheck array
 $check = array(
-    'dbConnect_LE' => array(
-        'directory' => 'dbconnect_le',
-        'version' => '0.70',
-        'problem' => 'dbConnect_LE => <b><a href="https://addons.phpmanufaktur.de/download.php?file=dbConnect_LE" target="_blank">Download actual version</a></b>'
-        ),
     'Dwoo' => array(
         'directory' => 'dwoo',
         'version' => '0.17',
