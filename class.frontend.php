@@ -398,8 +398,8 @@ class eventFrontend
     }
     private function getStartEndDates($event_data = array(), $is_start = true)
     {
-        $date = ($is_start) ? strtotime($event_data[dbEvent::field_event_date_from]) : strtotime($event_data[dbEvent::field_event_date_to]);
-        $publish = ($is_start) ? strtotime($event_data[dbEvent::field_publish_date_from]) : strtotime($event_data[dbEvent::field_publish_date_to]);
+        $date = ($is_start) ? strtotime($event_data['evt_event_date_from']) : strtotime($event_data['evt_event_date_to']);
+        $publish = ($is_start) ? strtotime($event_data['evt_publish_date_from']) : strtotime($event_data['evt_publish_date_to']);
 
         $weekdays = explode(',', CFG_DAY_NAMES);
         $months = explode(',', CFG_MONTH_NAMES);
@@ -488,49 +488,49 @@ class eventFrontend
      */
     public function getEventData($event_id, &$event_data = array(), &$event_parser = array())
     {
-        global $dbEvent;
-        global $dbEventItem;
-        global $dbEventGroup;
         global $kitEventTools;
+        global $database;
 
-        $SQL = sprintf('SELECT * FROM %1$s, %2$s WHERE %1$s.%3$s = %2$s.%4$s AND %1$s.%5$s=\'%6$s\'', $dbEvent->getTableName(), $dbEventItem->getTableName(), dbEvent::field_event_item, dbEventItem::field_id, dbEvent::field_id, $event_id);
-        $event_data = array();
-        if (!$dbEvent->sqlExec($SQL, $event_data)) {
-            $this->setError($dbEvent->getError());
-            return false;
+        $tke = TABLE_PREFIX.'mod_kit_event';
+        $tkei = TABLE_PREFIX.'mod_kit_event_item';
+        $SQL = "SELECT * FROM `$tke`, `$tkei` WHERE $tke.item_id=$tkei.item_id AND $tke.evt_id='$event_id'";
+        if (null === ($query = $database->query($SQL))) {
+          $this->setError($database->get_error());
+          return false;
         }
-        if (count($event_data) < 1) {
-            $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array(
-                'id' => $event_id)));
-            return false;
+        if ($query->numRows() < 1) {
+          $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id)));
+          return false;
         }
-        $event_data = $event_data[0];
-        $where = array(
-            dbEventGroup::field_id => $event_data[dbEvent::field_event_group]);
-        $group = array();
-        if (!$dbEventGroup->sqlSelectRecord($where, $group)) {
-            $this->setError($dbEventGroup->getError());
-            return false;
+        $event_data = $query->fetchRow(MYSQL_ASSOC);
+
+        $SQL = "SELECT `group_id`,`group_name`, `group_desc` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_id`='{$event_data['group_id']}'";
+        if (null === ($query = $database->query($SQL))) {
+          $this->setError($database->get_error());
+          return false;
         }
-        if (count($group) > 0) {
-            $group_id = $group[0][dbEventGroup::field_id];
-            $group_name = $group[0][dbEventGroup::field_name];
-            $group_desc = $group[0][dbEventGroup::field_desc];
-        } else {
-            $group_id = -1;
-            $group_name = '';
-            $group_desc = '';
+        if ($query->numRows() == 1) {
+          $group = $query->fetchRow(MYSQL_ASSOC);
         }
-        if ($event_data[dbEvent::field_participants_max] > 0) {
-            $participants_max = $event_data[dbEvent::field_participants_max];
-            $participants_free = (($x = $event_data[dbEvent::field_participants_max] - $event_data[dbEvent::field_participants_total]) > 0) ? $x : $this->lang->translate('- out of stock -');
-        } else {
+        else {
+          $group = array(
+              'group_id' => -1,
+              'group_name' => '',
+              'group_desc' => ''
+              );
+        }
+
+        if ($event_data['evt_participants_max'] > 0) {
+            $participants_max = $event_data['evt_participants_max'];
+            $participants_free = (($x = $event_data['evt_participants_max'] - $event_data['evt_participants_total']) > 0) ? $x : $this->lang->translate('- out of stock -');
+        }
+        else {
             $participants_max = $this->lang->translate('- unlimited -');
             $participants_free = $this->lang->translate('- places available -');
         }
 
-        $start = strtotime($event_data[dbEvent::field_event_date_from]);
-        $end = strtotime($event_data[dbEvent::field_event_date_to]);
+        $start = strtotime($event_data['evt_event_date_from']);
+        $end = strtotime($event_data['evt_event_date_to']);
 
         // QR Code
         if (self::$cfgQRCodeCreate) {
@@ -538,7 +538,7 @@ class eventFrontend
             $dir = $kitEventTools->removeLeadingSlash(self::$cfgQRCodeDir);
             $dir = $kitEventTools->addSlash($dir);
             $dir_path = WB_PATH . MEDIA_DIRECTORY . '/' . $dir;
-            $filename = $event_data[dbEvent::field_qrcode_image];
+            $filename = $event_data['evt_qrcode_image'];
             if (!empty($filename) && file_exists($dir_path . $filename)) {
                 list ($qrcode_width, $qrcode_height) = getimagesize($dir_path . $filename);
                 $qrcode_src = WB_URL . MEDIA_DIRECTORY . '/' . $dir . $filename;
@@ -559,70 +559,81 @@ class eventFrontend
             $qrcode_type = 0;
         }
         // iCal
-        if (self::$cfgICalCreate && !empty($event_data[dbEvent::field_ical_file])) {
+        if (self::$cfgICalCreate && !empty($event_data['evt_ical_file'])) {
             $dir = $kitEventTools->removeLeadingSlash(self::$cfgICalDir);
             $dir = $kitEventTools->addSlash($dir);
             $dir_url = WB_URL . MEDIA_DIRECTORY . '/' . $dir;
-            $filename = $event_data[dbEvent::field_ical_file];
+            $filename = $event_data['evt_ical_file'];
             $ical_link = $dir_url . $filename;
         } else {
             $ical_link = '';
         }
 
         $event_parser = array(
-            'headline' => $event_data[dbEventItem::field_title],
-            'id' => $event_data[dbEvent::field_id],
+            'headline' => $event_data['item_title'],
+            'id' => $event_data['evt_id'],
             'group' => array(
-                'id' => $group_id,
-                'name' => $group_name,
-                'description' => $group_desc),
+                'id' => $group['group_id'],
+                'name' => $group['group_name'],
+                'description' => $group['group_desc']),
             'start' => $this->getStartEndDates($event_data, true),
             'end' => $this->getStartEndDates($event_data, false),
             'participants' => array(
                 'max' => $participants_max,
-                'total' => $event_data[dbEvent::field_participants_total],
+                'total' => $event_data['evt_participants_total'],
                 'free' => $participants_free),
             'deadline' => array(
-                'date' => strtotime($event_data[dbEvent::field_deadline])),
+                'date' => strtotime($event_data['evt_deadline'])),
             'description' => array(
-                'short' => self::unsanitizeText($event_data[dbEventItem::field_desc_short]),
-                'long' => self::unsanitizeText($event_data[dbEventItem::field_desc_long])),
+                'short' => self::unsanitizeText($event_data['item_desc_short']),
+                'long' => self::unsanitizeText($event_data['item_desc_long'])),
             'free_field' => array(
                 1 => array(
                     'label' => self::$cfgFreeFieldLabel_1,
-                    'value' => self::unsanitizeText($event_data[dbEventItem::field_free_1])),
+                    'value' => self::unsanitizeText($event_data['item_free_1'])),
                 2 => array(
                     'label' => self::$cfgFreeFieldLabel_2,
-                    'value' => self::unsanitizeText($event_data[dbEventItem::field_free_2])),
+                    'value' => self::unsanitizeText($event_data['item_free_2'])),
                 3 => array(
                     'label' => self::$cfgFreeFieldLabel_3,
-                    'value' => self::unsanitizeText($event_data[dbEventItem::field_free_3])),
+                    'value' => self::unsanitizeText($event_data['item_free_3'])),
                 4 => array(
                     'label' => self::$cfgFreeFieldLabel_4,
-                    'value' => self::unsanitizeText($event_data[dbEventItem::field_free_4])),
+                    'value' => self::unsanitizeText($event_data['item_free_4'])),
                 5 => array(
                     'label' => self::$cfgFreeFieldLabel_5,
-                    'value' => self::unsanitizeText($event_data[dbEventItem::field_free_5]))
+                    'value' => self::unsanitizeText($event_data['item_free_5']))
                 ),
-            'location' => $event_data[dbEventItem::field_location],
+            'location' => $event_data['item_location'],
             'costs' => array(
-                'value' => $event_data[dbEventItem::field_costs],
+                'value' => $event_data['item_costs'],
                 'format' => array(
-                    'float' => number_format($event_data[dbEventItem::field_costs], 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR),
-                    'currency' => sprintf(CFG_CURRENCY, number_format($event_data[dbEventItem::field_costs], 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR)))),
+                    'float' => number_format($event_data['item_costs'], 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR),
+                    'currency' => sprintf(CFG_CURRENCY, number_format($event_data['item_costs'], 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR)))),
             'link' => array(
-                'description' => self::unsanitizeText($event_data[dbEventItem::field_desc_link]),
-                'register' => sprintf('%s%s%s', self::$page_link, (strpos(self::$page_link, '?') === false) ? '?' : '&', http_build_query(array(
-                    self::REQUEST_ACTION => self::ACTION_ORDER,
-                    self::REQUEST_EVENT_ID => $event_id))),
-                'detail' => sprintf('%s%s%s', self::$page_link, (strpos(self::$page_link, '?') === false) ? '?' : '&', http_build_query(array(
-                    self::REQUEST_ACTION => self::ACTION_EVENT,
-                    self::REQUEST_EVENT_ID => $event_id,
-                    self::REQUEST_EVENT => self::VIEW_ID,
-                    self::REQUEST_EVENT_DETAIL => 1))),
+                'description' => self::unsanitizeText($event_data['item_desc_link']),
+                'register' => sprintf('%s%s%s',
+                    self::$page_link,
+                    (strpos(self::$page_link, '?') === false) ? '?' : '&',
+                    http_build_query(array(
+                      self::REQUEST_ACTION => self::ACTION_ORDER,
+                      self::REQUEST_EVENT_ID => $event_id
+                        ))
+                    ),
+                'detail' => sprintf('%s%s%s',
+                    self::$page_link,
+                    (strpos(self::$page_link, '?') === false) ? '?' : '&',
+                    http_build_query(array(
+                      self::REQUEST_ACTION => self::ACTION_EVENT,
+                      self::REQUEST_EVENT_ID => $event_id,
+                      self::REQUEST_EVENT => self::VIEW_ID,
+                      self::REQUEST_EVENT_DETAIL => 1
+                        ))
+                    ),
                 'start' => self::$page_link,
-                'permanent' => (empty($event_data[dbEvent::field_perma_link])) ? '' : WB_URL . PAGES_DIRECTORY . '/' . $event_data[dbEvent::field_perma_link],
-                'ical' => $ical_link),
+                'permanent' => (empty($event_data['evt_perma_link'])) ? '' : WB_URL . PAGES_DIRECTORY . '/' . $event_data['evt_perma_link'],
+                'ical' => $ical_link
+                ),
             'qr_code' => array(
                 'is_active' => (int) self::$cfgQRCodeCreate,
                 'image' => array(
@@ -630,7 +641,10 @@ class eventFrontend
                     'width' => $qrcode_width,
                     'height' => $qrcode_height,
                     'text' => $qrcode_text,
-                    'type' => $qrcode_type)));
+                    'type' => $qrcode_type
+                    )
+                )
+            );
         return true;
     } // getEventData()
 
@@ -643,15 +657,14 @@ class eventFrontend
      */
     public function checkOrder() {
         global $kitEventTools;
-        global $dbEvent;
         global $wb;
         global $database;
 
-        if (!isset($_REQUEST[self::REQUEST_EVENT_ID]) && !isset($_REQUEST[dbEvent::field_id])) {
+        if (!isset($_REQUEST[self::REQUEST_EVENT_ID]) && !isset($_REQUEST['evt_id'])) {
             $this->setError($this->lang->translate('Error: This event is invalid!'));
             return false;
         }
-        $event_id = (isset($_REQUEST[self::REQUEST_EVENT_ID])) ? (int) $_REQUEST[self::REQUEST_EVENT_ID] : (int) $_REQUEST[dbEvent::field_id];
+        $event_id = (isset($_REQUEST[self::REQUEST_EVENT_ID])) ? (int) $_REQUEST[self::REQUEST_EVENT_ID] : (int) $_REQUEST['evt_id'];
 
         if (!isset($_REQUEST[self::REQUEST_MUST_FIELDS])) {
             $this->setError($this->lang->translate('Error: The must fields for the form are not defined!'));
@@ -742,7 +755,7 @@ class eventFrontend
         $fields = '';
         $values = '';
         $start = true;
-        foreach ($item as $field => $value) {
+        foreach ($orderData as $field => $value) {
           $fields .= (!$start) ? ",`$field`" : "`$field`";
           $values .= (!$start) ? ",'$value'" : "'$value'";
           $start = false;
@@ -756,24 +769,22 @@ class eventFrontend
 
         // wenn eine Anmeldung erfolgt ist, muss der Zaehler bei dbEvent erhoeht werden!
         if (false !== ($dt = $orderData['ord_confirm'])) {
-            $SQL = sprintf("SELECT %s FROM %s WHERE %s='%s'", dbEvent::field_participants_total, $dbEvent->getTableName(), dbEvent::field_id, $event_id);
-            $counter = array();
-            if (!$dbEvent->sqlExec($SQL, $counter)) {
-                $this->setError($dbEvent->getError());
-                return false;
+            $SQL = "SELECT `evt_participants_total` FROM `".TABLE_PREFIX."mod_kit_event` WHERE `evt_id`='$event_id'";
+            if (null === ($query = $database->query($SQL))) {
+              $this->setError($database->get_error());
+              return false;
             }
-            if (count($counter) < 1) {
-                $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array(
-                    'id' => $event_id)));
-                return false;
+            if ($query->numRows() < 1) {
+              $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id)));
+              return false;
             }
-            $where = array(
-                dbEvent::field_id => $event_id);
-            $update = array(
-                dbEvent::field_participants_total => $counter[0][dbEvent::field_participants_total] + 1);
-            if (!$dbEvent->sqlUpdateRecord($update, $where)) {
-                $this->setError($dbEvent->getError());
-                return false;
+            $counter = $query->fetchRow(MYSQL_ASSOC);
+            $total = $counter['evt_participants_total']+1;
+
+            $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event` SET `evt_participants_total`='$total' WHERE `evt_id`='$event_id'";
+            if (null === $database->query($SQL)) {
+              $this->setError($database->get_error());
+              return false;
             }
         }
 
@@ -840,22 +851,19 @@ class eventFrontend
      */
     public function orderEvent()
     {
-        global $dbEvent;
-        global $dbEventItem;
-        global $dbEventGroup;
 
-        if (!isset($_REQUEST[self::REQUEST_EVENT_ID]) && !isset($_REQUEST[dbEvent::field_id])) {
+        if (!isset($_REQUEST[self::REQUEST_EVENT_ID]) && !isset($_REQUEST['evt_id'])) {
             $this->setError($this->lang->translate('Error: This event is invalid!'));
             return false;
         }
-        $event_id = (isset($_REQUEST[self::REQUEST_EVENT_ID])) ? (int) $_REQUEST[self::REQUEST_EVENT_ID] : (int) $_REQUEST[dbEvent::field_id];
+        $event_id = (isset($_REQUEST[self::REQUEST_EVENT_ID])) ? (int) $_REQUEST[self::REQUEST_EVENT_ID] : (int) $_REQUEST['evt_id'];
 
         $event = array();
         $parser_data = array();
         if (!$this->getEventData($event_id, $event, $parser_data))
             return false;
 
-        $event_group = $event[dbEvent::field_event_group];
+        $event_group = $event['group_id'];
 
         $request = array();
         // persoenliche Anrede...
@@ -909,7 +917,7 @@ class eventFrontend
             'form_action' => self::$page_link,
             'action_name' => self::REQUEST_ACTION,
             'action_value' => self::ACTION_ORDER_CHECK,
-            'event_name' => dbEvent::field_id,
+            'event_name' => 'evt_id',
             'event_value' => $event_id,
             'must_fields_name' => self::REQUEST_MUST_FIELDS,
             'define_free_fields' => self::REQUEST_FREE_FIELDS,
@@ -985,8 +993,7 @@ class eventFrontend
      */
     public function viewEventDay()
     {
-        global $dbEvent;
-        global $dbEventGroup;
+        global $database;
 
         if (!isset($_REQUEST[self::REQUEST_DAY]) || !isset($_REQUEST[self::REQUEST_MONTH]) || !isset($_REQUEST[self::REQUEST_YEAR])) {
             // keine Parameter gesetzt - aktuelles Datum verwenden!
@@ -1024,32 +1031,32 @@ class eventFrontend
         $filter_group = '';
         $group = (isset($_REQUEST[self::PARAM_GROUP]) && !empty($_REQUEST[self::PARAM_GROUP])) ? $_REQUEST[self::PARAM_GROUP] : $this->params[self::PARAM_GROUP];
         if (!empty($group)) {
-            $where = array(
-                dbEventGroup::field_name => $group);
-            $groups = array();
-            if (!$dbEventGroup->sqlSelectRecord($where, $groups)) {
-                $this->setError($dbEventGroup->getError());
-                return false;
+            $SQL = "SELECT `group_id` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_name`='$group' AND `group_status`='1'";
+            if (null === ($query = $database->query($SQL))) {
+              $this->setError($database->get_error());
+              return false;
             }
-            if (count($groups) < 1) {
-                $this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!', array(
-                    'group' => $group)));
-                return false;
+            if ($query->numRows() < 1) {
+              $this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!', array(
+                  'group' => $group)));
+              return false;
             }
-            $filter_group = sprintf(" AND %s='%s'", dbEvent::field_event_group, $groups[0][dbEventGroup::field_id]);
+            $grp = $query->fetchRow(MYSQL_ASSOC);
+            $filter_group = " AND `group_id`='{$grp['group_id']}'";
         }
 
-        $SQL = sprintf("SELECT %s FROM %s WHERE (%s BETWEEN '%s' AND '%s') AND %s='%s'%s", dbEvent::field_id, $dbEvent->getTableName(), dbEvent::field_event_date_from, $search_date_from, $search_date_to, dbEvent::field_status, dbEvent::status_active, $filter_group);
-        $events = array();
-        if (!$dbEvent->sqlExec($SQL, $events)) {
-            $this->setError($dbEvent->getError());
-            return false;
+        $SQL = "SELECT `evt_id` FROM `".TABLE_PREFIX."mod_kit_event` WHERE ".
+          "(`evt_event_date_from` BETWEEN '$search_date_from' AND '$search_date_to') AND `evt_status`='1'$filter_group";
+        if (null === ($query = $database->query($SQL))) {
+          $this->setError($database->get_error());
+          return false;
         }
+
         $event_items = array();
-        foreach ($events as $event) {
+        while (false !== ($event = $query->fetchRow(MYSQL_ASSOC))) {
             $event_data = array();
             $parser_data = array();
-            if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data))
+            if (!$this->getEventData($event['evt_id'], $event_data, $parser_data))
                 return false;
             $event_items[] = $parser_data;
         }
@@ -1057,14 +1064,14 @@ class eventFrontend
         $data = array(
             'day' => $day,
             'show_details' => ($show_details) ? 1 : 0,
-            'events' => (count($events) > 0) ? $event_items : NULL);
+            'events' => (count($event_items) > 0) ? $event_items : null
+            );
         return $this->getTemplate('frontend.view.day.dwoo', $data);
     } // viewEventDay()
 
     public function viewEventMonth()
     {
-        global $dbEvent;
-        global $dbEventGroup;
+        global $database;
 
         if (!isset($_REQUEST[self::REQUEST_MONTH]) || !isset($_REQUEST[self::REQUEST_YEAR])) {
             // keine Parameter gesetzt - aktuelles Datum verwenden!
@@ -1082,14 +1089,16 @@ class eventFrontend
         if ($month == 1) {
             $prev_month = 11;
             $prev_year = $year - 1;
-        } else {
+        }
+        else {
             $prev_month = $month - 2;
             $prev_year = $year;
         }
         if ($month == 12) {
             $next_month = 0;
             $next_year = $year + 1;
-        } else {
+        }
+        else {
             $next_month = $month;
             $next_year = $year;
         }
@@ -1110,37 +1119,55 @@ class eventFrontend
             'next_month_name' => $months[$next_month],
             'next_month_name_3' => substr($months[$next_month], 1, 3),
             'link_start' => self::$page_link,
-            'link_prev_month' => sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_EVENT, self::REQUEST_EVENT, self::VIEW_MONTH, self::REQUEST_MONTH, $prev_month + 1, self::REQUEST_YEAR, $prev_year),
-            'link_next_month' => sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_EVENT, self::REQUEST_EVENT, self::VIEW_MONTH, self::REQUEST_MONTH, $next_month + 1, self::REQUEST_YEAR, $next_year));
+            'link_prev_month' => sprintf('%s?%s',
+                self::$page_link,
+                http_build_query(array(
+                    self::REQUEST_ACTION => self::ACTION_EVENT,
+                    self::REQUEST_EVENT => self::VIEW_MONTH,
+                    self::REQUEST_MONTH => $prev_month+1,
+                    self::REQUEST_YEAR => $prev_year
+                    ))
+                ),
+            'link_next_month' => sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s',
+                self::$page_link,
+                http_build_query(array(
+                    self::REQUEST_ACTION => self::ACTION_EVENT,
+                    self::REQUEST_EVENT => self::VIEW_MONTH,
+                    self::REQUEST_MONTH => $next_month+1,
+                    self::REQUEST_YEAR => $next_year
+                    ))
+                )
+            );
         $filter_group = '';
         $group = (isset($_REQUEST[self::PARAM_GROUP]) && !empty($_REQUEST[self::PARAM_GROUP])) ? $_REQUEST[self::PARAM_GROUP] : $this->params[self::PARAM_GROUP];
         if (!empty($group)) {
-            $where = array(
-                dbEventGroup::field_name => $group);
-            $groups = array();
-            if (!$dbEventGroup->sqlSelectRecord($where, $groups)) {
-                $this->setError($dbEventGroup->getError());
-                return false;
+            $SQL = "SELECT `group_id` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_name`='$group' AND `group_status`='1'";
+            if (null === ($query = $database->query($SQL))) {
+              $this->setError($database->get_error());
+              return false;
             }
-            if (count($groups) < 1) {
-                $this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!', array(
-                    'group' => $group)));
-                return false;
+            if ($query->numRows() < 1) {
+              $this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!', array(
+                  'group' => $group)));
+              return false;
             }
-            $filter_group = sprintf(" AND %s='%s'", dbEvent::field_event_group, $groups[0][dbEventGroup::field_id]);
+            $grp = $query->fetchRow(MYSQL_ASSOC);
+            $filter_group = " AND `group_id`='{$grp['group_id']}'";
         }
 
-        $SQL = sprintf("SELECT %s FROM %s WHERE (%s BETWEEN '%s' AND '%s') AND %s='%s' %sORDER BY %s ASC", dbEvent::field_id, $dbEvent->getTableName(), dbEvent::field_event_date_from, $search_date_from, $search_date_to, dbEvent::field_status, dbEvent::status_active, $filter_group, dbEvent::field_event_date_from);
-        $events = array();
-        if (!$dbEvent->sqlExec($SQL, $events)) {
-            $this->setError($dbEvent->getError());
-            return false;
+        $SQL = "SELECT `evt_id` FROM `".TABLE_PREFIX."mod_kit_event` WHERE ".
+          "(`evt_event_date_from` BETWEEN '$search_date_from' AND '$search_date_to') ".
+          "AND `evt_status`='1'$filter_group ORDER BY `evt_event_date_from` ASC";
+        if (null === ($query = $database->query($SQL))) {
+          $this->setError($database->get_error());
+          return false;
         }
+
         $event_items = array();
-        foreach ($events as $event) {
+        while (false !== ($event = $query->fetchRow(MYSQL_ASSOC))) {
             $event_data = array();
             $parser_data = array();
-            if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data))
+            if (!$this->getEventData($event['evt_id'], $event_data, $parser_data))
                 return false;
             $event_items[] = $parser_data;
         }
@@ -1148,14 +1175,13 @@ class eventFrontend
         $data = array(
             'show_details' => ($show_details) ? 1 : 0,
             'month' => $data_month,
-            'events' => (count($events) > 0) ? $event_items : NULL);
+            'events' => (count($event_items) > 0) ? $event_items : NULL);
         return $this->getTemplate('frontend.view.month.dwoo', $data);
     } // viewEventMonth()
 
     public function viewEventWeek()
     {
-        global $dbEvent;
-        global $dbEventGroup;
+        global $database;
 
         if (!isset($_REQUEST[self::REQUEST_DAY]) || !isset($_REQUEST[self::REQUEST_MONTH]) || !isset($_REQUEST[self::REQUEST_YEAR])) {
             // keine Parameter gesetzt - aktuelles Datum verwenden!
@@ -1194,54 +1220,73 @@ class eventFrontend
             'month_zero' => date('m', $dt),
             'month_name' => $months[date('n') - 1],
             'month_name_3' => substr($months[date('n') - 1], 1, 3),
-            'link_prev_week' => sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_EVENT, self::REQUEST_EVENT, self::VIEW_WEEK, self::REQUEST_MONTH, date('n', $prev_date), self::REQUEST_DAY, date('j', $prev_date), self::REQUEST_YEAR, date('Y', $prev_date)),
-            'link_next_week' => sprintf('%s?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_EVENT, self::REQUEST_EVENT, self::VIEW_WEEK, self::REQUEST_MONTH, date('n', $next_date), self::REQUEST_DAY, date('j', $next_date), self::REQUEST_YEAR, date('Y', $next_date)),
-            'link_start' => self::$page_link);
+            'link_prev_week' => sprintf('%s?%s',
+                self::$page_link,
+                http_build_query(array(
+                    self::REQUEST_ACTION => self::ACTION_EVENT,
+                    self::REQUEST_EVENT => self::VIEW_WEEK,
+                    self::REQUEST_MONTH => date('n', $prev_date),
+                    self::REQUEST_DAY => date('j', $prev_date),
+                    self::REQUEST_YEAR => date('Y', $prev_date)
+                    ))
+                ),
+            'link_next_week' => sprintf('%s?%s',
+                self::$page_link,
+                http_build_query(array(
+                    self::REQUEST_ACTION => self::ACTION_EVENT,
+                    self::REQUEST_EVENT => self::VIEW_WEEK,
+                    self::REQUEST_MONTH => date('n', $next_date),
+                    self::REQUEST_DAY => date('j', $next_date),
+                    self::REQUEST_YEAR => date('Y', $next_date)
+                    ))
+                ),
+            'link_start' => self::$page_link
+            );
 
         $filter_group = '';
         $group = (isset($_REQUEST[self::PARAM_GROUP]) && !empty($_REQUEST[self::PARAM_GROUP])) ? $_REQUEST[self::PARAM_GROUP] : $this->params[self::PARAM_GROUP];
         if (!empty($group)) {
-            $where = array(
-                dbEventGroup::field_name => $group);
-            $groups = array();
-            if (!$dbEventGroup->sqlSelectRecord($where, $groups)) {
-                $this->setError($dbEventGroup->getError());
-                return false;
-            }
-            if (count($groups) < 1) {
-                $this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!', array(
-                    'group' => $group)));
-                return false;
-            }
-            $filter_group = sprintf(" AND %s='%s'", dbEvent::field_event_group, $groups[0][dbEventGroup::field_id]);
+          $SQL = "SELECT `group_id` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_name`='$group' AND `group_status`='1'";
+          if (null === ($query = $database->query($SQL))) {
+            $this->setError($database->get_error());
+            return false;
+          }
+          if ($query->numRows() < 1) {
+            $this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!', array(
+                'group' => $group)));
+            return false;
+          }
+          $grp = $query->fetchRow(MYSQL_ASSOC);
+          $filter_group = " AND `group_id`='{$grp['group_id']}'";
         }
 
-        $SQL = sprintf("SELECT %s FROM %s WHERE (%s BETWEEN '%s' AND '%s') AND %s='%s' %sORDER BY %s ASC", dbEvent::field_id, $dbEvent->getTableName(), dbEvent::field_event_date_from, $search_date_from, $search_date_to, dbEvent::field_status, dbEvent::status_active, $filter_group, dbEvent::field_event_date_from);
-        $events = array();
-        if (!$dbEvent->sqlExec($SQL, $events)) {
-            $this->setError($dbEvent->getError());
-            return false;
+        $SQL = "SELECT `evt_id` FROM `".TABLE_PREFIX."mod_kit_event` WHERE ".
+            "(`evt_event_date_from` BETWEEN '$search_date_from' AND '$search_date_to') ".
+            "AND `evt_status`='1'$filter_group ORDER BY `evt_event_date_from` ASC";
+        if (null === ($query = $database->query($SQL))) {
+          $this->setError($database->get_error());
+          return false;
         }
+
         $event_items = array();
-        foreach ($events as $event) {
+        while (false !== ($event = $query->fetchRow(MYSQL_ASSOC))) {
             $event_data = array();
             $parser_data = array();
-            if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data))
+            if (!$this->getEventData($event['evt_id'], $event_data, $parser_data))
                 return false;
             $event_items[] = $parser_data;
         }
         $show_details = (isset($_REQUEST[self::PARAM_VIEW])) ? (bool) $_REQUEST[self::PARAM_VIEW] : $this->params[self::PARAM_DETAIL];
         $data = array(
             'show_details' => ($show_details) ? 1 : 0,
-            'events' => (count($events) > 0) ? $event_items : NULL,
+            'events' => (count($event_items) > 0) ? $event_items : NULL,
             'week' => $week);
         return $this->getTemplate('frontend.view.week.dwoo', $data);
     } // viewEventWeek()
 
     public function viewEventActive()
     {
-        global $dbEvent;
-        global $dbEventGroup;
+        global $database;
 
         $search_date_from = date('Y-m-d H:i:s', mktime(23, 59, 59, date('n'), date('j') - 1, date('Y')));
         $search_date_to = date('Y-m-d H:i:s', mktime(23, 59, 59, date('n'), date('j'), date('Y')));
@@ -1250,38 +1295,40 @@ class eventFrontend
         $filter_group = '';
         $group = (isset($_REQUEST[self::PARAM_GROUP]) && !empty($_REQUEST[self::PARAM_GROUP])) ? $_REQUEST[self::PARAM_GROUP] : $this->params[self::PARAM_GROUP];
         if (!empty($group)) {
-            $where = array(
-                dbEventGroup::field_name => $group);
-            $groups = array();
-            if (!$dbEventGroup->sqlSelectRecord($where, $groups)) {
-                $this->setError($dbEventGroup->getError());
-                return false;
-            }
-            if (count($groups) < 1) {
-                $this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!', array(
-                    'group' => $group)));
-                return false;
-            }
-            $filter_group = sprintf(" AND %s='%s'", dbEvent::field_event_group, $groups[0][dbEventGroup::field_id]);
-        }
-        $SQL = sprintf("SELECT %s FROM %s WHERE (%s <= '%s' AND %s >= '%s') AND %s='%s' %sORDER BY %s ASC", dbEvent::field_id, $dbEvent->getTableName(), dbEvent::field_publish_date_from, $search_date_from, dbEvent::field_publish_date_to, $search_date_to, dbEvent::field_status, dbEvent::status_active, $filter_group, dbEvent::field_event_date_from);
-        $events = array();
-        if (!$dbEvent->sqlExec($SQL, $events)) {
-            $this->setError($dbEvent->getError());
+          $SQL = "SELECT `group_id` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_name`='$group' AND `group_status`='1'";
+          if (null === ($query = $database->query($SQL))) {
+            $this->setError($database->get_error());
             return false;
+          }
+          if ($query->numRows() < 1) {
+            $this->setError($this->lang->translate('Error: The group {{ group }} does not exists, please check the params!', array(
+                'group' => $group)));
+            return false;
+          }
+          $grp = $query->fetchRow(MYSQL_ASSOC);
+          $filter_group = " AND `group_id`='{$grp['group_id']}'";
         }
-        if (count($events) < 1) {
-            $this->setMessage($this->lang->translate('<p>There are no events for {{ date }}!</p>', array(
-                'date' => $months[date('n') - 1])));
-            return $this->getMessage();
+
+        $SQL = "SELECT `evt_id` FROM `".TABLE_PREFIX."mod_kit_event` WHERE ".
+            "(`evt_publish_date_from` <= '$search_date_from' AND `publish_date_to` >= '$search_date_to') ".
+            "AND `evt_status`='1'$filter_group ORDER BY `evt_event_date_from` ASC";
+        if (null === ($query = $database->query($SQL))) {
+          $this->setError($database->get_error());
+          return false;
+        }
+
+        if ($query->numRows() < 1) {
+          $this->setMessage($this->lang->translate('<p>There are no events for {{ date }}!</p>',
+              array('date' => $months[date('n') - 1])));
+          return $this->getMessage();
         }
         $event_items = array();
-        foreach ($events as $event) {
+        while (false !== ($event = $query->fetchRow(MYSQL_ASSOC))) {
             $event_data = array();
             $parser_data = array();
-            if (!$this->getEventData($event[dbEvent::field_id], $event_data, $parser_data))
+            if (!$this->getEventData($event['evt_id'], $event_data, $parser_data))
                 return false;
-            $event_items[$event[dbEvent::field_id]] = $parser_data;
+            $event_items[$event['evt_id']] = $parser_data;
         }
         $show_details = (isset($_REQUEST[self::PARAM_VIEW])) ? (bool) $_REQUEST[self::PARAM_VIEW] : $this->params[self::PARAM_DETAIL];
         $data = array(
