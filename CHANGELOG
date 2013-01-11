@@ -12,6 +12,14 @@ http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 * changed: kitEvent no longer need the kitTools
 * changed: class.frontend.php passes calls from DropletsExtension to avoid
   double form submissions
+* refactoring of the SQL usage in the class.backend.php
+* refactoring of the SQL usage in the class.calendar.php
+* refactoring of the SQL usage in the class.frontend.php
+* refactoring of the SQL usage in the droplet.extension.php
+* updated precheck.php
+* removed no longer used class.event.php
+* updated initialize.php
+* fixed: uninstall does not remove the droplet kit_monthly_calendar
 
 0.38 - 2012-12-29
 
