@@ -234,6 +234,7 @@ if (file_exists(WB_PATH.'/modules/kit_event/htt')) {
 rm_full_dir(WB_PATH.'/modules/kit_event/include/jquery');
 
 @unlink(WB_PATH.'/modules/kit_event/templates/backend/DE/config.dwoo');
+@unlink(WB_PATH.'/modules/kit_event/class.event.php');
 
 // install or upgrade droplets
 if (file_exists(WB_PATH.'/modules/droplets/functions.inc.php')) {
