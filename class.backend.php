@@ -394,7 +394,7 @@ class eventBackend {
         'id_name' => 'evt_id',
         'id_link' => sprintf('%s&%s', self::$page_link, http_build_query(array(
             self::REQUEST_ACTION => self::ACTION_EDIT,
-            'evt_id', $event['evt_id']
+            'evt_id' => $event['evt_id']
             ))),
         'id' => sprintf('%04d', $event['evt_id']),
         'date_from_name' => 'evt_event_date_from',
@@ -1603,7 +1603,7 @@ class eventBackend {
 
     // get active event group
     if ($group_id > 0) {
-      $SQL = "SELECT * FROM `"-TABLE_PREFIX."mod_kit_event_group` WHERE `group_id`='$group_id'";
+      $SQL = "SELECT * FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_id`='$group_id'";
       if (null === ($query = $database->query($SQL)))  {
         $this->setError($database->get_error());
         return false;
@@ -1799,6 +1799,7 @@ class eventBackend {
         $this->setError($database->get_error());
         return false;
       }
+      $group_id = mysql_insert_id();
       $this->setMessage($this->lang->translate('<p>The event group with the ID {{ id }} was successfull created.</p>',
           array('id' => $group_id)));
     }
@@ -1957,7 +1958,7 @@ class eventBackend {
       'free_2' => substr($detail['ord_free_2'], strpos($detail['ord_free_2'], '|') + 1),
       'free_3' => substr($detail['ord_free_3'], strpos($detail['ord_free_3'], '|') + 1),
       'free_4' => substr($detail['ord_free_4'], strpos($detail['ord_free_4'], '|') + 1),
-      'free_5' => substr($detail['ord_free_5'], strpos($detail['ord_free_6'], '|') + 1),
+      'free_5' => substr($detail['ord_free_5'], strpos($detail['ord_free_5'], '|') + 1),
       'back_link' => sprintf('%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES),
     );
     return $this->getTemplate('order.detail.dwoo', $data);

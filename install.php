@@ -52,7 +52,6 @@ if (file_exists(LEPTON_PATH.'/modules/manufaktur_config/languages/'.LANGUAGE.'.c
 else
   require_once LEPTON_PATH.'/modules/manufaktur_config/languages/EN.cfg.php';
 
-require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.event.php');
 require_once WB_PATH.'/modules/manufaktur_config/library.php';
 
 global $admin;

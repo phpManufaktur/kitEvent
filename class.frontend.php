@@ -1310,7 +1310,7 @@ class eventFrontend
         }
 
         $SQL = "SELECT `evt_id` FROM `".TABLE_PREFIX."mod_kit_event` WHERE ".
-            "(`evt_publish_date_from` <= '$search_date_from' AND `publish_date_to` >= '$search_date_to') ".
+            "(`evt_publish_date_from` <= '$search_date_from' AND `evt_publish_date_to` >= '$search_date_to') ".
             "AND `evt_status`='1'$filter_group ORDER BY `evt_event_date_from` ASC";
         if (null === ($query = $database->query($SQL))) {
           $this->setError($database->get_error());
