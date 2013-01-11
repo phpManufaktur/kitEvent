@@ -282,8 +282,8 @@ class eventBackend {
 
   public function action() {
     $html_allowed = array(
-      dbEventItem::field_desc_long,
-      dbEventItem::field_desc_short
+      'item_desc_long',
+      'item_desc_short'
     );
     foreach ($_REQUEST as $key => $value) {
       if (stripos($key, 'amp;') == 0) {
@@ -360,78 +360,57 @@ class eventBackend {
   } // show()
 
   public function dlgList() {
-    global $dbEvent;
-    global $dbEventGroup;
-    global $parser;
+    global $database;
+
+    $tke = TABLE_PREFIX.'mod_kit_event';
+    $tkei = TABLE_PREFIX.'mod_kit_event_item';
 
     if (isset($_REQUEST[self::REQUEST_SHOW_ALL]) && ($_REQUEST[self::REQUEST_SHOW_ALL] == 1)) {
-      $SQL = sprintf("SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s!='%s' ORDER BY %s ASC",
-          TABLE_PREFIX.'mod_kit_event',
-          TABLE_PREFIX.'mod_kit_event_item',
-          TABLE_PREFIX.'mod_kit_event',
-          'item_id',
-          TABLE_PREFIX.'mod_kit_event_item',
-          'item_id',
-          'evt_status',
-          '-1',
-          'evt_event_date_from'
-          );
+      $SQL = "SELECT * FROM `$tke`, `$tkei` WHERE $tke.item_id=$tkei.item_id AND `evt_status`!='-1' ORDER BY `evt_event_date_from`";
       $this->setMessage($this->lang->translate('<p>All events are shown!</p>'));
     }
     else {
       $start_date = date('Y-m-d H:i:s', mktime(0, 0, 0, date('m'), date('d') - 2, date('Y')));
-      $SQL = sprintf("SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s!='%s' AND %s>='%s' ORDER BY %s ASC",
-          TABLE_PREFIX.'mod_kit_event',
-          TABLE_PREFIX.'mod_kit_event_item',
-          TABLE_PREFIX.'mod_kit_event',
-          'item_id',
-          TABLE_PREFIX.'mod_kit_event_item',
-          'item_id',
-          'evt_status',
-          '-1',
-          'evt_event_date_from',
-          $start_date,
-          'evt_event_date_from'
-          );
+      $SQL = "SELECT * FROM `$tke`, `$tkei` WHERE $tke.item_id=$tkei.item_id AND `evt_status`!='-1' AND `evt_event_date_from`>='$start_date' ORDER BY `evt_event_date_from` ASC";
     }
-    $events = array();
-    if (!$dbEvent->sqlExec($SQL, $events)) {
-      $this->setError($dbEvent->getError());
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->get_error());
       return false;
     }
 
     $items = '';
     $rows = array();
-    foreach ($events as $event) {
-      $where = array(
-        dbEventGroup::field_id => $event[dbEvent::field_event_group]
-      );
-      $group = array();
-      if (!$dbEventGroup->sqlSelectRecord($where, $group)) {
-        $this->setError($dbEventGroup->getError());
+    while (false !== ($event = $query->fetchRow(MYSQL_ASSOC))) {
+      // get the group name
+      $SQL = "SELECT `group_name` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_id`='{$event['group_id']}'";
+      $grp = $database->get_one($SQL);
+      if ($database->is_error()) {
+        $this->setError($database->get_error());
         return false;
       }
-      $grp = (count($group) > 0) ? $group[0][dbEventGroup::field_name] : '';
 
       $group = -1;
       $rows[] = array(
-        'id_name' => dbEvent::field_id,
-        'id_link' => sprintf('%s&%s=%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_EDIT, dbEvent::field_id, $event[dbEvent::field_id]),
-        'id' => sprintf('%04d', $event[dbEvent::field_id]),
-        'date_from_name' => dbEvent::field_event_date_from,
-        'date_from' => date(CFG_DATETIME_STR, strtotime($event[dbEvent::field_event_date_from])),
-        'date_to_name' => dbEvent::field_event_date_to,
-        'date_to' => date(CFG_DATETIME_STR, strtotime($event[dbEvent::field_event_date_to])),
-        'group_name' => dbEvent::field_event_group,
+        'id_name' => 'evt_id',
+        'id_link' => sprintf('%s&%s', self::$page_link, http_build_query(array(
+            self::REQUEST_ACTION => self::ACTION_EDIT,
+            'evt_id', $event['evt_id']
+            ))),
+        'id' => sprintf('%04d', $event['evt_id']),
+        'date_from_name' => 'evt_event_date_from',
+        'date_from' => date(CFG_DATETIME_STR, strtotime($event['evt_event_date_from'])),
+        'date_to_name' => 'evt_event_date_to',
+        'date_to' => date(CFG_DATETIME_STR, strtotime($event['evt_event_date_to'])),
+        'group_name' => 'group_id',
         'group' => $grp,
-        'part_max_name' => dbEvent::field_participants_max,
-        'part_max' => $event[dbEvent::field_participants_max],
-        'part_total_name' => dbEvent::field_participants_total,
-        'part_total' => $event[dbEvent::field_participants_total],
-        'deadline_name' => dbEvent::field_deadline,
-        'deadline' => date(CFG_DATE_STR, strtotime($event[dbEvent::field_deadline])),
-        'title_name' => dbEventItem::field_title,
-        'title' => $event[dbEventItem::field_title]
+        'part_max_name' => 'evt_participants_max',
+        'part_max' => $event['evt_participants_max'],
+        'part_total_name' => 'evt_participants_total',
+        'part_total' => $event['evt_participants_total'],
+        'deadline_name' => 'evt_deadline',
+        'deadline' => date(CFG_DATE_STR, strtotime($event['evt_deadline'])),
+        'title_name' => 'item_title',
+        'title' => $event['item_title']
       );
     }
 
@@ -456,7 +435,10 @@ class eventBackend {
           'content' => $this->getMessage()
           ),
       'rows' => $rows,
-      'show_all_link' => sprintf('%s&%s=%s&%s=1', self::$page_link, self::REQUEST_ACTION, self::ACTION_LIST, self::REQUEST_SHOW_ALL),
+      'show_all_link' => sprintf('%s&%s', self::$page_link, http_build_query(array(
+          self::REQUEST_ACTION => self::ACTION_LIST,
+          self::REQUEST_SHOW_ALL => 1
+          ))),
     );
     return $this->getTemplate('event.list.dwoo', $data);
   } // dlgList()
@@ -523,7 +505,7 @@ class eventBackend {
 
     while (false !== ($event = $query->fetchRow(MYSQL_ASSOC))) {
       $suggest_options[] = array(
-        'value' => $event[dbEventItem::field_id],
+        'value' => $event['item_id'],
         'text' => sprintf('[ %s ] %s', date(CFG_DATE_STR, strtotime($event['evt_event_date_from'])), $event['item_title'])
       );
     }
@@ -544,7 +526,7 @@ class eventBackend {
   public function dlgEditEvent() {
     global $database;
 
-    $event_id = (isset($_REQUEST[dbEvent::field_id]) && ($_REQUEST[dbEvent::field_id] > 0)) ? $_REQUEST[dbEvent::field_id] : -1;
+    $event_id = (isset($_REQUEST['evt_id']) && ($_REQUEST['evt_id'] > 0)) ? $_REQUEST['evt_id'] : -1;
 
     if ($event_id !== -1) {
       $tke = TABLE_PREFIX.'mod_kit_event';
@@ -668,13 +650,13 @@ class eventBackend {
     foreach ($event as $key => $value) {
       if (isset($_REQUEST[$key])) {
         switch ($key) :
-          case dbEvent::field_event_date_from :
+          case 'evt_event_date_from' :
             if (false !== ($x = strtotime($_REQUEST[$key]))) {
               $event[$key] = date('Y-m-d H:i:s', $x);
               $time_start = ((date('H', $x) !== 0) || (date('i', $x) !== 0)) ? date(CFG_TIME_STR, $x) : '';
             }
             break;
-          case dbEvent::field_event_date_to :
+          case 'evt_event_date_to' :
             if (false !== ($x = strtotime($_REQUEST[$key]))) {
               $event[$key] = date('Y-m-d H:i:s', $x);
               $time_end = ((date('H', $x) !== 0) || (date('i', $x) !== 0)) ? date(CFG_TIME_STR, $x) : '';
@@ -891,8 +873,6 @@ class eventBackend {
   } // dlgEditEvent()
 
   public function checkEditEvent() {
-    global $dbEvent;
-    global $dbEventItem;
     global $manufakturConfig;
     global $database;
 
@@ -1132,18 +1112,6 @@ class eventBackend {
       if ($event_id == -1) {
         // neuer Datensatz
         $new_event = true;
-/*
-        $item_id = -1;
-        if (!$dbEventItem->sqlInsertRecord($item, $item_id)) {
-          $this->setError($dbEventItem->getError());
-          return false;
-        }
-        $event[dbEvent::field_event_item] = $item_id;
-        if (!$dbEvent->sqlInsertRecord($event, $event_id)) {
-          $this->setError($dbEvent->getError());
-          return false;
-        }
-*/
         $fields = '';
         $values = '';
         $start = true;
@@ -1183,37 +1151,46 @@ class eventBackend {
       else {
         // Datensatz aktualisieren
         $new_event = false;
-        $where = array(
-          dbEventItem::field_id => $item_id
-        );
-        if (!$dbEventItem->sqlUpdateRecord($item, $where)) {
-          $this->setError($dbEventItem->getError());
+        $items = '';
+        $start = true;
+        foreach ($item as $field => $value) {
+          $items .= (!$start) ? ",`$field`='$value'" : "`$field`='$value'";
+          $start = false;
+        }
+        $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event_item` SET $items WHERE `item_id`='$item_id'";
+        if (null === $database->query($SQL)) {
+          $this->setError($database->get_error());
           return false;
         }
-        $where = array(
-          dbEvent::field_id => $event_id
-        );
-        if (!$dbEvent->sqlUpdateRecord($event, $where)) {
-          $this->setError($dbEvent->getError());
+        $items = '';
+        $start = true;
+        foreach ($event as $field => $value) {
+          $items .= (!$start) ? ",`$field`='$value'" : "`$field`='$value'";
+          $start = false;
+        }
+        $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event` SET $items WHERE `item_id`='$event_id'";
+        if (null === $database->query($SQL)) {
+          $this->setError($database->get_error());
           return false;
         }
+
         $message .= $this->lang->translate('<p>The event with the ID {{ id }} was successfull updated.</p>',
             array('id' => $event_id));
       }
       // permaLink pruefen
-      $this->checkPermaLink($event_id, $_REQUEST[dbEvent::field_perma_link], $new_event);
+      $this->checkPermaLink($event_id, $_REQUEST['evt_perma_link'], $new_event);
       if ($this->isError()) return false;
       if ($this->isMessage()) $message .= $this->getMessage();
       $this->clearMessage();
-      unset($_REQUEST[dbEvent::field_perma_link]);
+      unset($_REQUEST['evt_perma_link']);
 
-      foreach ($event as $key => $value) {
+      foreach (array_keys($event) as $key) {
         unset($_REQUEST[$key]);
       }
-      foreach ($item as $key => $value) {
+      foreach (array_keys($item) as $key) {
         unset($_REQUEST[$key]);
       }
-      $_REQUEST[dbEvent::field_id] = $event_id;
+      $_REQUEST['evt_id'] = $event_id;
 
       // iCal Datei schreiben
       if (!$this->createICalFile($event_id)) return false;
@@ -1231,22 +1208,21 @@ class eventBackend {
   } // checkEditEvent()
 
   public function createQRCodeFile($event_id) {
-    global $dbEvent;
     global $kitEventTools;
+    global $database;
 
     if (!self::$cfgQRCodeCreate) return true;
 
-    $SQL = sprintf("SELECT * FROM %s WHERE %s='%s'", $dbEvent->getTableName(), dbEvent::field_id, $event_id);
-    $event = array();
-    if (!$dbEvent->sqlExec($SQL, $event)) {
-      $this->setError($dbEvent->getError());
+    $SQL = "SELECT * FROM `".TABLE_PREFIX."mod_kit_event` WHERE `evt_id`='$event_id'";
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->get_error());
       return false;
     }
-    if (count($event) < 1) {
+    if ($query->numRows() < 1) {
       $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id)));
       return false;
     }
-    $event = $event[0];
+    $event = $query->fetchRow(MYSQL_ASSOC);
 
     $c_type = self::$cfgQRCodeContent;
 
@@ -1255,7 +1231,7 @@ class eventBackend {
       $dir = $kitEventTools->removeLeadingSlash(self::$cfgICalDir);
       $dir = $kitEventTools->addSlash($dir);
       $dir_path = WB_PATH . MEDIA_DIRECTORY . '/' . $dir;
-      $filename = $event[dbEvent::field_ical_file];
+      $filename = $event['evt_ical_file'];
       if (empty($filename)) {
         // es existiert keine iCal Datei
         $this->setMessage($this->lang->translate('<p>The iCal file does not exists!</p>'));
@@ -1268,24 +1244,24 @@ class eventBackend {
       $text = file_get_contents($dir_path . $filename);
     }
     else {
-      if (empty($event[dbEvent::field_perma_link])) {
+      if (empty($event['evt_perma_link'])) {
         $this->setMessage($this->lang->translate('<p>There is no permaLink defined!</p>'));
         return true;
       }
-      $text = WB_URL . PAGES_DIRECTORY . $event[dbEvent::field_perma_link];
+      $text = WB_URL . PAGES_DIRECTORY . $event['evt_perma_link'];
     }
 
     $level = self::$cfgQRCodeECLevel;
     $size = self::$cfgQRCodeSize;
     $margin = self::$cfgQRCodeMargin;
 
-    $filename = sprintf('%s-%05d.png', date('Ymd-Hi', strtotime($event[dbEvent::field_event_date_from])), $event[dbEvent::field_id]);
+    $filename = sprintf('%s-%05d.png', date('Ymd-Hi', strtotime($event['evt_event_date_from'])), $event['evt_id']);
     $dir = $kitEventTools->removeLeadingSlash(self::$cfgQRCodeDir);
     $dir = $kitEventTools->addSlash($dir);
     $dir_path = WB_PATH . MEDIA_DIRECTORY . '/' . $dir;
     if (!file_exists($dir_path)) {
       if (!mkdir($dir_path, 0755)) {
-        $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, sprintf(tool_error_mkdir, $dir_path)));
+        $this->setError($this->lang->translate('Error: cannot create the directory {{ directory }}!', array('directory' => $dir_path)));
         return false;
       }
     }
@@ -1293,14 +1269,9 @@ class eventBackend {
     $QRCode = new QRcode();
     $QRCode->png($text, $dir_path . $filename, $level, $size, $margin);
 
-    $where = array(
-      dbEvent::field_id => $event[dbEvent::field_id]
-    );
-    $data = array(
-      dbEvent::field_qrcode_image => $filename
-    );
-    if (!$dbEvent->sqlUpdateRecord($data, $where)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
+    $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event` SET `evt_qrcode_image`='$filename' WHERE `evt_id`='{$event['evt_id']}'";
+    if (null === $database->query($SQL)) {
+      $this->setError($database->get_error());
       return false;
     }
 
@@ -1308,31 +1279,28 @@ class eventBackend {
   } // createQRCodeFile()
 
   public function createICalFile($event_id) {
-    global $dbEvent;
-    global $dbEventItem;
     global $kitEventTools;
+    global $database;
 
     if (!self::$cfgICalCreate) {
       // keine iCal Dateien anlegen
       return true;
     }
-
-    $SQL = sprintf("SELECT * FROM %s, %s WHERE %s.%s = %s.%s AND %s.%s='%s'", $dbEvent->getTableName(), $dbEventItem->getTableName(), $dbEvent->getTableName(), dbEvent::field_event_item, $dbEventItem->getTableName(), dbEventItem::field_id, $dbEvent->getTableName(), dbEvent::field_id, $event_id);
-    $event = array();
-    if (!$dbEvent->sqlExec($SQL, $event)) {
-      $this->setError($dbEvent->getError());
+    $tke = TABLE_PREFIX.'mod_kit_event';
+    $tkei = TABLE_PREFIX.'mod_kit_event_item';
+    $SQL = "SELECT * FROM `$tke`, `$tkei` WHERE $tke.item_id=$tkei.item_id AND $tke.evt_id='$event_id'";
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->get_error());
       return false;
     }
-    if (count($event) < 1) {
-      $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id)));
+    if ($query->numRows() < 1) {
+      $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!',
+          array('id' => $event_id)));
       return false;
     }
-    $event = $event[0];
-
+    $event = $query->fetchRow(MYSQL_ASSOC);
     // iCal initialisieren und schreiben
-    $desc = utf8_fast_entities_to_umlauts(strip_tags($event[dbEventItem::field_desc_long]));
-    // $desc =
-    // utf8_encode(html_entity_decode(strip_tags($event[dbEventItem::field_desc_long])));
+    $desc = utf8_fast_entities_to_umlauts(strip_tags($event['item_desc_long']));
 
     $vCal = new vcalendar(array(
       'unique_id' => 'kitEvent',
@@ -1342,136 +1310,110 @@ class eventBackend {
     $evt->setProperty('class', 'PUBLIC'); // PUBLIC = Standard
     $evt->setProperty('priority', 0); // 0 = keine Angabe
     $evt->setProperty('status', 'CONFIRMED'); // TENTATIVE, CONFIRMED, CANCELLED
-    $evt->setProperty('summary', $event[dbEventItem::field_title]);
+    $evt->setProperty('summary', $event['item_title']);
     $evt->setProperty('description', $desc);
-    list($year, $month, $day, $hour, $minute, $second) = explode('-', date('Y-m-d-H-i-s', strtotime($event[dbEvent::field_event_date_from])));
+    list($year, $month, $day, $hour, $minute, $second) = explode('-', date('Y-m-d-H-i-s', strtotime($event['evt_event_date_from'])));
     $evt->setProperty('dtstart', $year, $month, $day, $hour, $minute, $second);
-    list($year, $month, $day, $hour, $minute, $second) = explode('-', date('Y-m-d-H-i-s', strtotime($event[dbEvent::field_event_date_to])));
+    list($year, $month, $day, $hour, $minute, $second) = explode('-', date('Y-m-d-H-i-s', strtotime($event['evt_event_date_to'])));
     $evt->setProperty('dtend', $year, $month, $day, $hour, $minute, $second);
-    $evt->setProperty('location', $event[dbEventItem::field_location]);
+    $evt->setProperty('location', $event['item_location']);
     $ical = $vCal->createCalendar();
-    $filename = sprintf('%s-%05d.ics', date('Ymd-Hi', strtotime($event[dbEvent::field_event_date_from])), $event[dbEvent::field_id]);
+    $filename = sprintf('%s-%05d.ics', date('Ymd-Hi', strtotime($event['evt_event_date_from'])), $event['evt_id']);
     $dir = $kitEventTools->removeLeadingSlash(self::$cfgICalDir);
     $dir = $kitEventTools->addSlash($dir);
     $dir_path = WB_PATH . MEDIA_DIRECTORY . '/' . $dir;
     if (!file_exists($dir_path)) {
       if (!mkdir($dir_path, 0755)) {
-        $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, sprintf(tool_error_mkdir, $dir_path)));
+        $this->setError($this->lang->translate('Error: cannot create the directory {{ directory }}!',
+          array('directory' => $dir_path)));
         return false;
       }
     }
     if (!file_put_contents($dir_path . $filename, $ical)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-          $this->lang->create('Error: cannot create the file {{ file }}!', array('file' => $dir . $filename))));
+      $this->setError($this->lang->translate('Error: cannot create the file {{ file }}!',
+          array('file' => $dir . $filename)));
       return false;
     }
-
-    $where = array(
-      dbEvent::field_id => $event[dbEvent::field_id]
-    );
-    $data = array(
-      dbEvent::field_ical_file => $filename
-    );
-    if (!$dbEvent->sqlUpdateRecord($data, $where)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
+    $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event` SET `evt_ical_file`='$filename' WHERE `evt_id`='{$event['evt_id']}'";
+    if (null === $database->query($SQL)) {
+      $this->setError($database->get_error());
       return false;
     }
     return true;
   } // createICalFile()
 
   public function checkPermaLink($event_id, $perma_link, $new_event = false) {
-    global $dbEventGroup;
-    global $dbEvent;
-    global $kitEventTools;
+    global $database;
 
-    if (!self::$cfgPermaLinkCreate) return true;
+    if (!self::$cfgPermaLinkCreate)
+      return true;
 
-    $where = array(
-      dbEvent::field_id => $event_id
-    );
-    $event = array();
-    if (!$dbEvent->sqlSelectRecord($where, $event)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
+    $SQL = "SELECT * FROM `".TABLE_PREFIX."mod_kit_event` WHERE `evt_id`='$event_id'";
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->get_error());
       return false;
     }
-    if (count($event) < 1) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-          $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id))));
+    if ($query->numRows() < 1) {
+      $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event_id)));
       return false;
     }
-    $event = $event[0];
+    $event = $query->fetchRow(MYSQL_ASSOC);
 
     if ($new_event) {
       if (empty($perma_link)) {
-        if ($event[dbEvent::field_event_group] == -1) return true;
+        if ($event['group_id'] == -1) return true;
         // pruefen ob ein Pattern angegeben ist
-        $where = array(
-          dbEventGroup::field_id => $event[dbEvent::field_event_group]
-        );
-        $group = array();
-        if (!$dbEventGroup->sqlSelectRecord($where, $group)) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEventGroup->getError()));
+        $SQL = "SELECT * FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_id`='{$event['group_id']}'";
+        if (null === ($query = $database->query($SQL))) {
+          $this->setError($database->get_error());
           return false;
         }
-        if (count($group) < 1) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-              $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event[dbEvent::field_event_group]))));
+        if ($query->numRows() < 1) {
+          $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event['group_id'])));
           return false;
         }
-        $group = $group[0];
-        $pattern = $group[dbEventGroup::field_perma_link_pattern];
-        $redirect = $group[dbEventGroup::field_redirect_page];
+        $group = $query->fetchRow(MYSQL_ASSOC);
+
+        $pattern = $group['group_perma_pattern'];
+        $redirect = $group['group_redirect_page'];
         // REDIRECT mit den erforderlichen Parametern ergaenzen
-        $redirect = sprintf('%s%s%s', $redirect, (strpos($redirect, '?') !== false) ? '&' : '?', http_build_query(array(
-          self::REQUEST_ACTION => self::ACTION_EVENT,
-          self::REQUEST_EVENT => self::VIEW_ID,
-          self::REQUEST_EVENT_DETAIL => '1',
-          self::REQUEST_EVENT_ID => $event[dbEvent::field_id]
-        )));
-        // kein Muster und Redirect definiert, kein permaLink gesetzt - nix zu
-        // tun
-        if (empty($pattern) || empty($redirect)) return true;
+        $redirect = sprintf('%s%s%s', $redirect,
+            (strpos($redirect, '?') !== false) ? '&' : '?', http_build_query(array(
+                self::REQUEST_ACTION => self::ACTION_EVENT,
+                self::REQUEST_EVENT => self::VIEW_ID,
+                self::REQUEST_EVENT_DETAIL => '1',
+                self::REQUEST_EVENT_ID => $event['evt_id']
+                )));
+        // kein Muster und Redirect definiert, kein permaLink gesetzt - nix zu tun
+        if (empty($pattern) || empty($redirect))
+          return true;
         // Pattern aktivieren
-        $wb_settings = array();
-        $kitEventTools->getWBSettings($wb_settings);
-        $date = getdate(strtotime($event[dbEvent::field_event_date_from]));
-        $pattern_array = array(
-          '{$YEAR}',
-          '{$MONTH}',
-          '{$DAY}',
-          '{$ID}',
-          '{$EXT}',
-          '{$NAME}'
-        );
+        $date = getdate(strtotime($event['evt_event_date_from']));
+        $pattern_array = array('{$YEAR}','{$MONTH}','{$DAY}','{$ID}','{$EXT}','{$NAME}');
         $values_array = array(
           $date['year'] - 2000,
           sprintf('%02d', $date['mon']),
           sprintf('%02d', $date['mday']),
-          $event[dbEvent::field_id],
-          $wb_settings['page_extension'],
-          $group[dbEventGroup::field_name]
+          $event['evt_id'],
+          PAGE_EXTENSION,
+          $group['group_name']
         );
 
         $perma_link = str_ireplace($pattern_array, $values_array, $pattern);
         $permaLink = new permaLink();
         $pid = -1;
-        if (!$permaLink->createPermaLink(WB_URL . PAGES_DIRECTORY . $redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
+        if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
           if ($permaLink->isError()) {
-            $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $permaLink->getError()));
+            $this->setError($permaLink->getError());
             return false;
           }
           $this->setMessage($permaLink->getMessage());
           return false;
         }
         // dbEvent aktualisieren
-        $where = array(
-          dbEvent::field_id => $event[dbEvent::field_id]
-        );
-        $data = array(
-          dbEvent::field_perma_link => $perma_link
-        );
-        if (!$dbEvent->sqlUpdateRecord($data, $where)) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
+        $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event` SET `evt_perma_link`='$perma_link' WHERE `evt_id`='{$event['evt_id']}'";
+        if (null === $database->query($SQL)) {
+          $this->setError($database->get_error());
           return false;
         }
         $this->setMessage($this->lang->translate('<p>The permaLink {{ link }} was created!</p>', array('link' => $perma_link)));
@@ -1479,21 +1421,19 @@ class eventBackend {
       }
       else {
         // permaLink ist von Hand gesetzt
-        if ($event[dbEvent::field_event_group] == -1) return true;
-        $where = array(
-          dbEventGroup::field_id => $event[dbEvent::field_event_group]
-        );
-        $group = array();
-        if (!$dbEventGroup->sqlSelectRecord($where, $group)) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEventGroup->getError()));
+        if ($event['group_id'] == -1)
+          return true;
+        $SQL = "SELECT `group_redirect_page` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_id`='{$event['group_id']}'";
+        $redirect = $database->get_one($SQL, MYSQL_ASSOC);
+        if ($database->is_error()) {
+          $this->setError($database->get_error());
           return false;
         }
-        if (count($group) < 1) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-              $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event[dbEvent::field_event_group]))));
+        if (is_null($redirect)) {
+          $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event['group_id'])));
           return false;
         }
-        $redirect = $group[0][dbEventGroup::field_redirect_page];
+
         if (empty($redirect)) {
           $this->setMessage($this->lang->translate('<p>To create a permaLink for this event, you must select a valid event group!</p>'));
           return false;
@@ -1503,55 +1443,47 @@ class eventBackend {
           self::REQUEST_ACTION => self::ACTION_EVENT,
           self::REQUEST_EVENT => self::VIEW_ID,
           self::REQUEST_EVENT_DETAIL => '1',
-          self::REQUEST_EVENT_ID => $event[dbEvent::field_id]
+          self::REQUEST_EVENT_ID => $event['evt_id']
         )));
         $permaLink = new permaLink();
         $pid = -1;
-        if (!$permaLink->createPermaLink(WB_URL . PAGES_DIRECTORY . $redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
+        if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
           if ($permaLink->isError()) {
-            $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $permaLink->getError()));
+            $this->setError($permaLink->getError());
             return false;
           }
           $this->setMessage($permaLink->getMessage());
           return false;
         }
         // dbEvent aktualisieren
-        $where = array(
-          dbEvent::field_id => $event[dbEvent::field_id]
-        );
-        $data = array(
-          dbEvent::field_perma_link => $perma_link
-        );
-        if (!$dbEvent->sqlUpdateRecord($data, $where)) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
+        $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event` SET `evt_perma_link`='$perma_link' WHERE `evt_id`='{$event['evt_id']}'";
+        if (null === $database->query($SQL)) {
+          $this->setError($database->get_error());
           return false;
         }
         $this->setMessage($this->lang->translate('<p>The permaLink {{ link }} was created!</p>', array('link' => $perma_link)));
         return true;
       }
     }
-    elseif ($event[dbEvent::field_perma_link] != $perma_link) {
+    elseif ($event['evt_perma_link'] != $perma_link) {
       // der permaLink wurde geaendert...
-      if (empty($event[dbEvent::field_perma_link])) {
+      if (empty($event['evt_perma_link'])) {
         // der permaLink ist neu
-        if ($event[dbEvent::field_event_group] == -1) {
+        if ($event['group_id'] == -1) {
           $this->setMessage($this->lang->translate('<p>To create a permaLink for this event, you must select a valid event group!</p>'));
           return false;
         }
-        $where = array(
-          dbEventGroup::field_id => $event[dbEvent::field_event_group]
-        );
-        $group = array();
-        if (!$dbEventGroup->sqlSelectRecord($where, $group)) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEventGroup->getError()));
+        $SQL = "SELECT `group_redirect_page` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_id`='{$event['group_id']}'";
+        $redirect = $database->get_one($SQL, MYSQL_ASSOC);
+        if ($database->is_error()) {
+          $this->setError($database->get_error());
           return false;
         }
-        if (count($group) < 1) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-              $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event[dbEvent::field_event_group]))));
+        if (is_null($redirect)) {
+          $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event['group_id'])));
           return false;
         }
-        $redirect = $group[0][dbEventGroup::field_redirect_page];
+
         if (empty($redirect)) {
           $this->setMessage($this->lang->translate('<p>To create a permaLink for this event, you must select a valid event group!</p>'));
           return false;
@@ -1561,27 +1493,22 @@ class eventBackend {
           self::REQUEST_ACTION => self::ACTION_EVENT,
           self::REQUEST_EVENT => self::VIEW_ID,
           self::REQUEST_EVENT_DETAIL => '1',
-          self::REQUEST_EVENT_ID => $event[dbEvent::field_id]
+          self::REQUEST_EVENT_ID => $event['evt_id']
         )));
         $permaLink = new permaLink();
         $pid = -1;
-        if (!$permaLink->createPermaLink(WB_URL . PAGES_DIRECTORY . $redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
+        if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
           if ($permaLink->isError()) {
-            $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $permaLink->getError()));
+            $this->setError($permaLink->getError());
             return false;
           }
           $this->setMessage($permaLink->getMessage());
           return false;
         }
         // dbEvent aktualisieren
-        $where = array(
-          dbEvent::field_id => $event[dbEvent::field_id]
-        );
-        $data = array(
-          dbEvent::field_perma_link => $perma_link
-        );
-        if (!$dbEvent->sqlUpdateRecord($data, $where)) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
+        $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event` SET `evt_perma_link`='$perma_link' WHERE `evt_id`='{$event['evt_id']}'";
+        if (null === $database->query($SQL)) {
+          $this->setError($database->get_error());
           return false;
         }
         $this->setMessage($this->lang->translate('<p>The permaLink {{ link }} was created!</p>', array('link' => $perma_link)));
@@ -1592,86 +1519,71 @@ class eventBackend {
         $message = '';
         $permaLink = new permaLink();
         // alten permaLink loeschen
-        if (!$permaLink->deletePermaLink($event[dbEvent::field_perma_link])) {
+        if (!$permaLink->deletePermaLink($event['evt_perma_link'])) {
           if ($permaLink->isError()) {
-            $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $permaLink->getError()));
+            $this->setError(sprintf($permaLink->getError()));
             return false;
           }
           $this->setMessage($permaLink->getMessage());
           return false;
         }
-        $where = array(
-          dbEvent::field_id => $event[dbEvent::field_id]
-        );
-        $data = array(
-          dbEvent::field_perma_link => ''
-        );
-        if (!$dbEvent->sqlUpdateRecord($data, $where)) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
+        $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event` SET `evt_perma_link`='' WHERE `evt_id`='{$event['evt_id']}'";
+        if (null === $database->query($SQL)) {
+          $this->setError($database->get_error());
           return false;
         }
-        $message = $this->lang->translate('<p>The permaLink {{ link }} was deleted!</p>', array('link' => $event[dbEvent::field_perma_link]));
+
+        $message = $this->lang->translate('<p>The permaLink {{ link }} was deleted!</p>', array('link' => $event['evt_perma_link']));
         if (empty($perma_link)) {
           // permaLink wird nur geloescht, kein neuer angelegt...
           $this->setMessage($message);
           return true;
         }
         // neuen permaLink anlegen
-        if ($event[dbEvent::field_event_group] == -1) {
+        if ($event['group_id'] == -1) {
           $message .= $this->lang->translate('<p>To create a permaLink for this event, you must select a valid event group!</p>');
           $this->setMessage($message);
           return false;
         }
-        $where = array(
-          dbEventGroup::field_id => $event[dbEvent::field_event_group]
-        );
-        $group = array();
-        if (!$dbEventGroup->sqlSelectRecord($where, $group)) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEventGroup->getError()));
+        $SQL = "SELECT `group_redirect_page` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_id`='{$event['group_id']}'";
+        $redirect = $database->get_one($SQL, MYSQL_ASSOC);
+        if ($database->is_error()) {
+          $this->setError($database->get_error());
           return false;
         }
-        if (count($group) < 1) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-              $this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event[dbEvent::field_event_group]))));
+        if (is_null($redirect)) {
+          $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $event['group_id'])));
           return false;
         }
-        $redirect = $group[0][dbEventGroup::field_redirect_page];
+
         if (empty($redirect)) {
-          $message .= $this->lang->translate('<p>To create a permaLink for this event, you must select a valid event group!</p>');
-          $this->setMessage($message);
+          $this->setMessage($this->lang->translate('<p>To create a permaLink for this event, you must select a valid event group!</p>'));
           return false;
         }
         // REDIRECT mit den erforderlichen Parametern ergaenzen
         $redirect = sprintf('%s%s%s', $redirect, (strpos($redirect, '?') !== false) ? '&' : '?', http_build_query(array(
-          self::REQUEST_ACTION => self::ACTION_EVENT,
-          self::REQUEST_EVENT => self::VIEW_ID,
-          self::REQUEST_EVENT_DETAIL => '1',
-          self::REQUEST_EVENT_ID => $event[dbEvent::field_id]
+            self::REQUEST_ACTION => self::ACTION_EVENT,
+            self::REQUEST_EVENT => self::VIEW_ID,
+            self::REQUEST_EVENT_DETAIL => '1',
+            self::REQUEST_EVENT_ID => $event['evt_id']
         )));
         $permaLink = new permaLink();
         $pid = -1;
-        if (!$permaLink->createPermaLink(WB_URL . PAGES_DIRECTORY . $redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
+        if (!$permaLink->createPermaLink(WB_URL.PAGES_DIRECTORY.$redirect, $perma_link, 'kitEvent', dbPermaLink::type_addon, $pid, permaLink::use_request)) {
           if ($permaLink->isError()) {
-            $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $permaLink->getError()));
+            $this->setError($permaLink->getError());
             return false;
           }
-          $message .= $permaLink->getMessage();
-          $this->setMessage($message);
+          $this->setMessage($permaLink->getMessage());
           return false;
         }
         // dbEvent aktualisieren
-        $where = array(
-          dbEvent::field_id => $event[dbEvent::field_id]
-        );
-        $data = array(
-          dbEvent::field_perma_link => $perma_link
-        );
-        if (!$dbEvent->sqlUpdateRecord($data, $where)) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbEvent->getError()));
-          return false;
+        $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event` SET `evt_perma_link`='$perma_link' WHERE `evt_id`='{$event['evt_id']}'";
+            if (null === $database->query($SQL)) {
+                $this->setError($database->get_error());
+                return false;
         }
-        $message .= $this->lang->translate('<p>The permaLink {{ link }} was created!</p>', array('link' => $perma_link));
-        $this->setMessage($message);
+        $this->setMessage($this->lang->translate('<p>The permaLink {{ link }} was created!</p>', array('link' => $perma_link)));
         return true;
       }
     }
@@ -1685,41 +1597,42 @@ class eventBackend {
    * @return STR dialog
    */
   public function dlgEditGroup() {
-    global $dbEventGroup;
-    global $parser;
-    global $kitEventTools;
     global $database;
 
-    $group_id = (isset($_REQUEST[dbEventGroup::field_id]) && ($_REQUEST[dbEventGroup::field_id] > 0)) ? $_REQUEST[dbEventGroup::field_id] : -1;
+    $group_id = (isset($_REQUEST['group_id']) && ($_REQUEST['group_id'] > 0)) ? $_REQUEST['group_id'] : -1;
 
     // get active event group
     if ($group_id > 0) {
-      $SQL = sprintf("SELECT * FROM %s WHERE %s='%s'", $dbEventGroup->getTableName(), dbEventGroup::field_id, $group_id);
-      $active_group = array();
-      if (!$dbEventGroup->sqlExec($SQL, $active_group)) {
-        $this->setError($dbEventGroup->getError());
+      $SQL = "SELECT * FROM `"-TABLE_PREFIX."mod_kit_event_group` WHERE `group_id`='$group_id'";
+      if (null === ($query = $database->query($SQL)))  {
+        $this->setError($database->get_error());
         return false;
       }
-      if (count($active_group) < 1) {
+      if ($query->numRows() < 1) {
         $this->setError($this->lang->translate('Error: The id {{ id }} is invalid!', array('id' => $group_id)));
         return false;
       }
-      $active_group = $active_group[0];
+      $active_group = $query->fetchRow(MYSQL_ASSOC);
     }
     else {
       // new group
-      $active_group = $dbEventGroup->getFields();
-      $active_group[dbEventGroup::field_status] = dbEventGroup::status_active;
+      $SQL = "SHOW FIELDS FROM `".TABLE_PREFIX."mod_kit_event_group`";
+      if (null === ($query = $database->query($SQL))) {
+        $this->setError($database->get_error());
+        return false;
+      }
+      $active_group = array();
+      while (false !== ($field = $query->fetchRow(MYSQL_ASSOC)))
+        $active_group[$field['Field']] = null;
+      $active_group['group_status'] = 1;
     }
 
     // get all groups
-    $SQL = sprintf("SELECT %s, %s FROM %s WHERE %s!='%s' ORDER BY %s", dbEventGroup::field_id, dbEventGroup::field_name, $dbEventGroup->getTableName(), dbEventGroup::field_status, dbEventGroup::status_deleted, dbEventGroup::field_name);
-    $all_groups = array();
-    if (!$dbEventGroup->sqlExec($SQL, $all_groups)) {
-      $this->setError($dbEventGroup->getError());
+    $SQL = "SELECT `group_id`, `group_name` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_status`!='-1' ORDER BY `group_name` ASC";
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->get_error());
       return false;
     }
-
     // event groups
     $grps = array();
     $grps[] = array(
@@ -1727,33 +1640,39 @@ class eventBackend {
       'value' => -1,
       'text' => $this->lang->translate('- create a new group -')
     );
-    foreach ($all_groups as $grp) {
+
+    while (false !== ($grp = $query->fetchRow(MYSQL_ASSOC))) {
       $grps[] = array(
-        'selected' => ($grp[dbEventGroup::field_id] == $group_id) ? 1 : 0,
-        'value' => $grp[dbEventGroup::field_id],
-        'text' => $grp[dbEventGroup::field_name]
+        'selected' => ($grp['group_id'] == $group_id) ? 1 : 0,
+        'value' => $grp['group_id'],
+        'text' => $grp['group_name']
       );
     }
 
     // group status
-    $status = array();
-    $status_array = $dbEventGroup->status_array;
-    if ($group_id == -1) unset($status_array[dbEventGroup::status_deleted]);
-    foreach ($status_array as $value => $name) {
-      $status[] = array(
-        'selected' => ($value == $active_group[dbEventGroup::field_status]) ? 1 : 0,
-        'value' => $value,
-        'text' => $name
-      );
-    }
+    $status = array(
+        'ACTIVE' => array(
+            'selected' => ($active_group['group_status'] == 1) ? 1 : 0,
+            'value' => 1,
+            'text' => 'ACTIVE'
+        ),
+        'LOCKED' => array(
+            'selected' => ($active_group['group_status'] == 0) ? 1 : 0,
+            'value' => 0,
+            'text' => 'LOCKED'
+        ),
+        'DELETED' => array(
+            'selected' => ($active_group['group_status'] == -1) ? 1 : 0,
+            'value' => -1,
+            'text' => 'DELETED'
+        )
+    );
+
 
     // REDIRECT URLs Array erstellen
-    $wb_settings = array();
-    $kitEventTools->getWBSettings($wb_settings);
-    $ext = $wb_settings['page_extension'];
-    $SQL = sprintf("SELECT link FROM %spages ORDER BY link ASC", TABLE_PREFIX);
-    if (false == ($pages = $database->query($SQL))) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
+    $SQL = "SELECT `link` FROM `".TABLE_PREFIX."pages` ORDER BY `link` ASC";
+    if (null === ($pages = $database->query($SQL))) {
+      $this->setError($database->get_error());
       return false;
     }
     $page_array = array();
@@ -1763,36 +1682,41 @@ class eventBackend {
     );
     while (false !== ($page = $pages->fetchRow(MYSQL_ASSOC))) {
       $page_array[] = array(
-        'value' => $page['link'] . $ext,
-        'text' => $page['link'] . $ext
+        'value' => $page['link'] . PAGE_EXTENSION,
+        'text' => $page['link'] . PAGE_EXTENSION
       );
     }
 
     $group = array(
       'group' => array(
-        'name' => dbEventGroup::field_id,
+        'name' => 'group_id',
         'value' => $grps,
-        'location' => sprintf('javascript:execOnChange(\'%s\', \'%s\');', sprintf('%s&amp;%s=%s%s&amp;%s=', self::$page_link, self::REQUEST_ACTION, self::ACTION_GROUP, (defined('LEPTON_VERSION') && isset($_GET['leptoken'])) ? sprintf('&amp;leptoken=%s', $_GET['leptoken']) : '', dbEventGroup::field_id), dbEventGroup::field_id),
+        'location' => sprintf('javascript:execOnChange(\'%s\', \'%s\');', sprintf('%s&amp;%s=%s%s&amp;%s=',
+            self::$page_link,
+            self::REQUEST_ACTION,
+            self::ACTION_GROUP,
+            (defined('LEPTON_VERSION') && isset($_GET['leptoken'])) ? sprintf('&amp;leptoken=%s', $_GET['leptoken']) : '',
+            'group_id'), 'group_id'),
       ),
       'name' => array(
-        'name' => dbEventGroup::field_name,
-        'value' => $active_group[dbEventGroup::field_name],
+        'name' => 'group_name',
+        'value' => $active_group['group_name'],
       ),
       'desc' => array(
-        'name' => dbEventGroup::field_desc,
-        'value' => $active_group[dbEventGroup::field_desc],
+        'name' => 'group_desc',
+        'value' => $active_group['group_desc'],
       ),
       'status' => array(
-        'name' => dbEventGroup::field_status,
+        'name' => 'group_status',
         'value' => $status,
       ),
       'perma_pattern' => array(
-        'name' => dbEventGroup::field_perma_link_pattern,
-        'value' => $active_group[dbEventGroup::field_perma_link_pattern],
+        'name' => 'group_perma_pattern',
+        'value' => $active_group['group_perma_pattern'],
       ),
       'redirect_page' => array(
-        'name' => dbEventGroup::field_redirect_page,
-        'value' => $active_group[dbEventGroup::field_redirect_page],
+        'name' => 'group_redirect_page',
+        'value' => $active_group['group_redirect_page'],
         'options' => $page_array,
       )
     );
@@ -1819,51 +1743,64 @@ class eventBackend {
    * @return STR dlgEditGroup()
    */
   public function checkEditGroup() {
-    global $dbEventGroup;
-    $group_id = $_REQUEST[dbEventGroup::field_id];
-    if (empty($_REQUEST[dbEventGroup::field_name])) {
+    global $database;
+
+    $group_id = $_REQUEST['group_id'];
+
+    if (empty($_REQUEST['group_name'])) {
       $this->setMessage($this->lang->translate('<p>The event group must be named!</p>'));
       return $this->dlgEditGroup();
     }
     $data = array(
-      dbEventGroup::field_name => $_REQUEST[dbEventGroup::field_name],
-      dbEventGroup::field_desc => $_REQUEST[dbEventGroup::field_desc],
-      dbEventGroup::field_status => $_REQUEST[dbEventGroup::field_status],
-      dbEventGroup::field_perma_link_pattern => $_REQUEST[dbEventGroup::field_perma_link_pattern],
-      dbEventGroup::field_redirect_page => ($_REQUEST[dbEventGroup::field_redirect_page] == -1) ? '' : $_REQUEST[dbEventGroup::field_redirect_page]
+      'group_name' => $_REQUEST['group_name'],
+      'group_desc' => $_REQUEST['group_desc'],
+      'group_status' => $_REQUEST['group_status'],
+      'group_perma_pattern' => $_REQUEST['group_perma_pattern'],
+      'group_redirect_page' => ($_REQUEST['group_redirect_page'] == -1) ? '' : $_REQUEST['group_redirect_page']
     );
 
     if ($group_id > 0) {
       // existing group
-      $where = array(
-        dbEventGroup::field_id => $group_id
-      );
-      if (!$dbEventGroup->sqlUpdateRecord($data, $where)) {
-        $this->setError($dbEventGroup->getError());
+      $items = '';
+      $start = true;
+      foreach ($data as $field => $value) {
+        $items .= (!$start) ? ",`$field`='$value'" : "`$field`='$value'";
+        $start = false;
+      }
+      $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event_group` SET $items WHERE `group_id`='$group_id'";
+      if (null === $database->query($SQL)) {
+        $this->setError($database->get_error());
         return false;
       }
       $this->setMessage($this->lang->translate('<p>The event group with the ID {{ id }} was successfull updated</p>', array('id' => $group_id)));
     }
     else {
       // new group - check if name is already in use
-      $SQL = sprintf("SELECT * FROM %s WHERE %s='%s' AND %s!='%s'", $dbEventGroup->getTableName(), dbEventGroup::field_name, $data[dbEventGroup::field_name], dbEventGroup::field_status, dbEventGroup::status_deleted);
-      $check = array();
-      if (!$dbEventGroup->sqlExec($SQL, $check)) {
-        $this->setError($dbEventGroup->getError());
+      $SQL = "SELECT `group_id` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_name`='{$data['group_name']}' AND `group_status`!='-1'";
+      if (null === ($query = $database->query($SQL))) {
+        $this->setError($database->get_error());
         return false;
       }
-      if (count($check) > 0) {
+      if ($query->numRows() > 0) {
         $this->setMessage($this->lang->translate('<p>The event group with the name {{ name }} already exists!</p>',
-            array('name' => $data[dbEventGroup::field_name])));
+            array('name' => $data['group_name'])));
+        return $this->dlgEditGroup();
       }
-      elseif (!$dbEventGroup->sqlInsertRecord($data, $group_id)) {
-        $this->setError($dbEventGroup->getError());
+      $fields = '';
+      $values = '';
+      $start = true;
+      foreach ($data as $field => $value) {
+        $fields .= (!$start) ? ",`$field`" : "`$field`";
+        $values .= (!$start) ? ",'$value'" : "'$value'";
+        $start = false;
+      }
+      $SQL = "INSERT INTO `".TABLE_PREFIX."mod_kit_event_group` ($fields) VALUES ($values)";
+      if (null === $database->query($SQL)) {
+        $this->setError($database->get_error());
         return false;
       }
-      else {
-        $this->setMessage($this->lang->translate('<p>The event group with the ID {{ id }} was successfull created.</p>',
-            array('id' => $group_id)));
-      }
+      $this->setMessage($this->lang->translate('<p>The event group with the ID {{ id }} was successfull created.</p>',
+          array('id' => $group_id)));
     }
     return $this->dlgEditGroup();
   } // checkEditGroup()
@@ -1914,7 +1851,7 @@ class eventBackend {
     $tkei = TABLE_PREFIX.'mod_kit_event_item';
     $SQL = "SELECT * FROM `$tke`, `$tkeo`, `$tkei` WHERE $tke.evt_id=$tkeo.evt_id AND $tke.item_id=$tkei.item_id ORDER BY `ord_date` LIMIT 100";
     if (null === ($query = $database->query($SQL))) {
-      $this->setError($database->getError());
+      $this->setError($database->get_error());
       return false;
     }
 
@@ -1930,7 +1867,7 @@ class eventBackend {
         'order_date' => date(CFG_DATETIME_STR, strtotime($message['ord_date'])),
         'email' => $message['ord_email'],
         'name' => $name,
-        'event' => $message[dbEventItem::field_title],
+        'event' => $message['item_title'],
         'event_date' => date(CFG_DATE_STR, strtotime($message['evt_event_date_from'])),
         'declared' => $declared,
         'message' => $message['ord_message'],
