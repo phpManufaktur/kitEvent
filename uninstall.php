@@ -70,7 +70,7 @@ foreach ($tables as $table) {
 }
 
 // delete the kitEvent Droplets
-$droplets = array('kit_event');
+$droplets = array('kit_event', 'kit_monthly_calendar');
 
 foreach ($droplets as $droplet) {
   $database->query("DELETE FROM `".TABLE_PREFIX."mod_droplets` WHERE `name`='$droplet'");
