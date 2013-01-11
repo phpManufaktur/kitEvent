@@ -35,25 +35,20 @@ require_once(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.frontend.ph
 
 if (!function_exists('kit_event_droplet_search')) {
 	function kit_event_droplet_search($page_id, $page_url) {
-		global $dbEvent;
-		global $dbEventItem;
 		global $parser;
+		global $database;
 
-		$SQL = sprintf( "SELECT * FROM %s,%s WHERE %s.%s=%s.%s AND %s='%s' ORDER BY %s DESC",
-										$dbEvent->getTableName(),
-										$dbEventItem->getTableName(),
-										$dbEvent->getTableName(),
-										dbEvent::field_event_item,
-										$dbEventItem->getTableName(),
-										dbEventItem::field_id,
-										dbEvent::field_status,
-										dbEvent::status_active,
-										dbEvent::field_event_date_from);
-		$events = array();
-		if (!$dbEvent->sqlExec($SQL, $events)) {
-			trigger_error(sprintf('[%s - %s] %s', __FUNCTION__, __LINE__, $dbEvent->getError()), E_USER_ERROR);
-			return false;
+		$tke = TABLE_PREFIX.'mod_kit_event';
+		$tkei = TABLE_PREFIX.'mod_kit_event_item';
+		$SQL = "SELECT * FROM `$tke`, `$tkei` WHERE $tke.item_id=$tkei.item_id AND `evt_status`='1' ORDER BY `evt_event_date_from` DESC";
+		if (null === ($query = $database->query($SQL))) {
+		  trigger_error(sprintf('[%s - %s] %s', __FUNCTION__, __LINE__, $database->get_error()), E_USER_ERROR);
+		  return false;
 		}
+		$events = array();
+		while (false !== ($event = $query->fetchRow(MYSQL_ASSOC)))
+		  $events[] = $event;
+
 		$result = array();
 		$htt_path = WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/templates/frontend/';
 		if (file_exists($htt_path.'custom.search.result.title.dwoo'))
@@ -69,24 +64,28 @@ if (!function_exists('kit_event_droplet_search')) {
 		foreach ($events as $event) {
 			$event_data = array();
 			$parser_data = array();
-	    $frontend->getEventData($event[dbEvent::field_id], $event_data, $parser_data);
+	    $frontend->getEventData($event['evt_id'], $event_data, $parser_data);
 			$result[] = array(
-				'url'						=> $page_url,
-				'params'				=> http_build_query(array(eventFrontend::REQUEST_ACTION 			=> eventFrontend::ACTION_EVENT,
-																									eventFrontend::REQUEST_EVENT				=> eventFrontend::VIEW_ID,
-																									eventFrontend::REQUEST_EVENT_ID			=> $event[dbEvent::field_id],
-																									eventFrontend::REQUEST_EVENT_DETAIL => 1)),
-				'title'					=> $parser->get($tpl_title, array('date_time' => sprintf('%s h', date(CFG_DATETIME_STR, strtotime($event[dbEvent::field_event_date_from]))),
-																													'title'			=> $event[dbEventItem::field_title])),
-				'description'		=> $parser->get($tpl_description, array('description' => !empty($event[dbEventItem::field_desc_short]) ? eventFrontend::unsanitizeText($event[dbEventItem::field_desc_short]) : $event[dbEventItem::field_title],
-	                                                              'event'       => $parser_data)),
-				'text'					=> eventFrontend::unsanitizeText($event[dbEventItem::field_desc_short]).' '.eventFrontend::unsanitizeText($event[dbEventItem::field_desc_long]).' '.
-			                        $event[dbEvent::field_event_group].' '.$event[dbEventItem::field_location].' '.$event[dbEventItem::field_desc_link].' '.
-			                        eventFrontend::unsanitizeText($event[dbEventItem::field_free_1]).' '.eventFrontend::unsanitizeText($event[dbEventItem::field_free_2]).' '.
-			                        eventFrontend::unsanitizeText($event[dbEventItem::field_free_3]).' '.eventFrontend::unsanitizeText($event[dbEventItem::field_free_4]).' '.
-			                        eventFrontend::unsanitizeText($event[dbEventItem::field_free_5]),
-				'modified_when'	=> strtotime($event[dbEvent::field_timestamp]),
-				'modified_by'		=> 1 // admin
+				'url'	=> $page_url,
+				'params' => http_build_query(array(
+				    eventFrontend::REQUEST_ACTION	=> eventFrontend::ACTION_EVENT,
+					  eventFrontend::REQUEST_EVENT => eventFrontend::VIEW_ID,
+						eventFrontend::REQUEST_EVENT_ID	=> $event['evt_id'],
+						eventFrontend::REQUEST_EVENT_DETAIL => 1
+				    )),
+				'title'	=> $parser->get($tpl_title, array(
+				    'date_time' => sprintf('%s h', date(CFG_DATETIME_STR, strtotime($event['evt_event_date_from']))),
+						'title'			=> $event['item_title'])),
+				'description'	=> $parser->get($tpl_description, array(
+				    'description' => !empty($event['item_desc_short']) ? eventFrontend::unsanitizeText($event['item_desc_short']) : $event['item_title'],
+            'event' => $parser_data)),
+				'text' => eventFrontend::unsanitizeText($event['item_desc_short']).' '.eventFrontend::unsanitizeText($event['item_desc_long']).' '.
+			      $event['group_id'].' '.$event['item_location'].' '.$event['item_desc_link'].' '.
+			      eventFrontend::unsanitizeText($event['item_free_1']).' '.eventFrontend::unsanitizeText($event['item_free_2']).' '.
+			      eventFrontend::unsanitizeText($event['item_free_3']).' '.eventFrontend::unsanitizeText($event['item_free_4']).' '.
+			      eventFrontend::unsanitizeText($event['item_free_5']),
+				'modified_when'	=> strtotime($event['evt_timestamp']),
+				'modified_by'	=> 1 // admin
 			);
 		}
 		return  $result;
@@ -95,8 +94,7 @@ if (!function_exists('kit_event_droplet_search')) {
 
 if (!function_exists('kit_event_droplet_header')) {
 	function kit_event_droplet_header($page_id) {
-		global $dbEvent;
-		global $dbEventItem;
+		global $database;
 
 		$result = array(
 			'title'				=> '',
@@ -108,27 +106,22 @@ if (!function_exists('kit_event_droplet_header')) {
 				(isset($_REQUEST[eventFrontend::REQUEST_EVENT]) && ($_REQUEST[eventFrontend::REQUEST_EVENT] == eventFrontend::VIEW_ID)) &&
 				(isset($_REQUEST[eventFrontend::REQUEST_EVENT_ID])) &&
 				(isset($_REQUEST[eventFrontend::REQUEST_EVENT_DETAIL]) && ($_REQUEST[eventFrontend::REQUEST_EVENT_DETAIL] == 1))) {
-			$event_id = $_REQUEST[eventFrontend::REQUEST_EVENT_ID];
-			$SQL = sprintf( "SELECT * FROM %s, %s WHERE %s.%s=%s.%s AND %s.%s='%s'",
-											$dbEvent->getTableName(),
-											$dbEventItem->getTableName(),
-											$dbEvent->getTableName(),
-											dbEvent::field_event_item,
-											$dbEventItem->getTableName(),
-											dbEventItem::field_id,
-											$dbEvent->getTableName(),
-											dbEvent::field_id,
-											$event_id);
-			$event = array();
-			if (!$dbEvent->sqlExec($SQL, $event)) {
-				trigger_error(sprintf('[%s - %s] %s', __FUNCTION__, __LINE__, $dbEvent->getError()), E_USER_ERROR);
-				return false;
+
+		  $event_id = $_REQUEST[eventFrontend::REQUEST_EVENT_ID];
+
+			$tke = TABLE_PREFIX.'mod_kit_event';
+			$tkei = TABLE_PREFIX.'mod_kit_event_item';
+			$SQL = "SELECT * FROM `$tke`, `$tkei` WHERE $tke.item_id=$tkei.item_id AND `evt_id`='$event_id'";
+			if (null === ($query = $database->query($SQL))) {
+			  trigger_error(sprintf('[%s - %s] %s', __FUNCTION__, __LINE__, $database->get_error()), E_USER_ERROR);
+			  return false;
 			}
-			if (count($event) > 0) {
-				$event = $event[0];
+
+			if ($query->numRows() > 0) {
+				$event = $query->fetchRow(MYSQL_ASSOC);
 				$result = array(
-					'title'				=> isset($event[dbEventItem::field_title]) ? strip_tags($event[dbEventItem::field_title]) : '',
-					'description'	=> isset($event[dbEventItem::field_desc_short]) ? substr(strip_tags($event[dbEventItem::field_desc_short]), 0, 180) : '',
+					'title'				=> isset($event['item_title']) ? strip_tags($event['item_title']) : '',
+					'description'	=> isset($event['item_desc_short']) ? substr(strip_tags($event['item_desc_short']), 0, 180) : '',
 					'keywords'		=> '' // noch nicht unterstuetzt...
 				);
 			}
