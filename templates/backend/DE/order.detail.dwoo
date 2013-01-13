@@ -1,9 +1,9 @@
 {*
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  *
  * Please consult the Dwoo Documentation & WIKI to get further informations 
@@ -13,62 +13,58 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
-<div class="order_detail">
+<div id="evt_order_detail">
+  <h2>{translate('Order details')}</h2>
+  <div class="evt_intro">
+    {translate('<p>This dialog shows you additional informations to the registration.</p><p>Click at the KIT ID to switch to the contact details or click at the event title to switch to the event details.</p>')}
+  </div>
+  <div class="order_clear"></div>
+  <div class="order_label">KIT ID</div>
+  <div class="order_value"><a href="{$kit_link}">{string_format($contact.kit_id, '%05d')}</a></div>
+  <div class="order_clear"></div>
   <div class="order_label">&nbsp;</div>
   <div class="order_value">
-    <p>{translate($title)}<br />
-    {$first_name} {$last_name}<br />
-    {$company}<br />
-    {$street}<br />
-    {$zip} {$city}</p>
+    <p>{translate($contact.kit_title)}<br />
+    {$contact.kit_first_name} {$contact.kit_last_name}<br />
+    {$contact.kit_company}<br />
+    {$contact.kit_street}<br />
+    {$contact.kit_zip} {$contact.kit_city}</p>
   </div>
-  <div class="clear"></div>
+  <div class="order_clear"></div>
   
   <div class="order_label">{translate('E-Mail')}</div>
-  <div class="order_value"><a href="mailto:{$email}">{$email}</a></div>
-  <div class="clear"></div>
+  <div class="order_value"><a href="mailto:{$contact.kit_email}">{$contact.kit_email}</a></div>
+  <div class="order_clear"></div>
   
   <div class="order_label">{translate('Phone')}</div>
-  <div class="order_value">{$phone} <i>{$best_time}</i></div>
-  <div class="clear"></div>
+  <div class="order_value">{$contact.kit_phone} <i>{$information.best_time}</i></div>
+  <div class="order_clear"></div>
   
   <div class="order_label">{translate('Event')}</div>
-  <div class="order_value">{$event}</div>
-  <div class="clear"></div>
+  <div class="order_value"><a href="{$event.link}">{$event.title}</a></div>
+  <div class="order_clear"></div>
   
   <div class="order_label">{translate('Date')}</div>
-  <div class="order_value">{$event_date}</div>
-  <div class="clear"></div>
+  <div class="order_value">{date_format($event.date, '%d.%m.%Y %H:%M')}</div>
+  <div class="order_clear"></div>
   
   <div class="order_label">{translate('Declared')}</div>
-  <div class="order_value">{$declared}</div>
-  <div class="clear"></div>
+  <div class="order_value">{$information.declared}</div>
+  <div class="order_clear"></div>
   
   <div class="order_label">{translate('Message')}</div>
-  <div class="order_value">{$message}</div>
-  <div class="clear"></div>
+  <div class="order_value">{$information.message}</div>
+  <div class="order_clear"></div>
   
-  <div class="order_label">{translate('Free field {{ number }}', array(number='1'))}</div>
-  <div class="order_value">{$free_1}</div>
-  <div class="clear"></div>
-  
-  <div class="order_label">{translate('Free field {{ number }}', array(number='2'))}</div>
-  <div class="order_value">{$free_2}</div>
-  <div class="clear"></div>
-  
-  <div class="order_label">{translate('Free field {{ number }}', array(number='3'))}</div>
-  <div class="order_value">{$free_3}</div>
-  <div class="clear"></div>
-  
-  <div class="order_label">{translate('Free field {{ number }}', array(number='4'))}</div>
-  <div class="order_value">{$free_4}</div>
-  <div class="clear"></div>
-  
-  <div class="order_label">{translate('Free field {{ number }}', array(number='5'))}</div>
-  <div class="order_value">{$free_5}</div>
-  <div class="clear"></div>
-  
+  {foreach $free_field field}
+    {if count_characters($field.label) > 0}
+      <div class="order_label">{translate($field.label)}</div>
+      <div class="order_value">{$field.value}</div>
+      <div class="order_clear"></div>
+    {/if}
+  {/foreach}
+  <div class="order_clear"></div>
   <div class="order_label">&nbsp;</div>
-  <div class="order_value"><a href="{$back_link}">{translate('go back ...')}</a></div>
-  <div class="clear"></div>
+  <div class="order_value"><input type="button" value="{translate('Go back ...')}" onclick="javascript:window.location.href='{$back_link}'" /></div>
+  <div class="order_clear"></div>
 </div>
