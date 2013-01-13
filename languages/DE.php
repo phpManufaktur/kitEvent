@@ -3,9 +3,9 @@
 /**
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
@@ -41,6 +41,8 @@ $LANG = array(
       => '- neue Gruppe erstellen -',
     '- do not use data from a previous event -'
       => '- keine Daten einer früheren Veranstaltung übernehmen -',
+    '- no distribution -'
+      => '- kein Verteiler -',
     '- no group -'
       => '- keine Gruppe -',
     '- out of stock -'
@@ -55,6 +57,10 @@ $LANG = array(
       => 'Aktiv',
     '<p>All events are shown!</p>'
       => '<p>Es werden alle Events angezeigt, die nicht gelöscht wurden!</p>',
+
+    'Basic settings'
+      => 'Grundeinstellungen',
+
     'Content'
       => 'Inhalt',
     'Copy also date and time of the event'
@@ -64,7 +70,7 @@ $LANG = array(
     'Copy event data'
       => 'Daten einer Veranstaltung übernehmen',
     'Costs'
-      => 'Kosten pro Teilnehmer (<i>-1 = Kostenfrei</i>)',
+      => 'Kosten, pro Teilnehmer',
     'Create files'
       => 'Dateien erzeugen',
     'Create or edit event'
@@ -78,9 +84,11 @@ $LANG = array(
     'Date/time'
       => 'Datum/Zeit',
     'Date from'
-      => 'Datum: Beginn des Event',
+      => 'Datum, von',
+    'Date, Time and Participants'
+      => 'Datum, Uhrzeit und Teilnehmer',
     'Date to'
-      => 'Datum: Ende des Event',
+      => 'Datum, bis',
     'Deadline'
       => 'Anmeldeschluß',
     'Declared'
@@ -95,6 +103,12 @@ $LANG = array(
       => 'Beschreibung, lang',
     'Description, short'
       => 'Beschreibung, kurz',
+    'Description of the event'
+      => 'Beschreibung der Veranstaltung',
+    'Determine a distribution group for the organizer in KeepInTouch. This will enable you to select the organizer from a list if you are creating or editing an event.'
+      => 'Erstellen Sie in KeepInTouch eine Verteilerliste für die Veranstalter und ordnen Sie den Verteiler dieser Veranstaltungsgruppe zu. Dies ermöglicht es Ihnen beim Erstellen oder Bearbeiten einer Veranstaltung (Event, Konzert ...) den Veranstalter direkt aus einer Liste auszuwählen.',
+    'Determine a distribution group for the participants in KeepInTouch. If you do so, all participants of events in this group will be assigned to this group - it will be easy to contact this group or send a newsletter.'
+      => 'Erstellen Sie in KeepInTouch eine Verteilerliste für die Teilnehmer der Veranstaltungen aus dieser Gruppe. Wenn Sie einen Verteiler festlegen, werden die Teilnehmer automatisch dieser Liste zugeordnet - das Versenden von Informationen, Newslettern etc. wird dadurch sehr einfach.',
     'Determine at which page the droplet [[kit_event]] is placed. This information is important for the automatic creation of the permaLinks'
       => 'Legen Sie die Seite fest, auf der das Droplet [[kit_event]] für diese Gruppe verwendet wird. Diese Festlegung ist wichtig, damit automatisch permaLinks erzeugt werden können.',
     'Determine if kitEvent should create iCal files'
@@ -144,7 +158,7 @@ $LANG = array(
     'Event Start'
       => 'Beginn',
     'Event title'
-      => 'Schlagzeile für die Veranstaltung',
+      => '<b>Schlagzeile</b> für die Veranstaltung',
     'Field 1 uses HTML'
       => 'Feld 1 verwendet HTML',
     'Field 2 uses HTML'
@@ -157,16 +171,30 @@ $LANG = array(
       => 'Feld 5 verwendet HTML',
     'Free Fields'
       => 'Freie Datenfelder',
-    'go back ...'
+
+    'General'
+      => 'Allgemein',
+    'Go back ...'
       => 'Zurück',
     'Group'
       => 'Gruppe',
+    'Groups'
+      => 'Veranstaltungsgruppen',
     'Group name'
       => 'Bezeichner für die Gruppe',
+
     'If you give this free field a name it will be activated'
       => 'Geben Sie diesem freien Datenfeld eine Bezeichnung um es zu aktivieren. Freie Datenfelder können HTML Code enthalten und werden in die Suchfunktion eingebunden.',
-    'If you have defined a pattern in the group definition, kitEvent will create a permanet link at the first save of this event.'
-      => 'Wenn Sie in der Gruppendefinition ein Muster für die Erzeugung eines permanenten Link angegeben haben, wird dieser <b>beim ersten Speichern</b> dieses Event automatisch erzeugt.',
+    'If you have defined a pattern in the <a href="{{ link }}">group definition</a>, kitEvent will create a permanet link at the first save of this event.'
+      => 'Wenn Sie in der <a href="{{ link }}">Gruppe für die Veranstaltung</a> ein Muster für die Erzeugung eines permanenten Link angegeben haben, wird dieser <b>beim ersten Speichern</b> des Event automatisch angelegt.',
+    'In status <b>locked</b> the event will not published in the frontend and status <b>delete</b> finally remove the event.'
+      => 'Im Status <b>Gesperrt</b> wird die Veranstaltung nicht veröffentlicht und ist nicht sichtbar. Der Status <b>Gelöscht</b> entfernt die Veranstaltung unwiederruflich.',
+
+    'KIT Distribution, Organizer'
+      => 'KIT Verteiler, Veranstalter',
+    'KIT Distribution, Participant'
+      => 'KIT Verteiler, Teilnehmer',
+
     'Lady'
         => 'Frau',
     'List of the active events'
@@ -175,8 +203,8 @@ $LANG = array(
       => 'Veranstaltungsort',
     'LOCKED'
       => 'Gesperrt',
-    'Long description'
-      => 'Ausführliche Beschreibung (optional)',
+    'Long Description'
+      => 'Ausführliche Beschreibung',
     'Margin'
       => 'Randabstand',
     'Margin of the QR-Code, default is 2'
@@ -195,8 +223,14 @@ $LANG = array(
       => 'Bezeichnung Feld 4',
     'Name of Field 5'
       => 'Bezeichnung Feld 5',
+
+    'Order details'
+      => 'Details zu der Anmeldung',
     'Orders and messages'
       => 'Anmeldungen und Mitteilungen',
+    'Organizer and Event Location'
+      => 'Veranstalter und Veranstaltungsort',
+
     'Page with details'
       => 'Detailseite',
     'Part. max.'
@@ -210,7 +244,7 @@ $LANG = array(
     'Pattern for the automatic generation of permanent links. Possible placeholders are <b>{&#x0024;ID}, {&#x0024;NAME}, {&#x0024;YEAR}, {&#x0024;MONTH}, {&#x0024;DAY}</b> and <b>{&#x0024;EXT}</b>.<br />The assigned permaLink is relative to the page directory, must star6t with a slash / and is closed by the file extension.<br />Sample: <b>/termine/{&#x0024;NAME}-{&#x0024;YEAR}{&#x0024;MONTH}{&#x0024;DAY}{&#x0024;EXT}</b>'
       => 'Muster für die automatische Erzeugung von permanenten Links (permaLinks). Möglich sind die Platzhalter <b>{&#x0024;ID}, {&#x0024;NAME}, {&#x0024;YEAR}, {&#x0024;MONTH}, {&#x0024;DAY}</b> und <b>{&#x0024;EXT}</b>.<br />Der angegebene permaLink bezieht sich relativ auf das Seitenverzeichnis, beginnt mit einem Slash / und endet mit der Dateiendung.<br />Beispiel: <b>/termine/{&#x0024;NAME}-{&#x0024;YEAR}{&#x0024;MONTH}{&#x0024;DAY}{&#x0024;EXT}</b>',
     'Perma Link'
-      => 'Perma Link',
+      => 'Permanenter Link',
     'Permanent Link Pattern'
       => 'permaLink Muster',
     'Phone'
@@ -244,11 +278,13 @@ $LANG = array(
     '<p>Please type in your ZIP code!</p>'
       => '<p>Bitte geben Sie Ihre Postleitzahl an!</p>',
     'Publish from'
-      => 'Veröffentlichen ab',
+      => 'Veröffentlichen, ab',
     'Publish to'
-      => 'Veröffentlichen bis',
+      => 'Veröffentlichen, bis',
+
     'QR-Code Size'
       => 'QR-Code Größe',
+
     'Register'
         => 'Anmelden',
     'Select'
@@ -258,23 +294,21 @@ $LANG = array(
     'Set to YES to activate HTML usage for this field'
       => 'Mit JA aktivieren Sie die HTML Ausgabe für dieses Feld',
     'Short Description'
-      => 'Kurzbeschreibung (Pflicht)',
+      => 'Kurzbeschreibung',
     'Show all events'
       => 'Alle Veranstaltungen anzeigen',
     'Sign up'
         => 'Anmelden',
+    'Specify the start and end date of the event, they can be identical.'
+      => 'Geben Sie das Start- und Enddatum für die Veranstaltung an.',
     'Start'
         => 'Beginn',
     'Status'
       => 'Status',
     'TAB_ABOUT'
       => '?',
-    'TAB_CONFIG'
-      => 'Einstellungen',
     'TAB_EDIT'
       => 'Veranstaltung',
-    'TAB_GROUP'
-      => 'Gruppen',
     'TAB_LIST'
       => 'Aktuelle Veranstaltungen',
     'TAB_MESSAGES'
@@ -287,6 +321,8 @@ $LANG = array(
       => '<p>Die Datumsangabe <b>{{ date }}</b> für das Feld <b>{{ field }}</b> ist ungültig und konnte nicht gelesen werden! Geben Sie das Datum in der Form <i>dd.mm.YYYY</i> an!</p>',
     '<p>The deadline is invalid, please check the date!</p>'
       => '<p>Das Datum des Anmeldeschluß liegt nach dem Event, bitte prüfen Sie das Datum!</p>',
+    'The event group contains settings for the permanent link to the event, QR-Codes, Distribution list for the publisher and the participants. <a href="{{ link }}">Define as many event groups you need</a>.'
+      => 'Die <a href="{{ link }}">Veranstaltungsgruppe</a> enthält u.a. Einstellungen für die permanenten Links, QR-Codes, Verteilerlisten für die Veranstalter und Teilnehmer.',
     '<p>The event group must be named!</p>'
       => '<p>Der Gruppen Bezeichner darf nicht leer sein!</p>',
     '<p>The event group with the ID {{ id }} was successfull created.</p>'
@@ -301,6 +337,8 @@ $LANG = array(
       => '<p>Das Event <b>{{ id }}</b> wurde erfolgreich aktualisiert!</p>',
     '<p>The iCal file does not exists!</p>'
       => '<p>Es ist keine iCal Datei definiert!</p>',
+    'The <i>Long Description</i> is <a href="{{ link }}">not active</a>.'
+      => 'Die <i>Ausführliche Beschreibung</i> ist <a href="{{ link }}">nicht aktiviert</a>.',
     'The /MEDIA directory for <b>iCal</b> <i>*.ics</i> files.'
       => 'Das /MEDIA Verzeichnis für <b>iCal</b> <i>*.ics</i> Dateien',
     'The /MEDIA directory for QR Code files'
@@ -315,12 +353,16 @@ $LANG = array(
       => 'Dieser QR Code enthält einen permanenten Link auf diesen Termin',
     'The QR-Code contains iCal informations'
       => 'Dieser QR Code enthält die Daten des Termin im iCal Format.',
+    'The <i>Short Description</i> is <a href="{{ link }}">not active</a>.'
+      => 'Die <i>Kurzbeschreibung</i> ist <a href="{{ link }}">nicht aktiviert</a>.',
     'The size of the created QR-Code from 1 to 40, default is 3'
       => 'Die Größe des erzeugten QR-Code von 1 bis 40, Vorgabe ist 3',
     '<p>There are no events for {{ date }}!</p>'
       => '<p>Für den <b>{{ date }}</b> sind leider keine Veranstaltungen eingetragen!</p>',
     '<p>There is no permaLink defined!</p>'
       => '<p>Es ist kein permaLink definiert!</p>',
+    '<p>This dialog shows you additional informations to the registration.</p><p>Click at the KIT ID to switch to the contact details or click at the event title to switch to the event details.</p>'
+      => '<p>Dieser Dialog zeigt Ihnen zusätzliche Informationen zu der Anmeldung.</p><p>Klicken Sie auf die KIT ID um auf die Detailseite des Kontaktes zu wechseln oder klicken Sie auf den Titel der Veranstaltung um auf die Informationsseite der Veranstaltung zu wechseln.</p>',
     '<p>This event was taken from the previous event with the ID {{ id }}</p>'
       => '<p>Es wurden Daten aus dem Event mit der <b>ID {{ id }}</b> übernommen!</p>',
     'This list shows you all active events'
@@ -328,9 +370,9 @@ $LANG = array(
     '<p>This list shows you all registrations for your events.</p>'
       => '<p>Diese Liste zeigt Ihnen alle Anmeldungen sowie Anfragen zu Ihren Veranstaltungen.</p>',
     'Time end'
-      => 'Uhrzeit: Ende',
+      => 'Uhrzeit, bis',
     'Time start'
-      => 'Uhrzeit: Start',
+      => 'Uhrzeit, von',
     'Title'
       => 'Schlagzeile',
     '<p>To create a permaLink for this event, you must select a valid event group!</p>'
@@ -338,11 +380,13 @@ $LANG = array(
     'Use Perma Links'
       => 'Perma Links verwenden',
     '<p>Use this dialog to create or edit a group.</p><p>The name of the group should be a single word, it will be used as parameter for the droplet [[kit_event]]</p>'
-      => '<p>Mit diesem Dialog können Sie eine neue Gruppe für ein Event (Ereignis) anlegen oder eine bestehende Gruppe bearbeiten.</p><p>Die <i>Bezeichner</i> für die Gruppen sollten möglichst aus einem einzelnen Wort bestehen und keine Leerzeichen, Sonderzeichen enthalten. Sie verwenden den Bezeichner als Parameter beim Aufruf des Droplets [[kit_event]].</p>',
+      => '<p>Mit diesem Dialog können Sie eine neue Gruppe für Veranstaltungen (Event, Konzert etc.) anlegen oder eine bestehende Gruppe bearbeiten.</p><p>Die <i>Bezeichner</i> für die Gruppen sollten möglichst aus einem einzelnen Wort bestehen und keine Leerzeichen, Sonderzeichen enthalten. Sie verwenden den Bezeichner als Parameter beim Aufruf des Droplets [[kit_event]].</p>',
     'Vacancies'
         => 'Freie Plätze',
     'With this dialog you can create a new event or edit an existing event.'
       => '<p>Mit diesem Dialog können Sie ein neues Event (Ereignis) anlegen oder ein bestehendes bearbeiten.</p>',
+    'You can activate up to <b>{{ free }}</b> <a href="{{ link }}">additional <i>free fields</i></a>.'
+      => 'Sie können zusätzlich bis zu <b>{{ free }}</b> <a href="{{ link }}">Freie Datenfelder</a> aktivieren.',
     'You can copy the data from a previous event to a new event, just select an event from the list.'
       => '<p>Sie können die Daten einer früheren Veranstaltung für die Anlage einer neuen Veranstaltung übernehmen. Wählen Sie dazu einfach die passende Veranstaltung aus.</p><p>Wenn Sie eine neue Veranstaltung ohne Vorbelegung erstellen möchten, klicken Sie einfach auf <kbd>OK</kbd>, Sie gelangen dann direkt in den Dialog zum Bearbeiten der Veranstaltung.</p>'
     );
