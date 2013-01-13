@@ -1,9 +1,9 @@
 {*
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  *
  * Please consult the Dwoo Documentation & WIKI to get further informations 
@@ -19,13 +19,13 @@ vielen Dank für Ihr Interesse an unserer Veranstaltung {$event.headline} am {$e
 
 Sie haben uns folgende Informationen übermittelt:
 
-{translate($order.title)}
-{$order.first_name} {$order.last_name}
-{$order.street}
-{$order.zip} {$order.city}
+{translate($contact.kit_title)}
+{$contact.kit_first_name} {$contact.kit_last_name}
+{$contact.kit_street}
+{$contact.kit_zip} {$contact.kit_city}
 
-E-Mail: {$order.email}
-Ihr Telefon: {$order.phone}
+E-Mail: {$contact.kit_email}
+Ihr Telefon: {$contact.kit_phone}
 Erreichbarkeit: {$order.best_time}
 
 Zusätzliche Mitteilung:

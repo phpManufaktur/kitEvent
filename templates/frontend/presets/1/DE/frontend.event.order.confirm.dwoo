@@ -1,9 +1,9 @@
 {*
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  *
  * Please consult the Dwoo Documentation & WIKI to get further informations 
@@ -16,7 +16,7 @@
 <div id="evt_confirm">
   <h2>Mitteilung erhalten</h2>
   <p>Vielen Dank für Ihr Interesse an unseren Veranstaltungen.</p>
-  <p>Wir haben Ihnen eine Bestätigung an Ihre E-Mail Adresse {$order.email} gesendet und werden uns in Kürze mit Ihnen in Verbindung setzen.</p>
+  <p>Wir haben Ihnen eine Bestätigung an Ihre E-Mail Adresse {$contact.kit_email} gesendet und werden uns in Kürze mit Ihnen in Verbindung setzen.</p>
   <p><i>Ihr Event-Team</i></p>
   <p><a href="{$event.link.start}">Zur Übersicht wechseln</a></p>
 </div> 
