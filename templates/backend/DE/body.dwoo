@@ -1,9 +1,9 @@
 {*
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  *
  * Please consult the Dwoo Documentation & WIKI to get further informations 
@@ -17,7 +17,7 @@
   var WB_URL = '{$WB_URL}';
 </script>
 <div class="event_backend">
-  <ul class="nav_tab">
+  <ul id="navigation">
   {foreach $navigation nav}
     {if $nav.active == 1}
       <li class="selected"><a href="{$nav.url}">{translate($nav.text)}</a></li>

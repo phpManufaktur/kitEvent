@@ -1,9 +1,9 @@
 {*
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  *
  * Please consult the Dwoo Documentation & WIKI to get further informations 
@@ -15,9 +15,9 @@
  *}
 <div id="evt_order_list">
   <h2>{translate('Orders and messages')}</h2>
-  {if $is_intro == 0}
+  {if $message.active == 1}
     <div class="evt_message">
-      {$intro}
+      {$message.text}
     </div>
   {else}
     <div class="evt_intro">
@@ -39,16 +39,16 @@
       </tr>
     </thead>
     <tbody>
-    {foreach $rows row}
+    {foreach $orders order}
       <tr>
-        <td><a href="{$row.order_date_link}">{$row.order_date}</a></td>
-        <td><a href="mailto:{$row.email}">{$row.email}</a></td>
-        <td><a href="{$row.order_date_link}">{$row.name}</a></td>
-        <td>{$row.event}</td>
-        <td>{$row.event_date}</td>
-        <td>{$row.declared}</td>
-        <td>{$row.message}</td>
-        <td><a href="{$row.delete_link}"><img src="{$row.delete_image}" width="12" height="12" alt="{translate('Delete')}" title="{translate('Delete')}" /></a></td>
+        <td><a href="{$order.detail.link}">{date_format($order.event.date, '%d.%m.%Y')}</a></td>
+        <td><a href="mailto:{$order.contact.kit_email}">{$order.contact.kit_email}</a></td>
+        <td><a href="{$order.detail.link}">{$order.contact.kit_last_name}{if count_characters($order.contact.kit_first_name) > 0}, {$order.contact.kit_first_name}{/if}</a></td>
+        <td>{$order.event.title}</td>
+        <td>{date_format($order.event.date, '%d.%m.%Y')}</td>
+        <td>{if $order.order.confirmed == 1}{translate('Yes')}{else}{translate('No')}{/if}</td>
+        <td>{$order.order.message}</td>
+        <td><a href="{$order.delete.link}"><img src="{$TEMPLATE_URL}/images/delete-icon.png" width="12" height="12" alt="{translate('Delete')}" title="{translate('Delete')}" /></a></td>
       </tr>
     {/foreach}
     </tbody>
