@@ -312,6 +312,39 @@ if (!fieldExists('mod_kit_event_group', 'kit_distribution_organizer')) {
   if ($database->is_error())
     $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
 }
+if (!fieldExists('mod_kit_event_group', 'kit_distribution_location')) {
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_group` ADD `kit_distribution_location` VARCHAR(255) NOT NULL DEFAULT '' AFTER `kit_distribution_organizer`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+}
+
+if (!fieldExists('mod_kit_event', 'organizer_id')) {
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event` ADD `organizer_id` INT(11) NOT NULL DEFAULT '-1' AFTER `item_id`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+}
+if (!fieldExists('mod_kit_event', 'location_id')) {
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event` ADD `location_id` INT(11) NOT NULL DEFAULT '-1' AFTER `organizer_id`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+}
+
+$database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` MODIFY `item_desc_link` TEXT NOT NULL");
+if ($database->is_error())
+  $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+
+if (!fieldExists('mod_kit_event_item', 'item_location_link')) {
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_location_link` TEXT NOT NULL AFTER `item_location`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+}
+if (!fieldExists('mod_kit_event_item', 'item_category')) {
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_category` VARCHAR(255) NOT NULL DEFAULT '' AFTER `item_location_link`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+}
+
+// END Release 0.39
 
 
 if (file_exists(WB_PATH.'/modules/kit_event/htt')) {

@@ -13,7 +13,7 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
-<div id="evt_groups"> 
+<div id="evt_group"> 
   <form name="{$form.name}" action="{$form.action}" method="post">
     <input type="hidden" name="{$action.name}" value="{$action.value}" />
     <input type="hidden" name="{$sub_action.name}" value="{$sub_action.value}" />
@@ -27,7 +27,7 @@
         {translate('<p>Use this dialog to create or edit a group.</p><p>The name of the group should be a single word, it will be used as parameter for the droplet [[kit_event]]</p>')}
       </div>
     {/if}
-    <div class="evt_groups_spacer"></div>
+    <div class="evt_group_spacer"></div>
     <table width="100%">
       <colgroup>
         <col width="180" />
@@ -77,6 +77,18 @@
           </select>
         </td>
         <td class="group_hint">{translate('Determine a distribution group for the organizer in KeepInTouch. This will enable you to select the organizer from a list if you are creating or editing an event.')}</td>
+      </tr>
+      <tr>
+        <td class="group_label">{translate('KIT Distribution, Location')}</td>
+        <td class="group_value">
+          <select name="{$group.distribution_location.name}">
+            <option value="-1"{if $group.distribution_location.value == ''} selected="selected"{/if}>{translate('- no distribution -')}</option>
+            {foreach $group.distribution_location.options option}
+              <option value="{$option.value}"{if $group.distribution_location.value == $option.value} selected="selected"{/if}>{translate($option.text)}</option>              
+            {/foreach}
+          </select>
+        </td>
+        <td class="group_hint">{translate('Determine a distribution group for the event locations in KeepInTouch. This will enable you to select the locations of your event from a list if you are creating or editing an event.')}</td>
       </tr>
       <tr>
         <td class="group_label">{translate('KIT Distribution, Participant')}</td>

@@ -34,7 +34,7 @@
       
       <div class="evt_edit_label">{translate('Event title')}<span class="must_field">*</span></div>
       <div class="evt_edit_value"><input type="text" name="{$event.title.name}" value="{$event.title.value}" /></div>
-      <div class="evt_edit_hint">{translate('')}</div>
+      <div class="evt_edit_hint">{translate('<b>Pflichtfeld.</b> Legen Sie eine kurze und prägnante Bezeichnung für die Veranstaltung fest.')}</div>
       <div class="evt_edit_clear"></div>
       
       <div class="evt_edit_label">{translate('Status')}</div>
@@ -112,10 +112,59 @@
     <fieldset>
       <legend>{translate('Organizer and Event Location')}</legend>
       
-      <div class="evt_edit_label">{translate('Location')}</div>
-      <div class="evt_edit_value"><input type="text" name="{$event.location.name}" value="{$event.location.value}" /></div>
-      <div class="evt_edit_hint">{translate('')}</div>
+      <div class="evt_edit_label">{translate('Organizer')}</div>
+      <div class="evt_edit_value">
+        <select name="{$event.organizer.name}">
+          <option value="{$event.organizer.default}"{if $event.organizer.value == -1} selected="selected"{/if}>{translate('- please select -')}</option>
+          {foreach $event.organizer.list contact}
+            <option value="{$contact.kit_id}"{if $contact.kit_id == $event.organizer.value} selected="selected"{/if}>
+                    {$contact.kit_identifier}
+            </option>
+          {/foreach}
+        </select>
+        {if $event.organizer.value > 0}
+          {$contact = $event.organizer.contact}
+          {include('include/contact.summary.dwoo')}
+        {/if}
+      </div>
+      <div class="evt_edit_hint">{translate('Pflegen Sie die Kontaktdaten der Veranstalter über <a href="{{ link_kit }}">KIT</a> und legen Sie über die <a href="{{ link_group }}">Veranstaltungsgruppe</a> fest, welcher Verteiler Ihnen hier zur Auswahl angezeigt wird.',array(link_kit=$link_kit_list,link_group=$link_event_group))}</div>
       <div class="evt_edit_clear"></div>
+      
+      <div class="evt_edit_label">{translate('Location')}</div>
+      <div class="evt_edit_value">
+        <select name="{$event.location.name}">
+          <option value="{$event.location.default}"{if $event.location.value == -1} selected="selected"{/if}>{translate('- please select -')}</option>
+          {foreach $event.location.list contact}
+            <option value="{$contact.kit_id}"{if $contact.kit_id == $event.location.value} selected="selected"{/if}>
+                    {$contact.kit_identifier}
+            </option>
+          {/foreach}
+        </select>
+        {if $event.location.value > 0}
+          {$contact = $event.location.contact}
+          {include('include/contact.summary.dwoo')}
+        {/if}
+      </div>
+      <div class="evt_edit_hint">{translate('Pflegen Sie die Adressen der Veranstaltngsorte über <a href="{{ link_kit }}">KIT</a> und legen Sie über die <a href="{{ link_group }}">Veranstaltungsgruppe</a> fest, welcher Verteiler Ihnen hier zur Auswahl angezeigt wird.',array(link_kit=$link_kit_list,link_group=$link_event_group))}</div>
+      <div class="evt_edit_clear"></div>
+      
+      
+      <div class="evt_edit_label">{translate('Location, alias')}</div>
+      <div class="evt_edit_value"><input type="text" name="{$event.location.alias.name}" value="{$event.location.alias.value}" /></div>
+      <div class="evt_edit_hint">{translate('kitEvent setzt als Alias den KIT <i>Kontakt Bezeichner</i> des Veranstaltungsort ein. Sie können den Alias jederzeit ändern, er darf jedoch nicht leer sein.')}</div>
+      <div class="evt_edit_clear"></div>
+      
+      <div class="evt_edit_label">{translate('Area, Category')}</div>
+      <div class="evt_edit_value"><input type="text" name="{$event.location.category.name}" value="{$event.location.category.value}" /></div>
+      <div class="evt_edit_hint">{translate('Die Region, Kategorie oder ein sonstiges Merkmal das Ihnen dabei hilft die Veranstaltungen zu organisieren.')}</div>
+      <div class="evt_edit_clear"></div>
+      
+      <div class="evt_edit_label">{translate('Additional link')}</div>
+      <div class="evt_edit_value"><input type="text" name="{$event.location.link.name}" value="{$event.location.link.value}" /></div>
+      <div class="evt_edit_hint">{translate('Ergänzender Link zum Veranstalter bzw. Veranstaltungsort.')}</div>
+      <div class="evt_edit_clear"></div>
+      
+      
     </fieldset>
     
     <fieldset>

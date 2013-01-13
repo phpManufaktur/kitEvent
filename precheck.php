@@ -48,6 +48,11 @@ $check = array(
         'version' => '0.17',
         'problem' => 'Dwoo => <b><a href="https://addons.phpmanufaktur.de/download.php?file=Dwoo" target="_blank">Download actual version</a></b>'
         ),
+    'KeepInTouch' => array(
+        'directory' => 'kit',
+        'version' => '0.68',
+        'problem' => 'KeepInTouch => <b><a href="https://addons.phpmanufaktur.de/download.php?file=KeepInTouch" target="_blank">Download actual version</a></b>'
+        ),
     'dropletsExtension' => array(
         'directory' => 'droplets_extension',
         'version' => '0.24',

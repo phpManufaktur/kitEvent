@@ -343,3 +343,18 @@ td.data_ord_confirm
   clear: both;
   height: 5px;
 }
+.contact_summary {
+  width: 98%;
+  margin: 0;
+  padding: 3px 0 3px 2%;
+}
+.contact_summary_column {
+  width: 48%;
+  float:left;
+  margin: 0 0 1% 0;
+  padding: 0;
+}
+.contact_summary_clear {
+  clear: both;
+  height: 1px;
+}

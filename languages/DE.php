@@ -55,8 +55,12 @@ $LANG = array(
       => '- unbegrenzt -',
     'ACTIVE'
       => 'Aktiv',
+    'Additional link'
+      => 'Ergänzender Link',
     '<p>All events are shown!</p>'
       => '<p>Es werden alle Events angezeigt, die nicht gelöscht wurden!</p>',
+    'Area, Category'
+      => 'Region, Kategorie',
 
     'Basic settings'
       => 'Grundeinstellungen',
@@ -105,6 +109,8 @@ $LANG = array(
       => 'Beschreibung, kurz',
     'Description of the event'
       => 'Beschreibung der Veranstaltung',
+    'Determine a distribution group for the event locations in KeepInTouch. This will enable you to select the locations of your event from a list if you are creating or editing an event.'
+      => 'Erstellen Sie in KeepInTouch eine Verteilerliste für die Veranstaltungsort und ordnen Sie den Verteiler dieser Gruppe zu. Sie können dann beim Erstellen und Bearbeiten die Veranstaltungsorte direkt aus einer Liste auswählen.',
     'Determine a distribution group for the organizer in KeepInTouch. This will enable you to select the organizer from a list if you are creating or editing an event.'
       => 'Erstellen Sie in KeepInTouch eine Verteilerliste für die Veranstalter und ordnen Sie den Verteiler dieser Veranstaltungsgruppe zu. Dies ermöglicht es Ihnen beim Erstellen oder Bearbeiten einer Veranstaltung (Event, Konzert ...) den Veranstalter direkt aus einer Liste auszuwählen.',
     'Determine a distribution group for the participants in KeepInTouch. If you do so, all participants of events in this group will be assigned to this group - it will be easy to contact this group or send a newsletter.'
@@ -201,6 +207,8 @@ $LANG = array(
       => 'Liste der aktuellen Veranstaltungen',
     'Location'
       => 'Veranstaltungsort',
+    'Location, alias'
+      => 'Veranstaltungsort, Alias',
     'LOCKED'
       => 'Gesperrt',
     'Long Description'
@@ -228,6 +236,8 @@ $LANG = array(
       => 'Details zu der Anmeldung',
     'Orders and messages'
       => 'Anmeldungen und Mitteilungen',
+    'Organizer'
+      => 'Veranstalter',
     'Organizer and Event Location'
       => 'Veranstalter und Veranstaltungsort',
 

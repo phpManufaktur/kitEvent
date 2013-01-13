@@ -1,0 +1,15 @@
+<div class="contact_summary">
+  <div class="contact_summary_column">
+    {$contact.kit_company}<br />
+    {$contact.kit_department}<br />
+    {$contact.kit_first_name} {$contact.kit_last_name}<br />
+    {$contact.kit_street}<br />
+    {$contact.kit_country} {$contact.kit_zip} {$contact.kit_city}
+  </div>
+  <div class="contact_summary_column">
+    <a href="{$link_kit_id}{$contact.kit_id}">{string_format($contact.kit_id, '%05d')}</a><br />
+    <br />
+    {$contact.kit_phone}<br />
+    <a href="mailto:{$contact.kit_email}">{$contact.kit_email}</a><br />
+  </div>
+</div>

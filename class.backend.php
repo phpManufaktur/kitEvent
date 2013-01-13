@@ -545,6 +545,7 @@ class eventBackend {
 
   public function dlgEditEvent() {
     global $database;
+    global $kitContactInterface;
 
     $event_id = (isset($_REQUEST['evt_id']) && ($_REQUEST['evt_id'] > 0)) ? $_REQUEST['evt_id'] : -1;
 
@@ -732,6 +733,81 @@ class eventBackend {
             )
         );
 
+    $organizer_ids = array();
+    $organizer_contact = array();
+    $organizer_default = -1;
+
+    $location_ids = array();
+    $location_contact = array();
+    $location_default = -1;
+
+    // get the Organizer ID's
+    if ($event['group_id'] != '-1') {
+        $SQL = "SELECT * FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_id`='{$event['group_id']}'";
+        if (null === ($query = $database->query($SQL))) {
+            $this->setError($database->get_error());
+            return false;
+        }
+        if ($query->numRows() == 1) {
+            // get the group settings
+            $event_group = $query->fetchRow(MYSQL_ASSOC);
+
+            if (!empty($event_group['kit_distribution_organizer'])) {
+              // get all organizer ID's
+              $ids = array();
+              if (!$kitContactInterface->getContactsByCategory($event_group['kit_distribution_organizer'], $ids)) {
+                  $this->setError($kitContactInterface->getError());
+                  return false;
+              }
+              foreach ($ids as $id) {
+                  $contact = array();
+                  if (!$kitContactInterface->getContact($id, $contact))
+                      // no error prompts within the loop
+                      continue;
+                  $organizer_ids[] = $contact;
+                  // set the contact data for the organizer
+                  if ($id == $event['organizer_id'])
+                      $organizer_contact = $contact;
+              }
+            }
+
+            if (!empty($event_group['kit_distribution_location'])) {
+              // get all location ID's
+              $ids = array();
+              if (!$kitContactInterface->getContactsByCategory($event_group['kit_distribution_location'], $ids)) {
+                $this->setError($kitContactInterface->getError());
+                return false;
+              }
+              foreach ($ids as $id) {
+                $contact = array();
+                if (!$kitContactInterface->getContact($id, $contact))
+                  // no error prompts within the loop
+                  continue;
+                $location_ids[] = $contact;
+                // set the contact data for the location
+                if ($id == $event['location_id'])
+                  $location_contact = $contact;
+              }
+            }
+        }
+    }
+
+    if (empty($organizer_contact) && ($event['organizer_id'] > 0)) {
+      if (!$kitContactInterface->getContact($event['organizer_id'], $organizer_contact)) {
+        $this->setError($kitContactInterface->getError());
+        return false;
+      }
+      $organizer_default = $event['organizer_id'];
+    }
+    if (empty($location_contact) && ($event['location_id'] > 0)) {
+      if (!$kitContactInterface->getContact($event['location_id'], $organizer_contact)) {
+        $this->setError($kitContactInterface->getError());
+        return false;
+      }
+      $location_default = $event['location_id'];
+    }
+
+
     $fields = array(
         'id' => array(
             'name' => 'evt_id',
@@ -839,10 +915,6 @@ class eventBackend {
               'value' => self::unsanitizeText($event['item_free_5'])
               )
           ),
-      'location' => array(
-        'name' => 'item_location',
-        'value' => $event['item_location']
-      ),
       'link' => array(
         'name' => 'item_desc_link',
         'value' => $event['item_desc_link']
@@ -850,8 +922,37 @@ class eventBackend {
       'perma_link' => array(
         'name' => 'evt_perma_link',
         'value' => $event['evt_perma_link'],
-      )
+      ),
+      'organizer' => array(
+          'name' => 'organizer_id',
+          'value' => $event['organizer_id'],
+          'default' => $organizer_default,
+          'contact' => $organizer_contact,
+          'list' => $organizer_ids
+          ),
+      'location' => array(
+          'name' => 'location_id',
+          'value' => $event['location_id'],
+          'default' => $location_default,
+          'contact' => $location_contact,
+          'list' => $location_ids,
+          'alias' => array(
+              'name' => 'item_location',
+              'value' => $event['item_location']
+              ),
+          'category' => array(
+              'name' => 'item_category',
+              'value' => self::unsanitizeText($event['item_category'])
+              ),
+          'link' => array(
+              'name' => 'item_location_link',
+              'value' => $event['item_location_link']
+              )
+          )
+
     );
+
+
 
     // check if libraryAdmin exists
     if (file_exists(WB_PATH.'/modules/libraryadmin/inc/class.LABackend.php')) {
@@ -905,7 +1006,10 @@ class eventBackend {
         'link_options' => sprintf('%s&%s', self::$page_link, http_build_query(array(
             self::REQUEST_ACTION => self::ACTION_SETTINGS,
             self::REQUEST_SUB_ACTION => self::ACTION_CONFIG
-            )))
+            ))),
+        'link_kit_id' => ADMIN_URL.'/admintools/tool.php?tool=kit&act=con&contact_id=',
+        'link_kit_list' => ADMIN_URL.'/admintools/tool.php?tool=kit&act=list',
+
     );
     return $this->getTemplate('event.edit.dwoo', $data);
   } // dlgEditEvent()
@@ -913,6 +1017,7 @@ class eventBackend {
   public function checkEditEvent() {
     global $manufakturConfig;
     global $database;
+    global $kitContactInterface;
 
     $event_id = (isset($_REQUEST['evt_id']) && ($_REQUEST['evt_id'] > 0)) ? (int) $_REQUEST['evt_id'] : -1;
     $item_id = (isset($_REQUEST['item_id'])) && ($_REQUEST['item_id'] > 0) ? $_REQUEST['item_id'] : -1;
@@ -1117,12 +1222,14 @@ class eventBackend {
         'evt_deadline' => $_REQUEST['evt_deadline'],
         'evt_event_date_from' => $_REQUEST['evt_event_date_from'],
         'evt_event_date_to' => $_REQUEST['evt_event_date_to'],
-        'group_id' => $_REQUEST['group_id'],
-        'evt_participants_max' => $_REQUEST['evt_participants_max'],
-        'evt_participants_total' => $_REQUEST['evt_participants_total'],
+        'group_id' => (int) $_REQUEST['group_id'],
+        'evt_participants_max' => (int) $_REQUEST['evt_participants_max'],
+        'evt_participants_total' => (int) $_REQUEST['evt_participants_total'],
         'evt_publish_date_from' => $_REQUEST['evt_publish_date_from'],
         'evt_publish_date_to' => $_REQUEST['evt_publish_date_to'],
-        'evt_status' => $_REQUEST['evt_status']
+        'evt_status' => $_REQUEST['evt_status'],
+        'organizer_id' => (int) $_REQUEST['organizer_id'],
+        'location_id' => (int) $_REQUEST['location_id']
       );
       $free_field = array();
       for ($i=1; $i<6; $i++) {
@@ -1133,18 +1240,32 @@ class eventBackend {
         else
           $free_field[$i] = '';
       }
+
+      if ((!isset($_REQUEST['item_location']) || empty($_REQUEST['item_location'])) && ($event['location_id'] > 0)) {
+        $contact = array();
+        if (!$kitContactInterface->getContact($event['location_id'], $contact)) {
+          $this->setError($kitContactInterface->getError());
+          return false;
+        }
+        $location = $contact['kit_identifier'];
+      }
+      else
+        $location = self::sanitizeText($_REQUEST['item_location']);
+
       $item = array(
-        'item_costs' => $_REQUEST['item_costs'],
+        'item_costs' => strip_tags($_REQUEST['item_costs']),
         'item_desc_link' => $_REQUEST['item_desc_link'],
         'item_desc_long' => self::$cfgDescriptionLong ? self::sanitizeText($_REQUEST['item_desc_long']) : '',
         'item_desc_short' => self::$cfgDescriptionShort ? self::sanitizeText($_REQUEST['item_desc_short']) : '',
-        'item_location' => $_REQUEST['item_location'],
-        'item_title' => $_REQUEST['item_title'],
-        'item_free_1' => $free_field[1],
-        'item_free_2' => $free_field[2],
-        'item_free_3' => $free_field[3],
-        'item_free_4' => $free_field[4],
-        'item_free_5' => $free_field[5]
+        'item_location' => $location,
+        'item_title' => strip_tags($_REQUEST['item_title']),
+        'item_free_1' => self::sanitizeText($free_field[1]),
+        'item_free_2' => self::sanitizeText($free_field[2]),
+        'item_free_3' => self::sanitizeText($free_field[3]),
+        'item_free_4' => self::sanitizeText($free_field[4]),
+        'item_free_5' => self::sanitizeText($free_field[5]),
+        'item_category' => self::sanitizeText($_REQUEST['item_category']),
+        'item_location_link' => $_REQUEST['item_location_link']
       );
 
       if ($event_id == -1) {
@@ -1744,9 +1865,11 @@ class eventBackend {
       'group' => array(
         'name' => 'group_id',
         'value' => $grps,
-        'location' => sprintf('javascript:execOnChange(\'%s\', \'%s\');', sprintf('%s&amp;%s=%s%s&amp;%s=',
+        'location' => sprintf('javascript:execOnChange(\'%s\', \'%s\');', sprintf('%s&amp;%s=%s&amp;%s=%s%s&amp;%s=',
             self::$page_link,
             self::REQUEST_ACTION,
+            self::ACTION_SETTINGS,
+            self::REQUEST_SUB_ACTION,
             self::ACTION_GROUP,
             (defined('LEPTON_VERSION') && isset($_GET['leptoken'])) ? sprintf('&amp;leptoken=%s', $_GET['leptoken']) : '',
             'group_id'), 'group_id'),
@@ -1779,10 +1902,14 @@ class eventBackend {
           ),
       'distribution_organizer' => array(
           'name' => 'kit_distribution_organizer',
-          'value' => $active_group['kit_distribution_participant'],
+          'value' => $active_group['kit_distribution_organizer'],
           'options' => $distribution_array
           ),
-
+      'distribution_location' => array(
+          'name' => 'kit_distribution_location',
+          'value' => $active_group['kit_distribution_location'],
+          'options' => $distribution_array
+          )
     );
 
     $data = array(
@@ -1823,12 +1950,16 @@ class eventBackend {
       $this->setMessage($this->lang->translate('<p>The event group must be named!</p>'));
       return $this->dlgEditGroup();
     }
+
     $data = array(
-      'group_name' => $_REQUEST['group_name'],
-      'group_desc' => $_REQUEST['group_desc'],
+      'group_name' => self::sanitizeText($_REQUEST['group_name']),
+      'group_desc' => self::sanitizeText($_REQUEST['group_desc']),
       'group_status' => $_REQUEST['group_status'],
       'group_perma_pattern' => $_REQUEST['group_perma_pattern'],
-      'group_redirect_page' => ($_REQUEST['group_redirect_page'] == -1) ? '' : $_REQUEST['group_redirect_page']
+      'group_redirect_page' => ($_REQUEST['group_redirect_page'] == -1) ? '' : $_REQUEST['group_redirect_page'],
+      'kit_distribution_participant' => isset($_REQUEST['kit_distribution_participant']) ? $_REQUEST['kit_distribution_participant'] : '',
+      'kit_distribution_location' => isset($_REQUEST['kit_distribution_location']) ? $_REQUEST['kit_distribution_location'] : '',
+      'kit_distribution_organizer' => isset($_REQUEST['kit_distribution_organizer']) ? $_REQUEST['kit_distribution_organizer'] : '',
     );
 
     if ($group_id > 0) {

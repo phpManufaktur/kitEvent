@@ -20,6 +20,9 @@ http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 * removed no longer used class.event.php
 * updated initialize.php
 * fixed: uninstall does not remove the droplet kit_monthly_calendar
+* changed: kitEvent is now direct to KeepInTouch and uses class.interface.php
+* changed: field item_desc_link from VARCHAR to TEXT
+* complete rework and redesign of the backend - new look and feel
 
 0.38 - 2012-12-29
 

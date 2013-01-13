@@ -62,6 +62,8 @@ $SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event` ( ".
     "`evt_id` INT(11) NOT NULL AUTO_INCREMENT, ".
     "`item_id` INT(11) NOT NULL DEFAULT '-1', ".
     "`group_id` INT(11) NOT NULL DEFAULT '-1', ".
+    "`organizer_id` INT(11) NOT NULL DEFAULT '-1', ".
+    "`location_id` INT(11) NOT NULL DEFAULT '-1', ".
     "`evt_event_date_from` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
     "`evt_event_date_to` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
     "`evt_publish_date_from` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
@@ -87,8 +89,10 @@ $SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event_item` ( ".
     "`item_title` VARCHAR(255) NOT NULL DEFAULT '', ".
     "`item_desc_short` TEXT NOT NULL, ".
     "`item_desc_long` TEXT NOT NULL, ".
-    "`item_desc_link` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`item_desc_link` TEXT NOT NULL, ".
     "`item_location` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`item_location_link` TEXT NOT NULL, ".
+    "`item_category` VARCHAR(255) NOT NULL DEFAULT '', ".
     "`item_costs` FLOAT NOT NULL DEFAULT '-1', ".
     "`item_free_1` TEXT NOT NULL, ".
     "`item_free_2` TEXT NOT NULL, ".
@@ -111,6 +115,7 @@ $SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event_group` ( ".
     "`group_desc` VARCHAR(255) NOT NULL DEFAULT '', ".
     "`kit_distribution_participant` VARCHAR(255) NOT NULL DEFAULT '', ".
     "`kit_distribution_organizer` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`kit_distribution_location` VARCHAR(255) NOT NULL DEFAULT '', ".
     "`group_status` TINYINT NOT NULL DEFAULT '1', ".
     "`group_timestamp` TIMESTAMP, ".
     "PRIMARY KEY (`group_id`) ".
