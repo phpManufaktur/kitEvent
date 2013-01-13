@@ -3,9 +3,9 @@
 /**
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
@@ -53,9 +53,11 @@ else
   require_once LEPTON_PATH.'/modules/manufaktur_config/languages/EN.cfg.php';
 
 require_once WB_PATH.'/modules/manufaktur_config/library.php';
+require_once WB_PATH.'/modules/kit/class.interface.php';
 
 global $admin;
 global $database;
+global $kitContactInterface;
 
 $error = '';
 
@@ -161,47 +163,156 @@ function __move_recursive($dirsource, $dirdest) {
 if (!fieldExists('mod_kit_event_group', 'group_perma_pattern')) {
   $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_Event_group` ADD `group_perma_pattern` VARCHAR(128) NOT NULL DEFAULT '' AFTER `group_name`");
   if ($database->is_error())
-    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
 }
 if (!fieldExists('mod_kit_event_group', 'group_redirect_page')) {
   $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_Event_group` ADD `group_redirect_page` VARCHAR(255) NOT NULL DEFAULT '' AFTER `group_perma_pattern`");
   if ($database->is_error())
-    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
 }
 if (!fieldExists('mod_kit_event', 'evt_perma_link')) {
   $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event` ADD `evt_perma_link` VARCHAR(128) NOT NULL DEFAULT '' AFTER `evt_deadline`");
   if ($database->is_error())
-    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
 }
 if (!fieldExists('mod_kit_event', 'evt_ical_file')) {
   $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event` ADD `evt_ical_file` VARCHAR(32) NOT NULL DEFAULT '' AFTER `evt_perma_link`");
   if ($database->is_error())
-    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
 }
 if (!fieldExists('mod_kit_event', 'evt_qrcode_image')) {
   $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event` ADD `evt_qrcode_image` VARCHAR(32) NOT NULL DEFAULT '' AFTER `evt_ical_file`");
   if ($database->is_error())
-    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
 }
 
-// Release 0.40
+// Release 0.33
 if (!fieldExists('mod_kit_event_item', 'item_free_1')) {
-  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_1` TEXT NOT NULL DEFAULT '' AFTER `item_costs`");
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_1` TEXT NOT NULL AFTER `item_costs`");
   if ($database->is_error())
-    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
-  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_2` TEXT NOT NULL DEFAULT '' AFTER `item_free_1`");
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_2` TEXT NOT NULL AFTER `item_free_1`");
   if ($database->is_error())
-    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
-  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_3` TEXT NOT NULL DEFAULT '' AFTER `item_free_2`");
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_3` TEXT NOT NULL AFTER `item_free_2`");
   if ($database->is_error())
-    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
-  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_4` TEXT NOT NULL DEFAULT '' AFTER `item_free_3`");
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_4` TEXT NOT NULL AFTER `item_free_3`");
   if ($database->is_error())
-    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
-  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_5` TEXT NOT NULL DEFAULT '' AFTER `item_free_4`");
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_item` ADD `item_free_5` TEXT NOT NULL AFTER `item_free_4`");
   if ($database->is_error())
-    $error .= sprintf("<p>[UNINSTALL] %s</p>", $database->get_error());
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
 }
+
+// Release 0.39
+if (!fieldExists('mod_kit_event_order', 'kit_id')) {
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_order` ADD `kit_id` INT(11) NOT NULL DEFAULT '-1' AFTER `evt_id`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+}
+
+if (fieldExists('mod_kit_event_order', 'ord_email')) {
+  // the ord_ contact fields exists und must be moved to KIT
+  $SQL = "SELECT * FROM `".TABLE_PREFIX."mod_kit_event_order` WHERE `ord_email`!=''";
+  if (null === ($query = $database->query($SQL))) {
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+  }
+  else {
+    // move contact data to KIT
+    $distribution = '';
+    if (!$kitContactInterface->existsCategory(kitContactInterface::category_type_distribution, 'kitEvent')) {
+      if ($kitContactInterface->addCategory(kitContactInterface::category_type_distribution, 'distKITevent', 'kitEvent'))
+        $distribution = 'kitEvent';
+      else
+        $error .= sprintf("<p>[UPGRADE] %s</p>", $kitContactInterface->getError());
+    }
+    while (false !== ($order = $query->fetchRow(MYSQL_ASSOC))) {
+      $contact = array(
+          'kit_first_name' => $order['ord_first_name'],
+          'kit_last_name' => $order['ord_last_name'],
+          'kit_title' => $order['ord_title'],
+          'kit_company' => $order['ord_company'],
+          'kit_street' => $order['ord_street'],
+          'kit_zip' => $order['ord_zip'],
+          'kit_email' => $order['ord_email'],
+          'kit_phone' => $order['ord_phone'],
+          'kit_distribution' => 'distKITevent'
+          );
+      $registry = array();
+      $kit_id = -1;
+      $status = null;
+      if ($kitContactInterface->isEMailRegistered($contact['kit_email'], $kit_id, $status)) {
+        // this contact already exists
+
+        $distribution = array('distKITevent');
+        $categories = array();
+        // get existing distributions
+        $kitContactInterface->getCategories($kit_id, $categories, true);
+        foreach ($categories as $category) {
+          if (($category['type'] == 'kit_distribution') && !in_array($category['value'], $distribution))
+            $distribution[] = $category['value'];
+        }
+        $contact['kit_distribution'] = implode(',', $distribution);
+        if (!$kitContactInterface->updateContact($kit_id, $contact)) {
+          $error .= sprintf("<p>[UPGRADE] %s</p>", $kitContactInterface->getError());
+          continue;
+        }
+      }
+      else {
+        // we add a new contact to KIT
+        if (!$kitContactInterface->addContact($contact, $kit_id, $registry)) {
+          $error .= sprintf("<p>[UPGRADE] %s</p>", $kitContactInterface->getError());
+          continue;
+        }
+      }
+      $dt = strtotime($order['ord_confirm']);
+        if (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) {
+        // add a notice and a link to the contact
+        $note = $I18n->translate('[kitEvent] The contact has <a href="{{ link }}">registered for a event</a>.',
+            array('link' => ADMIN_URL.'/admintools/tool.php?tool=kit_event&kea=msgd&ord_id='.$order['ord_id']));
+        $kitContactInterface->addNotice($kit_id, $note);
+      }
+      // add the KIT_ID to the order record
+      $SQL = "UPDATE `".TABLE_PREFIX."mod_kit_event_order` SET `kit_id`='$kit_id' WHERE `ord_id`='{$order['ord_id']}'";
+      if (null === $database->query($SQL)) {
+        $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+        continue;
+      }
+    }
+    // now we can delete the ord_ contact fields
+    if (null === $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_order` DROP COLUMN `ord_first_name`"))
+      $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+    if (null === $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_order` DROP COLUMN `ord_last_name`"))
+      $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+    if (null === $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_order` DROP COLUMN `ord_title`"))
+      $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+    if (null === $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_order` DROP COLUMN `ord_company`"))
+      $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+    if (null === $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_order` DROP COLUMN `ord_street`"))
+      $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+    if (null === $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_order` DROP COLUMN `ord_zip`"))
+      $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+    if (null === $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_order` DROP COLUMN `ord_city`"))
+      $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+    if (null === $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_order` DROP COLUMN `ord_email`"))
+      $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+    if (null === $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_order` DROP COLUMN `ord_phone`"))
+      $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+  }
+} // if fieldExists()
+
+if (!fieldExists('mod_kit_event_group', 'kit_distribution_participant')) {
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_group` ADD `kit_distribution_participant` VARCHAR(255) NOT NULL DEFAULT '' AFTER `group_desc`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+}
+if (!fieldExists('mod_kit_event_group', 'kit_distribution_organizer')) {
+  $database->query("ALTER TABLE `".TABLE_PREFIX."mod_kit_event_group` ADD `kit_distribution_organizer` VARCHAR(255) NOT NULL DEFAULT '' AFTER `kit_distribution_participant`");
+  if ($database->is_error())
+    $error .= sprintf("<p>[UPGRADE] %s</p>", $database->get_error());
+}
+
 
 if (file_exists(WB_PATH.'/modules/kit_event/htt')) {
   // check for individual presets and move them to the new template directory
@@ -234,6 +345,7 @@ if (file_exists(WB_PATH.'/modules/kit_event/htt')) {
 rm_full_dir(WB_PATH.'/modules/kit_event/include/jquery');
 
 @unlink(WB_PATH.'/modules/kit_event/templates/backend/DE/config.dwoo');
+@unlink(WB_PATH.'/modules/kit_event/templates/backend/DE/event.group.dwoo');
 @unlink(WB_PATH.'/modules/kit_event/class.event.php');
 
 // install or upgrade droplets
