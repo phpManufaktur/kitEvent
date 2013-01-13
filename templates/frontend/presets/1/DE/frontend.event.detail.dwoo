@@ -49,5 +49,13 @@
     <img src="{$event.qr_code.image.src}" width="{$event.qr_code.image.width}" height="{$event.qr_code.image.height}" alt="{$event.qr_code.image.text}" />
   </div>
   {/if}
-  
+  <div>
+    <p><b>Extra Felder, mit Release 0.39 eingeführt:</b></p>
+    <p>Location ID: {$event.extra.location.id}</p>
+    <p>Über <b>$event.extra.location.contact</b> können alle Kontaktdaten für den Veranstaltungsort abgerufen werden:</p>
+    <p>{dump($event.extra.location.contact)}</p>
+    <p><b>$event.extra.location.alias</b> entspricht dem bisherigen <b>$event.location</b> :<br />{$event.extra.location.alias}</p>
+    <p><b>$event.extra.location.category</b>: {$event.extra.location.category}</p>
+    <p><b>$event.extra.location.link</b>: {$event.extra.location.link}</p>
+  </div>
 </div>
