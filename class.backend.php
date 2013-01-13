@@ -3,9 +3,9 @@
 /**
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
@@ -42,10 +42,13 @@ global $manufakturConfig;
 if (!is_object($manufakturConfig))
   $manufakturConfig = new manufakturConfig('kit_event');
 
+require_once LEPTON_PATH.'/modules/kit/class.interface.php';
+global $kitContactInterface;
 
 class eventBackend {
 
   const REQUEST_ACTION = 'kea';
+  const REQUEST_SUB_ACTION = 'sub';
   const REQUEST_ITEMS = 'its';
   const REQUEST_TIME_START = 'ets';
   const REQUEST_TIME_END = 'ete';
@@ -64,6 +67,7 @@ class eventBackend {
   const ACTION_LIST = 'lst';
   const ACTION_MESSAGES = 'msg';
   const ACTION_MESSAGES_DETAIL = 'msgd';
+  const ACTION_SETTINGS = 'set';
 
   // needed for permaLink - must be similiar to the const in class.frontend.php!
   const REQUEST_EVENT = 'evt';
@@ -76,14 +80,14 @@ class eventBackend {
     self::ACTION_LIST => 'TAB_LIST',
     self::ACTION_EDIT => 'TAB_EDIT',
     self::ACTION_MESSAGES => 'TAB_MESSAGES',
-    self::ACTION_GROUP => 'TAB_GROUP',
-    self::ACTION_CONFIG => 'TAB_CONFIG',
+    self::ACTION_SETTINGS => 'Settings',
     self::ACTION_ABOUT => 'TAB_ABOUT'
   );
 
   private static $page_link = '';
   private static $img_url = '';
   private static $template_path = '';
+  private static $template_url = '';
   private static $error = '';
   private static $message = '';
 
@@ -119,6 +123,7 @@ class eventBackend {
     $this->lang = $I18n;
     self::$page_link = ADMIN_URL . '/admintools/tool.php?tool=kit_event';
     self::$template_path = WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/templates/backend/';
+    self::$template_url = WB_URL . '/modules/' . basename(dirname(__FILE__)) . '/templates/backend/';
     self::$img_url = WB_URL . '/modules/' . basename(dirname(__FILE__)) . '/images/';
     date_default_timezone_set(CFG_TIME_ZONE);
     // get the configuration values
@@ -247,9 +252,17 @@ class eventBackend {
     global $parser;
 
     // check if a language depending template exists
-    $template_path = (file_exists(self::$template_path.LANGUAGE.'/'.$template)) ? self::$template_path.LANGUAGE.'/' : self::$template_path.'DE/';
+    if (file_exists(self::$template_path.LANGUAGE.'/'.$template)) {
+      $template_path = self::$template_path.LANGUAGE.'/';
+      $template_data['TEMPLATE_URL'] = self::$template_url.LANGUAGE;
+    }
+    else {
+      $template_path = self::$template_path.'DE/';
+      $template_data['TEMPLATE_URL'] = self::$template_url.'DE';
+    }
     // check if a custom template exists ...
     $load_template = (file_exists($template_path.'custom.'.$template)) ? $template_path.'custom.'.$template : $template_path.$template;
+
     try {
       $result = $parser->get($load_template, $template_data);
     }
@@ -301,9 +314,11 @@ class eventBackend {
       case self::ACTION_ABOUT :
         $this->show(self::ACTION_ABOUT, $this->dlgAbout());
         break;
+      /*
       case self::ACTION_CONFIG :
         $this->show(self::ACTION_CONFIG, $this->dlgConfig());
         break;
+        */
       case self::ACTION_DELETE:
         $this->show(self::ACTION_MESSAGES, $this->actionDelete());
         break;
@@ -313,17 +328,22 @@ class eventBackend {
       case self::ACTION_EDIT_CHECK :
         $this->show(self::ACTION_EDIT, $this->checkEditEvent());
         break;
+      /*
       case self::ACTION_GROUP :
         $this->show(self::ACTION_GROUP, $this->dlgEditGroup());
         break;
       case self::ACTION_GROUP_CHECK :
         $this->show(self::ACTION_GROUP, $this->checkEditGroup());
         break;
+      */
       case self::ACTION_MESSAGES :
         $this->show(self::ACTION_MESSAGES, $this->dlgMessages());
         break;
       case self::ACTION_MESSAGES_DETAIL :
         $this->show(self::ACTION_MESSAGES, $this->dlgMessageDetail());
+        break;
+      case self::ACTION_SETTINGS:
+        $this->show(self::ACTION_SETTINGS, $this->actionConfiguration());
         break;
       case self::ACTION_LIST :
       default :
@@ -571,7 +591,7 @@ class eventBackend {
       }
       $event = array();
       while (false !== ($field = $query->fetchRow(MYSQL_ASSOC)))
-        $event[$field['Field']] = null;
+        $event[$field['Field']] = '';
 
       $event['evt_status'] = 1;
       $time_start = '';
@@ -630,7 +650,7 @@ class eventBackend {
       }
       $event = array();
       while (false !== ($field = $query->fetchRow(MYSQL_ASSOC)))
-        $event[$field['Field']] = null;
+        $event[$field['Field']] = '';
       // set status to active
       $event['evt_status'] = 1;
       // get the field names from mod_kit_event_item
@@ -641,7 +661,7 @@ class eventBackend {
       }
       $items = array();
       while (false !== ($field = $query->fetchRow(MYSQL_ASSOC)))
-        $items[$field['Field']] = null;
+        $items[$field['Field']] = '';
 
       $event = array_merge($event, $items);
       $time_start = '';
@@ -713,6 +733,10 @@ class eventBackend {
         );
 
     $fields = array(
+        'id' => array(
+            'name' => 'evt_id',
+            'value' => $event_id
+            ),
       'date_from' => array(
         'name' => 'evt_event_date_from',
         'id' => 'datepicker_1',
@@ -845,17 +869,23 @@ class eventBackend {
     }
 
     $data = array(
-      'form_name' => 'event_edit',
-      'form_action' => self::$page_link,
-      'action_name' => self::REQUEST_ACTION,
-      'action_value' => self::ACTION_EDIT_CHECK,
+      'form' => array(
+          'name' => 'event_edit',
+          'action' => self::$page_link
+          ),
+      'action' => array(
+          'name' => self::REQUEST_ACTION,
+          'value' => self::ACTION_EDIT_CHECK
+          ),
       'language' => (LANGUAGE == 'EN') ? '' : strtolower(LANGUAGE),
-      'event_name' => 'evt_id',
-      'event_value' => $event_id,
-      'item_name' => 'item_id',
-      'item_value' => $item_id,
-      'suggestion_name' => self::REQUEST_SUGGESTION,
-      'suggestion_value' => -1,
+      'item' => array(
+          'name' => 'item_id',
+          'value' => $item_id
+          ),
+      'suggestion' => array(
+          'name' => self::REQUEST_SUGGESTION,
+          'value' => -1
+          ),
       'message' => array(
           'active' => (int) $this->isMessage(),
           'content' => $this->getMessage()
@@ -866,8 +896,16 @@ class eventBackend {
               'short' => (int) self::$cfgDescriptionShort
               )
           ),
-      'abort_location' => self::$page_link,
-      'event' => $fields
+      'event' => $fields,
+      'link_event_group' => sprintf('%s&%s', self::$page_link, http_build_query(array(
+            self::REQUEST_ACTION => self::ACTION_SETTINGS,
+            self::REQUEST_SUB_ACTION => self::ACTION_GROUP
+            ))
+          ),
+        'link_options' => sprintf('%s&%s', self::$page_link, http_build_query(array(
+            self::REQUEST_ACTION => self::ACTION_SETTINGS,
+            self::REQUEST_SUB_ACTION => self::ACTION_CONFIG
+            )))
     );
     return $this->getTemplate('event.edit.dwoo', $data);
   } // dlgEditEvent()
@@ -1623,7 +1661,7 @@ class eventBackend {
       }
       $active_group = array();
       while (false !== ($field = $query->fetchRow(MYSQL_ASSOC)))
-        $active_group[$field['Field']] = null;
+        $active_group[$field['Field']] = '';
       $active_group['group_status'] = 1;
     }
 
@@ -1647,6 +1685,21 @@ class eventBackend {
         'value' => $grp['group_id'],
         'text' => $grp['group_name']
       );
+    }
+
+    $distribution_array = array();
+
+    $SQL = "SELECT `array_identifier`, `array_value` FROM `".TABLE_PREFIX."mod_kit_contact_array_cfg` ".
+      "WHERE `array_type`='typeDistribution' AND `array_status`='statusActive' ORDER BY `array_value` ASC";
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->get_error());
+      return false;
+    }
+    while (false !== ($dist = $query->fetchRow(MYSQL_ASSOC))) {
+      $distribution_array[] = array(
+          'value' => $dist['array_identifier'],
+          'text' => $dist['array_value']
+          );
     }
 
     // group status
@@ -1718,22 +1771,41 @@ class eventBackend {
         'name' => 'group_redirect_page',
         'value' => $active_group['group_redirect_page'],
         'options' => $page_array,
-      )
+        ),
+      'distribution_participant' => array(
+          'name' => 'kit_distribution_participant',
+          'value' => $active_group['kit_distribution_participant'],
+          'options' => $distribution_array
+          ),
+      'distribution_organizer' => array(
+          'name' => 'kit_distribution_organizer',
+          'value' => $active_group['kit_distribution_participant'],
+          'options' => $distribution_array
+          ),
+
     );
 
     $data = array(
-      'form_name' => 'event_group',
-      'form_action' => self::$page_link,
-      'action_name' => self::REQUEST_ACTION,
-      'action_value' => self::ACTION_GROUP_CHECK,
+      'form' => array(
+          'name' => 'event_group',
+          'action' => self::$page_link
+          ),
+      'action' => array(
+          'name' => self::REQUEST_ACTION,
+          'value' => self::ACTION_SETTINGS
+          ),
+      'sub_action' => array(
+          'name' => self::REQUEST_SUB_ACTION,
+          'value' => self::ACTION_GROUP_CHECK
+          ),
       'message' => array(
           'active' => (int) $this->isMessage(),
           'content' => $this->getMessage()
           ),
       'group' => $group,
-      'abort_location' => self::$page_link
+
     );
-    return $this->getTemplate('event.group.dwoo', $data);
+    return $this->getTemplate('configuration.group.dwoo', $data);
   } // dlgEditGroup()
 
   /**
@@ -1846,6 +1918,7 @@ class eventBackend {
 
   public function dlgMessages() {
     global $database;
+    global $kitContactInterface;
 
     $tke = TABLE_PREFIX.'mod_kit_event';
     $tkeo = TABLE_PREFIX.'mod_kit_event_order';
@@ -1859,24 +1932,40 @@ class eventBackend {
     $items = '';
     $rows = array();
     while (false !== ($message = $query->fetchRow(MYSQL_ASSOC))) {
+      $contact = array();
+      if (!$kitContactInterface->getContact($message['kit_id'], $contact)) {
+        $this->setError($kitContactInterface->getError());
+        return false;
+      }
       $dt = strtotime($message['ord_confirm']);
       $declared = (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? $this->lang->translate('Yes') : '';
-      $name = sprintf('%s, %s', $message['ord_last_name'], $message['ord_first_name']);
+      $name = sprintf('%s, %s', $contact['kit_last_name'], $contact['kit_first_name']);
       if (strlen($name) < 3) $name = '';
-      $rows[] = array(
-        'order_date_link' => sprintf('%s&%s=%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES_DETAIL, 'ord_id', $message['ord_id']),
-        'order_date' => date(CFG_DATETIME_STR, strtotime($message['ord_date'])),
-        'email' => $message['ord_email'],
-        'name' => $name,
-        'event' => $message['item_title'],
-        'event_date' => date(CFG_DATE_STR, strtotime($message['evt_event_date_from'])),
-        'declared' => $declared,
-        'message' => $message['ord_message'],
-        'delete_link' => sprintf('%s&%s', self::$page_link, http_build_query(array(
-            self::REQUEST_ACTION => self::ACTION_DELETE,
-            'ord_id' => $message['ord_id']
-            ))),
-        'delete_image' => WB_URL.'/modules/kit_event/images/delete_icon.png'
+      $rows[$message['ord_id']] = array(
+          'delete' => array(
+              'link' => sprintf('%s&%s', self::$page_link, http_build_query(array(
+                  self::REQUEST_ACTION => self::ACTION_DELETE,
+                  'ord_id' => $message['ord_id']
+                  ))),
+              ),
+          'contact' => $contact,
+          'detail' => array(
+              'link' => sprintf('%s&%s',
+                  self::$page_link, http_build_query(array(
+                      self::REQUEST_ACTION => self::ACTION_MESSAGES_DETAIL,
+                      'ord_id' => $message['ord_id']
+                      )))
+              ),
+          'order' => array(
+              'id' => $message['ord_id'],
+              'confirmed' => (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? 1 : 0,
+              'message' => self::unsanitizeText($message['ord_message']),
+              'fields' => $message
+              ),
+          'event' => array(
+              'title' => $message['item_title'],
+              'date' => $message['evt_event_date_from']
+              ),
       );
     }
 
@@ -1896,22 +1985,19 @@ class eventBackend {
     }
 
     $data = array(
-      'intro' => ($this->isMessage()) ? $this->getMessage() : '',
-      'is_intro' => ($this->isMessage()) ? 0 : 1,
-      'rows' => $rows,
-      'order_date_name' => 'ord_date',
-      'email_name' => 'ord_email',
-      'name_name' => 'ord_last_name',
-      'event_name' => 'evt_id',
-      'event_date_name' => 'evt_event_date_from',
-      'declared_name' => 'ord_confirm',
-      'message_name' => 'ord_message',
+      'orders' => $rows,
+      'message' => array(
+          'active' => (int) $this->isMessage(),
+          'text' => $this->getMessage()
+          )
     );
     return $this->getTemplate('order.list.dwoo', $data);
   } // dlgMessages()
 
   public function dlgMessageDetail() {
     global $database;
+    global $kitContactInterface;
+    global $manufakturConfig;
 
     $order_id = (isset($_REQUEST['ord_id'])) ? (int) $_REQUEST['ord_id'] : -1;
 
@@ -1930,40 +2016,100 @@ class eventBackend {
     }
     $detail = $query->fetchRow(MYSQL_ASSOC);
 
+    $contact = array();
+    if (!$kitContactInterface->getContact($detail['kit_id'], $contact, true)) {
+      $this->setError($kitContactInterface->getError());
+      return false;
+    }
+
     $dt = strtotime($detail['ord_confirm']);
     $declared = (checkdate(date('n', $dt), date('j', $dt), date('Y', $dt))) ? date(CFG_DATETIME_STR, $dt) : $this->lang->translate('No');
 
-    $label_free_1 = substr($detail['ord_free_1'], 0, strpos($detail['ord_free_1'], '|'));
-    $label_free_2 = substr($detail['ord_free_2'], 0, strpos($detail['ord_free_2'], '|'));
-    $label_free_3 = substr($detail['ord_free_3'], 0, strpos($detail['ord_free_3'], '|'));
-    $label_free_4 = substr($detail['ord_free_4'], 0, strpos($detail['ord_free_4'], '|'));
-    $label_free_5 = substr($detail['ord_free_5'], 0, strpos($detail['ord_free_5'], '|'));
-
     $data = array(
-      'title' => $detail['ord_title'],
-      'first_name' => $detail['ord_first_name'],
-      'last_name' => $detail['ord_last_name'],
-      'company' => $detail['ord_company'],
-      'street' => $detail['ord_street'],
-      'zip' => $detail['ord_zip'],
-      'city' => $detail['ord_city'],
-      'email' => $detail['ord_email'],
-      'phone' => $detail['ord_phone'],
-      'best_time' => $detail['ord_best_time'],
-      'event' => $detail['item_title'],
-      'event_date' => date(CFG_DATE_STR, strtotime($detail['evt_event_date_from'])),
-      'declared' => $declared,
-      'message' => $detail['ord_message'],
-      'free_1' => substr($detail['ord_free_1'], strpos($detail['ord_free_1'], '|') + 1),
-      'free_2' => substr($detail['ord_free_2'], strpos($detail['ord_free_2'], '|') + 1),
-      'free_3' => substr($detail['ord_free_3'], strpos($detail['ord_free_3'], '|') + 1),
-      'free_4' => substr($detail['ord_free_4'], strpos($detail['ord_free_4'], '|') + 1),
-      'free_5' => substr($detail['ord_free_5'], strpos($detail['ord_free_5'], '|') + 1),
-      'back_link' => sprintf('%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES),
+        'contact' => $contact,
+        'kit_link' => sprintf('%s&%s', ADMIN_URL.'/admintools/tool.php?tool=kit&act=con', http_build_query(array(
+            'contact_id' => $detail['kit_id']
+            ))),
+        'event' => array(
+            'title' => $detail['item_title'],
+            'date' => $detail['evt_event_date_from'],
+            'link' => sprintf('%s&%s', self::$page_link, http_build_query(array(
+                self::REQUEST_ACTION => self::ACTION_EDIT,
+                'evt_id' => $detail['evt_id']
+                )))
+            ),
+        'information' => array(
+            'best_time' => $detail['ord_best_time'],
+            'declared' => $declared,
+            'message' => $detail['ord_message'],
+            ),
+        'free_field' => array(
+            1 => array(
+                'label' => $manufakturConfig->getValue('cfg_event_free_field_1', 'kit_event'),
+                'value' => $detail['ord_free_1']
+                ),
+            2 => array(
+                'label' => $manufakturConfig->getValue('cfg_event_free_field_2', 'kit_event'),
+                'value' => $detail['ord_free_2']
+                ),
+            3 => array(
+                'label' => $manufakturConfig->getValue('cfg_event_free_field_3', 'kit_event'),
+                'value' => $detail['ord_free_3']
+                ),
+            4 => array(
+                'label' => $manufakturConfig->getValue('cfg_event_free_field_4', 'kit_event'),
+                'value' => $detail['ord_free_4']
+                ),
+            5 => array(
+                'label' => $manufakturConfig->getValue('cfg_event_free_field_5', 'kit_event'),
+                'value' => $detail['ord_free_5']
+                )
+            ),
+        'back_link' => sprintf('%s&%s=%s', self::$page_link, self::REQUEST_ACTION, self::ACTION_MESSAGES)
     );
     return $this->getTemplate('order.detail.dwoo', $data);
   } // dlgMessageDetail()
 
+  protected function actionConfiguration() {
+    $sub_action = isset($_REQUEST[self::REQUEST_SUB_ACTION]) ? $_REQUEST[self::REQUEST_SUB_ACTION] : self::ACTION_CONFIG;
+    // select the navigation tab
+    $nav_key = $sub_action;
+
+    switch ($sub_action):
+    case self::ACTION_GROUP:
+      $result = $this->dlgEditGroup();
+      break;
+    case self::ACTION_GROUP_CHECK:
+      $nav_key = self::ACTION_GROUP;
+      $result = $this->checkEditGroup();
+      break;
+    case self::ACTION_CONFIG:
+    default:
+      $result = $this->dlgConfig();
+      break;
+    endswitch;
+
+    $sub_navigation = array(
+        self::ACTION_CONFIG => 'General',
+        self::ACTION_GROUP => 'Groups'
+        );
+
+    $navigation = array();
+    foreach ($sub_navigation as $key => $value) {
+      $navigation[] = array(
+          'active' => ($key == $nav_key) ? 1 : 0,
+          'url' => sprintf('%s&%s', self::$page_link, http_build_query(array(
+              self::REQUEST_ACTION => self::ACTION_SETTINGS,
+              self::REQUEST_SUB_ACTION => $key))),
+          'text' => $value);
+    }
+    // complete the output
+    $data = array(
+        'navigation' => $navigation,
+        'content' => $result
+    );
+    return $this->getTemplate('configuration.dwoo', $data);
+  } // actionConfiguration()
 
   /**
    * kitEvent settings
@@ -1975,7 +2121,8 @@ class eventBackend {
     $link = sprintf('%s&%s',
         self::$page_link,
         http_build_query(array(
-            self::REQUEST_ACTION => self::ACTION_CONFIG
+            self::REQUEST_ACTION => self::ACTION_SETTINGS,
+            self::REQUEST_SUB_ACTION => self::ACTION_CONFIG
         )));
     // set the abort link
     $abort = sprintf('%s&%s',
