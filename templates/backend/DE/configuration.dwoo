@@ -1,0 +1,25 @@
+{*
+ * kitEvent
+ *
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="evt_configuration">
+  <ul id="sub_navigation">
+  {foreach $navigation nav} 
+    <li{if $nav.active == 1} class="selected"{/if} title="{translate($nav.text)}">
+      <a href="{$nav.url}">{translate($nav.text)}</a>
+    </li>
+  {/foreach}
+  </ul>
+  {$content}
+</div>
