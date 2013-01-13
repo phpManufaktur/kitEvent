@@ -1,7 +1,7 @@
 /**
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
  * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
  * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
@@ -61,63 +61,61 @@ textarea
   width: 98%;
   font-size:8pt;
 }
-
-.nav_tab
-{
-
+#sub_navigation,
+#navigation {
   padding: 3px 0 3px 10px;
-  margin: 15px 0;
-  border-bottom: 1px solid #dddddd;
+  margin: 15px 0 0 0;
+  border-bottom: 1px solid #ddd;
   list-style-type: none;
-  text-align: left; /*set to left, center, or right to align the menu as desired*/
+  text-align: left;
 }
-.nav_tab li
-{
+#sub_navigation li,
+#navigation li {
   display: inline;
   margin: 0;
+  padding: 0;
 }
-.nav_tab li a
-{
+#sub_navigation li a,
+#navigation li a {
   text-decoration: none;
   padding: 3px 7px;
-  margin-right: 3px;
+  margin: 0 3px 0 0;
   border: 1px solid #dddddd;
   border-bottom: none;
-  background-color: #E8E8E8;
 }
-.nav_tab li a:link,
-.nav_tab li a:visited
-{
-  color: #AFAFAF;
-  background-color: #e8e8e8;
+#sub_navigation li a:link,
+#sub_navigation li a:visited,
+#navigation li a:link,
+#navigation li a:visited {
+  color: #fff;
+  background-color: #969696;
 }
-.nav_tab li.extra_tab a {
-  color:#003366;
-  background-color: #e8e8e8;
+#sub_navigation li a:hover,
+#sub_navigation li a:active,
+#navigation li a:hover,
+#navigation li a:active {
+  background-color: #363636;
+  color: #fff;
 }
-.nav_tab li a:hover,
-.nav_tab li a:active
-{
-  background-color: #FFFFCC;
-  color: #000;
-}
-.nav_tab li.selected a
-{ /*selected tab effect*/
+#navigation li.selected a,
+#sub_navigation li.selected a { 
   position: relative;
   top: 1px;
   padding-top: 4px;
-  color: #000;
+  color: #363636;
   background-color: #fff;
   font-weight: bold;
 }
 
 .event_backend {
+  font-family: Verdana, Arial, sans-serif;
+  font-size: 10px;
+  font-weight: normal;
   width: 100%;
   clear: both;
   background-image: none;
   color: #000000;
   background-color: transparent;
-  font-size: 9pt;
 }
 .small
 {
@@ -221,19 +219,23 @@ td.data_ord_confirm
 
 .order_label {
   float: left;
-  width: 15%;
+  width: 20%;
   font-style: italic;
+  text-align: right;
+  padding: 0 15px 0 0;
 }
 .order_value {
   float: left;
-  width: 85%;
+  width: 70%;
 }
-.clear {
+.order_clear {
   height: 8px;
   clear: both;
 }
+#evt_edit,
+#evt_order_detail,
 #evt_suggest,
-#evt_groups,
+#evt_group,
 #evt_order_list,
 #evt_error,
 #evt_list {
@@ -250,14 +252,21 @@ td.data_ord_confirm
 #evt_order_list {
   background-image: url(templates/backend/DE/images/order-list.png);
 }
-#evt_groups {
+#evt_group {
   background-image: url(templates/backend/DE/images/groups.png);
 }
 #evt_suggest {
   background-image: url(templates/backend/DE/images/suggest.png);
 }
+#evt_order_detail {
+  background-image: url(templates/backend/DE/images/contact-card.png);
+}
+#evt_edit {
+  background-image: url(templates/backend/DE/images/edit.png);
+}
+
 .evt_suggest_spacer,
-.evt_groups_spacer,
+.evt_group_spacer,
 .evt_order_list_spacer {
   width: 1px;
   height: 20px;
@@ -286,4 +295,51 @@ td.data_ord_confirm
   color: #992826;
   background-color: #fff;
   border: 1px solid #992826;
+}
+#evt_edit fieldset {
+  margin: 0 0 10px 0;
+  padding: 5px 5px 0px 5px;
+}
+.must_field {
+  padding: 0 0 0 3px;
+  color: #ff0000;
+  vertical-align: top;
+}
+.inactive_field {
+  color: #999999;
+  background-color: transparent;
+  font-style: italic;
+}
+.evt_edit_label_33,
+.evt_edit_label {
+  float:left;
+  width: 23%;
+  text-align: right;
+  margin: 0;
+  padding: 4px 1% 0 0;
+}
+.evt_edit_value_100,
+.evt_edit_value_33,
+.evt_edit_value {
+  float: left;
+  width: 50%;
+  margin: 0;
+  padding: 0;
+}
+.evt_edit_label_33,
+.evt_edit_value_33 {
+  width: 16%;
+}
+.evt_edit_value_100 {
+  width: 73%; 
+}
+.evt_edit_hint {
+  float: right;
+  width: 23%;
+  margin: 0;
+  padding: 2px 1% 0 0;
+}
+.evt_edit_clear {
+  clear: both;
+  height: 5px;
 }
