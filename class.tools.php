@@ -3,7 +3,7 @@
 /**
  * kitTools
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/de/addons/kittools.php
  * @copyright 2011-2012 phpManufaktur by Ralf Hertsch
  * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)

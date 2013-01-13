@@ -3,9 +3,9 @@
 /**
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
@@ -655,14 +655,14 @@ class monthlyCalendar
             }
             if ($query->numRows() < 1) {
               // get the field names from mod_kit_event_group and set the fiels NULL
-              $SQL = "SHOW FIELDS FROM `".TABLE_PREFIX."mod_kit_event_item`";
+              $SQL = "SHOW FIELDS FROM `".TABLE_PREFIX."mod_kit_event_group`";
               if (null === ($query = $database->query($SQL))) {
                 $this->setError($database->get_error());
                 return false;
               }
               $eventGroup = array();
               while (false !== ($field = $query->fetchRow(MYSQL_ASSOC)))
-                $eventGroup[$field['Field']] = null;
+                $eventGroup[$field['Field']] = '';
             }
             else
               $eventGroup = $query->fetchRow(MYSQL_ASSOC);
