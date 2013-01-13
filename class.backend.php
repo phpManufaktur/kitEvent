@@ -68,6 +68,7 @@ class eventBackend {
   const ACTION_MESSAGES = 'msg';
   const ACTION_MESSAGES_DETAIL = 'msgd';
   const ACTION_SETTINGS = 'set';
+  const ACTION_KIT = 'kit';
 
   // needed for permaLink - must be similiar to the const in class.frontend.php!
   const REQUEST_EVENT = 'evt';
@@ -80,8 +81,9 @@ class eventBackend {
     self::ACTION_LIST => 'TAB_LIST',
     self::ACTION_EDIT => 'TAB_EDIT',
     self::ACTION_MESSAGES => 'TAB_MESSAGES',
+    self::ACTION_KIT => 'KeepInTouch',
     self::ACTION_SETTINGS => 'Settings',
-    self::ACTION_ABOUT => 'TAB_ABOUT'
+    self::ACTION_ABOUT => 'TAB_ABOUT',
   );
 
   private static $page_link = '';
@@ -364,9 +366,13 @@ class eventBackend {
   public function show($action, $content) {
     $navigation = array();
     foreach (self::$tab_navigation_array as $key => $value) {
+      if ($key == self::ACTION_KIT)
+        $link = ADMIN_URL.'/admintools/tool.php?tool=kit&act=list';
+      else
+        $link = sprintf('%s&%s=%s', self::$page_link, self::REQUEST_ACTION, $key);
       $navigation[] = array(
         'active' => ($key == $action) ? 1 : 0,
-        'url' => sprintf('%s&%s=%s', self::$page_link, self::REQUEST_ACTION, $key),
+        'url' => $link,
         'text' => $value
       );
     }

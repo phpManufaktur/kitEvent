@@ -82,17 +82,23 @@ class eventFrontend
     const PARAM_GROUP = 'group';
     const PARAM_EVENT_ID = 'event_id';
     const PARAM_IGNORE_TOPICS = 'ignore_topics';
-    // const PARAM_RESPONSE_ID = 'response_id'; // noch inaktiv!!!
     const PARAM_SEARCH = 'search';
     const PARAM_HEADER = 'header';
     const PARAM_CSS = 'css';
     const PARAM_DEBUG = 'debug';
+    const PARAM_COUNTRY = 'country';
+    const PARAM_CITY = 'city';
+    const PARAM_ZIP = 'zip';
+    const PARAM_ORDER_BY = 'order_by';
+    const PARAM_SORT = 'sort';
+    const PARAM_CATEGORY = 'category';
 
     const VIEW_ID = 'id';
     const VIEW_DAY = 'day';
     const VIEW_WEEK = 'week';
     const VIEW_MONTH = 'month';
     const VIEW_ACTIVE = 'active';
+    const VIEW_FILTER = 'filter';
 
     private $params = array(
         self::PARAM_VIEW => self::VIEW_ACTIVE,
@@ -105,7 +111,13 @@ class eventFrontend
         self::PARAM_SEARCH => false,
         self::PARAM_HEADER => false,
         self::PARAM_CSS => true,
-        self::PARAM_DEBUG => false
+        self::PARAM_DEBUG => false,
+        self::PARAM_COUNTRY => '',
+        self::PARAM_CITY => '',
+        self::PARAM_ZIP => '',
+        self::PARAM_ORDER_BY => '',
+        self::PARAM_SORT => 'ASC',
+        self::PARAM_CATEGORY => '',
         );
 
     private static $template_path;
@@ -129,8 +141,7 @@ class eventFrontend
     protected $lang = null;
 
 
-    public function __construct()
-    {
+    public function __construct()  {
         global $kitEventTools;
         global $manufakturConfig;
         global $I18n;
@@ -341,55 +352,55 @@ class eventFrontend
      *
      * @return STR result dialog
      */
-    public function action()
-    {
-        if ($this->isError())
-            return $this->getError();
+    public function action() {
+      if ($this->isError())
+        return $this->getError();
 
-        // we can ignore calls by DropletsExtions...
-        if (isset($_SESSION['DROPLET_EXECUTED_BY_DROPLETS_EXTENSION'])) return '- passed call by DropletsExtension -';
+      // we can ignore calls by DropletsExtions...
+      if (isset($_SESSION['DROPLET_EXECUTED_BY_DROPLETS_EXTENSION'])) return '- passed call by DropletsExtension -';
 
-        $html_allowed = array();
-        foreach ($_REQUEST as $key => $value) {
-            if (stripos($key, 'amp;') == 0) {
-                // fix the problem, that the server does not proper rewrite
-                // &amp; to &
-                $key = substr($key, 4);
-                $_REQUEST[$key] = $value;
-                unset($_REQUEST['amp;' . $key]);
-            }
-            if (!in_array($key, $html_allowed)) {
-                $_REQUEST[$key] = $this->xssPrevent($value);
-            }
+      $html_allowed = array();
+      foreach ($_REQUEST as $key => $value) {
+        if (stripos($key, 'amp;') == 0) {
+          // fix the problem, that the server does not proper rewrite &amp; to &
+          $key = substr($key, 4);
+          $_REQUEST[$key] = $value;
+          unset($_REQUEST['amp;' . $key]);
         }
-        if ((isset($_REQUEST[self::REQUEST_PERMA_LINK]) && is_numeric($_REQUEST[self::REQUEST_PERMA_LINK])) || ($this->params[self::PARAM_EVENT_ID] !== -1)) {
-            $_REQUEST[self::REQUEST_ACTION] = self::ACTION_EVENT;
-            $_REQUEST[self::REQUEST_EVENT] = self::VIEW_ID;
-            $_REQUEST[self::REQUEST_EVENT_ID] = (isset($_REQUEST[self::REQUEST_PERMA_LINK]) && is_numeric($_REQUEST[self::REQUEST_PERMA_LINK])) ? $_REQUEST[self::REQUEST_PERMA_LINK] : $this->params[self::PARAM_EVENT_ID];
-            $_REQUEST[self::REQUEST_EVENT_DETAIL] = (isset($_REQUEST[self::REQUEST_EVENT_DETAIL])) ? $_REQUEST[self::REQUEST_EVENT_DETAIL] : $this->params[self::PARAM_DETAIL];
-        }
-        isset($_REQUEST[self::REQUEST_ACTION]) ? $action = $_REQUEST[self::REQUEST_ACTION] : $action = self::ACTION_DEFAULT;
-        if (isset($_REQUEST[self::REQUEST_EVENT]))
-            $action = self::ACTION_EVENT;
-        switch ($action) :
-            case self::ACTION_ORDER:
-                $result = $this->orderEvent();
-                break;
-            case self::ACTION_ORDER_CHECK:
-                $result = $this->checkOrder();
-                break;
-            case self::ACTION_EVENT:
-                $result = $this->showEvent();
-                break;
-            default:
-                $result = $this->showEvent($this->params[self::PARAM_VIEW]);
-                break;
-        endswitch
-        ;
+        if (!in_array($key, $html_allowed))
+          $_REQUEST[$key] = $this->xssPrevent($value);
+      }
 
-        if ($this->isError())
-            $result = $this->getError();
-        return $result;
+      if ((isset($_REQUEST[self::REQUEST_PERMA_LINK]) && is_numeric($_REQUEST[self::REQUEST_PERMA_LINK])) || ($this->params[self::PARAM_EVENT_ID] !== -1)) {
+        $_REQUEST[self::REQUEST_ACTION] = self::ACTION_EVENT;
+        $_REQUEST[self::REQUEST_EVENT] = self::VIEW_ID;
+        $_REQUEST[self::REQUEST_EVENT_ID] = (isset($_REQUEST[self::REQUEST_PERMA_LINK]) && is_numeric($_REQUEST[self::REQUEST_PERMA_LINK])) ? $_REQUEST[self::REQUEST_PERMA_LINK] : $this->params[self::PARAM_EVENT_ID];
+        $_REQUEST[self::REQUEST_EVENT_DETAIL] = (isset($_REQUEST[self::REQUEST_EVENT_DETAIL])) ? $_REQUEST[self::REQUEST_EVENT_DETAIL] : $this->params[self::PARAM_DETAIL];
+      }
+
+      isset($_REQUEST[self::REQUEST_ACTION]) ? $action = $_REQUEST[self::REQUEST_ACTION] : $action = self::ACTION_DEFAULT;
+
+      if (isset($_REQUEST[self::REQUEST_EVENT]))
+        $action = self::ACTION_EVENT;
+
+      switch ($action) :
+        case self::ACTION_ORDER:
+          $result = $this->orderEvent();
+          break;
+        case self::ACTION_ORDER_CHECK:
+          $result = $this->checkOrder();
+          break;
+        case self::ACTION_EVENT:
+          $result = $this->showEvent();
+          break;
+        default:
+          $result = $this->showEvent($this->params[self::PARAM_VIEW]);
+          break;
+      endswitch;
+
+      if ($this->isError())
+        $result = $this->getError();
+      return $result;
     } // action
     public function getMondayOfWeekDate($date)
     {
@@ -493,6 +504,7 @@ class eventFrontend
     {
         global $kitEventTools;
         global $database;
+        global $kitContactInterface;
 
         $tke = TABLE_PREFIX.'mod_kit_event';
         $tkei = TABLE_PREFIX.'mod_kit_event_item';
@@ -572,6 +584,19 @@ class eventFrontend
             $ical_link = '';
         }
 
+        // KIT contact record for the Location
+        $location_contact = array();
+        if (!$kitContactInterface->getContact($event_data['location_id'], $location_contact)) {
+          $this->setError($kitContactInterface->getError());
+          return false;
+        }
+        // KIT contact record for the organizer
+        $organizer_contact = array();
+        if (!$kitContactInterface->getContact($event_data['organizer_id'], $organizer_contact)) {
+          $this->setError($kitContactInterface->getError());
+          return false;
+        }
+
         $event_parser = array(
             'headline' => $event_data['item_title'],
             'id' => $event_data['evt_id'],
@@ -645,6 +670,20 @@ class eventFrontend
                     'height' => $qrcode_height,
                     'text' => $qrcode_text,
                     'type' => $qrcode_type
+                    )
+                ),
+            // release 0.39 introduce the extra fields
+            'extra' => array(
+                'location' => array(
+                    'id' => $event_data['location_id'],
+                    'contact' => $location_contact,
+                    'alias' => $event_data['item_location'],
+                    'category' => self::unsanitizeText($event_data['item_category']),
+                    'link' => $event_data['item_location_link']
+                    ),
+                'organizer' => array(
+                    'id' => $event_data['organizer_id'],
+                    'contact' => $organizer_contact
                     )
                 )
             );
@@ -952,8 +991,7 @@ class eventFrontend
     } // orderEvent()
 
 
-    public function showEvent($show_view = -1)
-    {
+    public function showEvent($show_view = -1) {
         if (!isset($_REQUEST[self::REQUEST_EVENT]) && ($show_view == -1)) {
             $this->setError($this->lang->translate('Error: This event is invalid!'));
             return false;
@@ -988,6 +1026,9 @@ class eventFrontend
             case self::VIEW_ACTIVE:
                 $result = $this->viewEventActive();
                 break;
+            case self::VIEW_FILTER:
+              $result = $this->viewEventFilter();
+              break;
             default:
                 // nicht spezifiziertes Event
                 $this->setError($this->lang->translate('Error: The event view <b>{{ view }}</b> is not specified!', array(
@@ -997,6 +1038,7 @@ class eventFrontend
         ;
         return $result;
     }
+
     public function viewEventID($event_id = -1, $show_details = true)
     {
         $show_details = (isset($_REQUEST[self::REQUEST_EVENT_DETAIL])) ? (bool) $_REQUEST[self::REQUEST_EVENT_DETAIL] : $show_details;
@@ -1364,6 +1406,137 @@ class eventFrontend
             );
         return $this->getTemplate('frontend.view.active.dwoo', $data);
     } // viewEventActive
+
+    private function viewEventFilter() {
+      global $database;
+
+      $evt = TABLE_PREFIX.'mod_kit_event';
+      $its = TABLE_PREFIX.'mod_kit_event_item';
+      $kit = TABLE_PREFIX.'mod_kit_contact';
+      $addr = TABLE_PREFIX.'mod_kit_contact_address';
+
+      // Basic SQL string to get all events
+      $SQL = "SELECT `evt_id`, `address_country`, `address_zip`, `address_city` FROM `$evt`, `$kit`, `$addr`, `$its` ".
+        "WHERE location_id=$kit.contact_id AND $evt.item_id=$its.item_id AND contact_address_standard=address_id AND evt_status='1'";
+
+      if (!empty($this->params[self::PARAM_COUNTRY])) {
+        // filter the country
+        $countries = explode(',', strtoupper($this->params[self::PARAM_COUNTRY]));
+        $add = '';
+        foreach ($countries as $country) {
+          $country = trim($country);
+          if (!empty($add)) $add .= " OR ";
+          $add .= "`address_country`='$country'";
+        }
+        $SQL .= (count($countries) > 1) ? " AND ($add)" : " AND $add";
+      }
+
+      if (!empty($this->params[self::PARAM_CITY])) {
+        // filter the city
+        $cities = explode(',', $this->params[self::PARAM_CITY]);
+        $add = '';
+        foreach ($cities as $city) {
+          $city = trim($city);
+          if (!empty($add)) $add .= " OR ";
+          $add .= "`address_city`='$city'";
+        }
+        $SQL .= (count($cities) > 1) ? " AND ($add)" : " AND $add";
+      }
+
+      if (!empty($this->params[self::PARAM_CATEGORY])) {
+        // filter the category
+        $categories = explode(',', $this->params[self::PARAM_CATEGORY]);
+        $add = '';
+        foreach ($categories as $category) {
+          $category = trim($category);
+          if (!empty($add)) $add .= " OR ";
+          $add .= "`item_category`='$category'";
+        }
+        $SQL .= (count($categories) > 1) ? " AND ($add)" : " AND $add";
+      }
+
+
+      if (!empty($this->params[self::PARAM_ZIP])) {
+        // filter the ZIPs in LIKE mode
+        $zips = explode(',', $this->params[self::PARAM_ZIP]);
+        $add = '';
+        foreach ($zips as $zip) {
+          $zip = trim($zip);
+          if (!empty($add)) $add .= ' OR ';
+          $add .= "`address_zip` LIKE '$zip%'";
+        }
+        $SQL .= (count($zips) > 1) ? " AND ($add)" : " AND $add";
+      }
+
+      if (!empty($this->params[self::PARAM_ORDER_BY])) {
+        $order_by = explode(',', strtolower($this->params[self::PARAM_ORDER_BY]));
+        $add = '';
+        foreach ($order_by as $field) {
+          $group = trim($field);
+          switch ($field):
+          case 'country':
+            $add .= (!empty($add)) ? ", `address_country`" : "`address_country`";
+            break;
+          case 'city':
+            $add .= (!empty($add)) ? ", `address_city`" : "`address_city`";
+            break;
+          case 'zip':
+            $add .= (!empty($add)) ? ", `address_zip`" : "`address_zip`";
+            break;
+          case 'category':
+            $add .= (!empty($add)) ? ", `item_category`" : "`item_category`";
+            break;
+          case 'date':
+            $add .= (!empty($add)) ? ", `evt_event_date_from`" : "`evt_event_date_from`";
+            break;
+          endswitch;
+        }
+        if (!empty($add))
+          $SQL .= " ORDER BY $add ".$this->params[self::PARAM_SORT];
+      }
+      else {
+        // set the default order and sort mode
+        $SQL .= " ORDER BY `evt_event_date_from` ".$this->params[self::PARAM_SORT];
+      }
+
+      if (null === ($query = $database->query($SQL))) {
+        $this->setError($database->get_error());
+        return false;
+      }
+
+      if ($query->numRows() < 1) {
+        $this->setMessage($this->lang->translate('<p>There are no events by the actual filter settings!</p>'));
+        return $this->getMessage();
+      }
+
+      $event_items = array();
+      while (false !== ($event = $query->fetchRow(MYSQL_ASSOC))) {
+        $event_data = array();
+        $parser_data = array();
+        if (!$this->getEventData($event['evt_id'], $event_data, $parser_data))
+          return false;
+        $event_items[$event['evt_id']] = $parser_data;
+      }
+
+      $data = array(
+          'events' => $event_items,
+          'show_details' => (int) $this->params[self::PARAM_DETAIL],
+          'module' => array(
+              'directory' => WB_URL.'/modules/kit_event',
+              'path' => WB_PATH.'/modules/kit_event'
+          )
+      );
+      return $this->getTemplate('frontend.view.active.dwoo', $data);
+
+
+
+      while (false !== ($event = $query->fetchRow(MYSQL_ASSOC))) {
+      echo "<pre>";
+      print_r($event);
+      echo "</pre>";
+      }
+      return __METHOD__;
+    } // viewEventFilter();
 
 } // class eventFrontend
 
