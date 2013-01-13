@@ -3,9 +3,9 @@
 /**
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
@@ -33,6 +33,9 @@ require_once (WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/initialize
 require_once (WB_PATH . '/include/captcha/captcha.php');
 require_once (WB_PATH . '/framework/class.wb.php');
 require_once (WB_PATH . '/modules/droplets_extension/interface.php');
+
+require_once (WB_PATH.'/modules/kit/class.interface.php');
+global $kitContactInterface;
 
 require_once LEPTON_PATH . '/modules/manufaktur_config/library.php';
 global $manufakturConfig;
@@ -659,6 +662,7 @@ class eventFrontend
         global $kitEventTools;
         global $wb;
         global $database;
+        global $kitContactInterface;
 
         if (!isset($_REQUEST[self::REQUEST_EVENT_ID]) && !isset($_REQUEST['evt_id'])) {
             $this->setError($this->lang->translate('Error: This event is invalid!'));
@@ -729,28 +733,45 @@ class eventFrontend
         }
 
         // ok - Daten sichern und Bestaetigungsmails versenden
+        $contact = array(
+            'kit_city' => (isset($_REQUEST[self::REQUEST_CITY])) ? $_REQUEST[self::REQUEST_CITY] : '',
+            'kit_company' => (isset($_REQUEST[self::REQUEST_COMPANY])) ? $_REQUEST[self::REQUEST_COMPANY] : '',
+            'kit_email' => strtolower($_REQUEST[self::REQUEST_EMAIL]),
+            'kit_first_name' => (isset($_REQUEST[self::REQUEST_FIRST_NAME])) ? $_REQUEST[self::REQUEST_FIRST_NAME] : '',
+            'kit_last_name' => (isset($_REQUEST[self::REQUEST_LAST_NAME])) ? $_REQUEST[self::REQUEST_LAST_NAME] : '',
+            'kit_phone' => (isset($_REQUEST[self::REQUEST_PHONE])) ? $_REQUEST[self::REQUEST_PHONE] : '',
+            'kit_street' => (isset($_REQUEST[self::REQUEST_STREET])) ? $_REQUEST[self::REQUEST_STREET] : '',
+            'kit_title' => (isset($_REQUEST[self::REQUEST_TITLE])) ? $_REQUEST[self::REQUEST_TITLE] : '',
+            'kit_zip' => (isset($_REQUEST[self::REQUEST_ZIP])) ? $_REQUEST[self::REQUEST_ZIP] : ''
+            );
+        $kit_id = -1;
+        $registry = array();
+        if ($kitContactInterface->isEMailRegistered($contact['kit_email'], $kit_id)) {
+          if (!$kitContactInterface->updateContact($kit_id, $contact)) {
+            $this->setError($kitContactInterface->getError());
+            return false;
+          }
+        }
+        elseif (!$kitContactInterface->addContact($contact, $kit_id)) {
+          $this->setError($kitContactInterface->getError());
+          return false;
+        }
+
         $free_fields = (isset($_REQUEST[self::REQUEST_FREE_FIELDS])) ? explode(',', $_REQUEST[self::REQUEST_FREE_FIELDS]) : array();
 
         $orderData = array(
+            'kit_id' => $kit_id,
             'ord_best_time' => (isset($_REQUEST[self::REQUEST_BEST_TIME])) ? $_REQUEST[self::REQUEST_BEST_TIME] : '',
-            'ord_city' => (isset($_REQUEST[self::REQUEST_CITY])) ? $_REQUEST[self::REQUEST_CITY] : '',
-            'ord_company' => (isset($_REQUEST[self::REQUEST_COMPANY])) ? $_REQUEST[self::REQUEST_COMPANY] : '',
             'ord_confirm' => (isset($_REQUEST[self::REQUEST_CONFIRM])) ? date('Y-m-d H:i:s') : '0000-00-00 00:00:00',
-            'ord_email' => strtolower($_REQUEST[self::REQUEST_EMAIL]),
             'evt_id' => $event_id,
-            'ord_first_name' => (isset($_REQUEST[self::REQUEST_FIRST_NAME])) ? $_REQUEST[self::REQUEST_FIRST_NAME] : '',
-            'ord_last_name' => (isset($_REQUEST[self::REQUEST_LAST_NAME])) ? $_REQUEST[self::REQUEST_LAST_NAME] : '',
             'ord_message' => (isset($_REQUEST[self::REQUEST_MESSAGE])) ? $_REQUEST[self::REQUEST_MESSAGE] : '',
             'ord_date' => date('Y-m-d H:i:s'),
-            'ord_phone' => (isset($_REQUEST[self::REQUEST_PHONE])) ? $_REQUEST[self::REQUEST_PHONE] : '',
-            'ord_street' => (isset($_REQUEST[self::REQUEST_STREET])) ? $_REQUEST[self::REQUEST_STREET] : '',
-            'ord_title' => (isset($_REQUEST[self::REQUEST_TITLE])) ? $_REQUEST[self::REQUEST_TITLE] : '',
-            'ord_zip' => (isset($_REQUEST[self::REQUEST_ZIP])) ? $_REQUEST[self::REQUEST_ZIP] : '',
-            'ord_free_1' => (isset($_REQUEST['ord_free_1'])) ? (isset($free_fields[0])) ? $free_fields[0] . '|' . $_REQUEST['ord_free_1'] : '|' . $_REQUEST['ord_free_1'] : '',
-            'ord_free_2' => (isset($_REQUEST['ord_free_2'])) ? (isset($free_fields[1])) ? $free_fields[1] . '|' . $_REQUEST['ord_free_2'] : '|' . $_REQUEST['ord_free_2'] : '',
-            'ord_free_3' => (isset($_REQUEST['ord_free_3'])) ? (isset($free_fields[2])) ? $free_fields[2] . '|' . $_REQUEST['ord_free_3'] : '|' . $_REQUEST['ord_free_3'] : '',
-            'ord_free_4' => (isset($_REQUEST['ord_free_4'])) ? (isset($free_fields[3])) ? $free_fields[3] . '|' . $_REQUEST['ord_free_4'] : '|' . $_REQUEST['ord_free_4'] : '',
-            'ord_free_5' => (isset($_REQUEST['ord_free_5'])) ? (isset($free_fields[4])) ? $free_fields[4] . '|' . $_REQUEST['ord_free_5'] : '|' . $_REQUEST['ord_free_5'] : '');
+            'ord_free_1' => (isset($_REQUEST['ord_free_1'])) ? $_REQUEST['ord_free_1'] : '',
+            'ord_free_2' => (isset($_REQUEST['ord_free_2'])) ? $_REQUEST['ord_free_2'] : '',
+            'ord_free_3' => (isset($_REQUEST['ord_free_3'])) ? $_REQUEST['ord_free_3'] : '',
+            'ord_free_4' => (isset($_REQUEST['ord_free_4'])) ? $_REQUEST['ord_free_4'] : '',
+            'ord_free_5' => (isset($_REQUEST['ord_free_5'])) ? $_REQUEST['ord_free_5'] : ''
+            );
 
         $fields = '';
         $values = '';
@@ -790,38 +811,40 @@ class eventFrontend
 
         // Bestaetigungsmail an den Kunden
         $order = array(
-            'title' => $orderData['ord_title'],
-            'first_name' => $orderData['ord_first_name'],
-            'last_name' => $orderData['ord_last_name'],
-            'company' => $orderData['ord_company'],
-            'street' => $orderData['ord_street'],
-            'zip' => $orderData['ord_zip'],
-            'city' => $orderData['ord_city'],
-            'email' => $orderData['ord_email'],
-            'phone' => $orderData['ord_phone'],
+            'title' => $contact['kit_title'],
+            'first_name' => $contact['kit_first_name'],
+            'last_name' => $contact['kit_last_name'],
+            'company' => $contact['kit_company'],
+            'street' => $contact['kit_street'],
+            'zip' => $contact['kit_zip'],
+            'city' => $contact['kit_city'],
+            'email' => $contact['kit_email'],
+            'phone' => $contact['kit_phone'],
             'best_time' => $orderData['ord_best_time'],
             'message' => $orderData['ord_message'],
             'confirm_datetime' => (!strtotime($orderData['ord_confirm'])) ? NULL : date(CFG_DATETIME_STR, strtotime($orderData['ord_confirm'])),
             'confirm_timestamp' => (!strtotime($orderData['ord_confirm'])) ? NULL : strtotime($orderData['ord_confirm']),
-            'free_1' => substr($orderData['ord_free_1'], strpos($orderData['ord_free_1'], '|') + 1),
-            'free_2' => substr($orderData['ord_free_2'], strpos($orderData['ord_free_2'], '|') + 1),
-            'free_3' => substr($orderData['ord_free_3'], strpos($orderData['ord_free_3'], '|') + 1),
-            'free_4' => substr($orderData['ord_free_4'], strpos($orderData['ord_free_4'], '|') + 1),
-            'free_5' => substr($orderData['ord_free_5'], strpos($orderData['ord_free_5'], '|') + 1));
+            'free_1' => $orderData['ord_free_1'],
+            'free_2' => $orderData['ord_free_2'],
+            'free_3' => $orderData['ord_free_3'],
+            'free_4' => $orderData['ord_free_4'],
+            'free_5' => $orderData['ord_free_5']
+        );
 
         $event = array();
         $event_parser = array();
         if (!$this->getEventData($event_id, $event, $event_parser))
             return false;
         $data = array(
+            'contact' => $contact,
             'order' => $order,
             'event' => $event_parser);
 
         if (false == ($body = $this->getTemplate('mail.confirm.participant.dwoo', $data)))
             return false;
-        if (!$wb->mail(SERVER_EMAIL, $orderData['ord_email'], $event['item_title'], $body)) {
+        if (!$wb->mail(SERVER_EMAIL, $contact['kit_email'], $event['item_title'], $body)) {
             $this->setError($this->lang->translate('Error: cannot send the email to {{ email }}!', array(
-                'email' => $orderData['ord_email'])));
+                'email' => $contact['kit_email'])));
             return false;
         }
 
@@ -837,7 +860,7 @@ class eventFrontend
             return false;
         if (!$wb->mail(SERVER_EMAIL, SERVER_EMAIL, $event['item_title'], $body)) {
             $this->setError($this->lang->translate('Error: cannot send the email to {{ email }}!', array(
-                'email' => $orderData['ord_email'])));
+                'email' => SERVER_EMAIL)));
             return false;
         }
 
