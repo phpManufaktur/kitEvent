@@ -3,9 +3,9 @@
 /**
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
@@ -57,19 +57,6 @@ require_once WB_PATH.'/modules/manufaktur_config/library.php';
 global $admin;
 global $database;
 
-$tables = array('dbEventGroup', 'dbEventItem');
-$error = '';
-
-foreach ($tables as $table) {
-  $create = null;
-  $create = new $table();
-  if (!$create->sqlTableExists()) {
-    if (!$create->sqlCreateTable()) {
-      $error .= sprintf('[INSTALLATION %s] %s', $table, $create->getError());
-    }
-  }
-}
-
 // create mod_kit_event table
 $SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event` ( ".
     "`evt_id` INT(11) NOT NULL AUTO_INCREMENT, ".
@@ -87,7 +74,7 @@ $SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event` ( ".
     "`evt_qrcode_image` VARCHAR(32) NOT NULL DEFAULT '', ".
     "`evt_status` TINYINT NOT NULL DEFAULT '1', ".
     "`evt_timestamp` TIMESTAMP, ".
-    "PRIMARY KEY (`ord_id`), ".
+    "PRIMARY KEY (`evt_id`), ".
     "KEY (`item_id`, `group_id`) ".
     ") ENGINE=MyIsam AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
@@ -98,18 +85,18 @@ if (!$database->query($SQL))
 $SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event_item` ( ".
     "`item_id` INT(11) NOT NULL AUTO_INCREMENT, ".
     "`item_title` VARCHAR(255) NOT NULL DEFAULT '', ".
-    "`item_desc_short` TEXT NOT NULL DEFAULT '', ".
-    "`item_desc_long` TEXT NOT NULL DEFAULT '', ".
+    "`item_desc_short` TEXT NOT NULL, ".
+    "`item_desc_long` TEXT NOT NULL, ".
     "`item_desc_link` VARCHAR(255) NOT NULL DEFAULT '', ".
     "`item_location` VARCHAR(255) NOT NULL DEFAULT '', ".
     "`item_costs` FLOAT NOT NULL DEFAULT '-1', ".
-    "`item_free_1` TEXT NOT NULL DEFAULT '', ".
-    "`item_free_2` TEXT NOT NULL DEFAULT '', ".
-    "`item_free_3` TEXT NOT NULL DEFAULT '', ".
-    "`item_free_4` TEXT NOT NULL DEFAULT '', ".
-    "`item_free_5` TEXT NOT NULL DEFAULT '', ".
+    "`item_free_1` TEXT NOT NULL, ".
+    "`item_free_2` TEXT NOT NULL, ".
+    "`item_free_3` TEXT NOT NULL, ".
+    "`item_free_4` TEXT NOT NULL, ".
+    "`item_free_5` TEXT NOT NULL, ".
     "`item_timestamp` TIMESTAMP, ".
-    "PRIMARY KEY (`ord_id`) ".
+    "PRIMARY KEY (`item_id`) ".
     ") ENGINE=MyIsam AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
 if (!$database->query($SQL))
@@ -122,9 +109,11 @@ $SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event_group` ( ".
     "`group_redirect_page` VARCHAR(255) NOT NULL DEFAULT '', ".
     "`group_perma_pattern` VARCHAR(128) NOT NULL DEFAULT '', ".
     "`group_desc` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`kit_distribution_participant` VARCHAR(255) NOT NULL DEFAULT '', ".
+    "`kit_distribution_organizer` VARCHAR(255) NOT NULL DEFAULT '', ".
     "`group_status` TINYINT NOT NULL DEFAULT '1', ".
     "`group_timestamp` TIMESTAMP, ".
-    "PRIMARY KEY (`ord_id`) ".
+    "PRIMARY KEY (`group_id`) ".
     ") ENGINE=MyIsam AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
 if (!$database->query($SQL))
@@ -134,16 +123,8 @@ if (!$database->query($SQL))
 $SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event_order` ( ".
     "`ord_id` INT(11) NOT NULL AUTO_INCREMENT, ".
     "`evt_id` INT(11) NOT NULL DEFAULT '-1', ".
+    "`kit_id` INT(11) NOT NULL DEFAULT '-1', ".
     "`ord_date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
-    "`ord_first_name` VARCHAR(80) NOT NULL DEFAULT '', ".
-    "`ord_last_name` VARCHAR(80) NOT NULL DEFAULT '', ".
-    "`ord_title` VARCHAR(40) NOT NULL DEFAULT '', ".
-    "`ord_company` VARCHAR(80) NOT NULL DEFAULT '', ".
-    "`ord_street` VARCHAR(80) NOT NULL DEFAULT '', ".
-    "`ord_zip` VARCHAR(10) NOT NULL DEFAULT '', ".
-    "`ord_city` VARCHAR(80) NOT NULL DEFAULT '', ".
-    "`ord_email` VARCHAR(255) NOT NULL DEFAULT '', ".
-    "`ord_phone` VARCHAR(80) NOT NULL DEFAULT '', ".
     "`ord_best_time` VARCHAR(255) NOT NULL DEFAULT '', ".
     "`ord_message` TEXT NOT NULL, ".
     "`ord_confirm` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ".
@@ -154,7 +135,8 @@ $SQL = "CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."mod_kit_event_order` ( ".
     "`ord_free_4` TEXT NOT NULL, ".
     "`ord_free_5` TEXT NOT NULL, ".
     "`ord_timestamp` TIMESTAMP, ".
-    "PRIMARY KEY (`ord_id`) ".
+    "PRIMARY KEY (`ord_id`), ".
+    "KEY (`evt_id`, `kit_id`) ".
     ") ENGINE=MyIsam AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
 if (!$database->query($SQL))
@@ -240,11 +222,5 @@ wb_unpack_and_import(WB_PATH.'/modules/kit_event/droplets/droplet_kit_monthly_ca
 // initialize the configuration
 $config = new manufakturConfig();
 if (!$config->readXMLfile(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/config/kitEvent.xml', 'kit_event', true)) {
-  $error .= $config->getError();
-}
-
-
-// Prompt Errors
-if (!empty($error)) {
-  $admin->print_error($error);
+  $admin->print_error($config->getError());
 }
