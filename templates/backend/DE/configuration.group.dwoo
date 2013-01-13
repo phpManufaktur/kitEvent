@@ -1,9 +1,9 @@
 {*
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  *
  * Please consult the Dwoo Documentation & WIKI to get further informations 
@@ -14,8 +14,9 @@
  * Use {dump()} to get a list of all in this template available variables!
  *}
 <div id="evt_groups"> 
-  <form name="{$form_name}" action="{$form_action}" method="post">
-    <input type="hidden" name="{$action_name}" value="{$action_value}" />
+  <form name="{$form.name}" action="{$form.action}" method="post">
+    <input type="hidden" name="{$action.name}" value="{$action.value}" />
+    <input type="hidden" name="{$sub_action.name}" value="{$sub_action.value}" />
     <h2>{translate('Create or edit group')}</h2>
     {if $message.active == 1}
       <div class="evt_message">
@@ -66,6 +67,30 @@
         <td class="group_hint">{translate('Pattern for the automatic generation of permanent links. Possible placeholders are <b>{&#x0024;ID}, {&#x0024;NAME}, {&#x0024;YEAR}, {&#x0024;MONTH}, {&#x0024;DAY}</b> and <b>{&#x0024;EXT}</b>.<br />The assigned permaLink is relative to the page directory, must star6t with a slash / and is closed by the file extension.<br />Sample: <b>/termine/{&#x0024;NAME}-{&#x0024;YEAR}{&#x0024;MONTH}{&#x0024;DAY}{&#x0024;EXT}</b>')}</td>
       </tr>
       <tr>
+        <td class="group_label">{translate('KIT Distribution, Organizer')}</td>
+        <td class="group_value">
+          <select name="{$group.distribution_organizer.name}">
+            <option value="-1"{if $group.distribution_organizer.value == ''} selected="selected"{/if}>{translate('- no distribution -')}</option>
+            {foreach $group.distribution_organizer.options option}
+              <option value="{$option.value}"{if $group.distribution_organizer.value == $option.value} selected="selected"{/if}>{translate($option.text)}</option>              
+            {/foreach}
+          </select>
+        </td>
+        <td class="group_hint">{translate('Determine a distribution group for the organizer in KeepInTouch. This will enable you to select the organizer from a list if you are creating or editing an event.')}</td>
+      </tr>
+      <tr>
+        <td class="group_label">{translate('KIT Distribution, Participant')}</td>
+        <td class="group_value">
+          <select name="{$group.distribution_participant.name}">
+            <option value="-1"{if $group.distribution_participant.value == ''} selected="selected"{/if}>{translate('- no distribution -')}</option>
+            {foreach $group.distribution_participant.options option}
+              <option value="{$option.value}"{if $group.distribution_participant.value == $option.value} selected="selected"{/if}>{translate($option.text)}</option>              
+            {/foreach}
+          </select>
+        </td>
+        <td class="group_hint">{translate('Determine a distribution group for the participants in KeepInTouch. If you do so, all participants of events in this group will be assigned to this group - it will be easy to contact this group or send a newsletter.')}</td>
+      </tr>
+      <tr>
         <td class="group_label">{translate('Description')}</td>
         <td class="group_value">
           <textarea name="{$group.desc.name}">{$group.desc.value}</textarea>
@@ -88,7 +113,7 @@
         <td class="group_label">&nbsp;</td>
         <td colspan="2">
           <input type="submit" value="{translate('OK')}" />&nbsp;
-          <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
+          <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$form.action}'; return false;" />
         </td>
       </tr>
     </table>
