@@ -1,9 +1,9 @@
 {*
  * kitEvent
  *
- * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
  * @link https://addons.phpmanufaktur.de/kitEvent
- * @copyright 2011 - 2012
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  *
  * Please consult the Dwoo Documentation & WIKI to get further informations 
@@ -13,141 +13,173 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
-<form name="{$form_name}" action="{$form_action}" method="post">
-  <input type="hidden" name="{$action_name}" value="{$action_value}" />
-  <input type="hidden" name="{$event_name}" value="{$event_value}" />
-  <input type="hidden" name="{$item_name}" value="{$item_value}" />
-  <input type="hidden" name="{$suggestion_name}" value="{$suggestion_value}" />
-  <input type="hidden" id="language" name="language" value="{$language}" />
-  <h2>{translate('Create or edit event')}</h2>
-  <div class="{if $message.active == 1}message{else}intro{/if}">
+<div id="evt_edit">
+  <form name="{$form.name}" action="{$form.action}" method="post">
+    <input type="hidden" name="{$action.name}" value="{$action.value}" />
+    <input type="hidden" name="{$event.id.name}" value="{$event.id.value}" />
+    <input type="hidden" name="{$item.name}" value="{$item.value}" />
+    <input type="hidden" name="{$suggestion.name}" value="{$suggestion.value}" />
+    <input type="hidden" id="language" name="language" value="{$language}" />
+    <h2>{translate('Create or edit event')}</h2>
     {if $message.active == 1}
-      {$message.content}
+      <div class="evt_message">{$message.content}</div>
     {else}
-      {translate('With this dialog you can create a new event or edit an existing event.')}
+      <div class="evt_intro">
+        {translate('With this dialog you can create a new event or edit an existing event.')}
+      </div>
     {/if}
-  </div>
-  <table width="100%">
-    <colgroup>
-      <col width="30%" />
-      <col width="70%" />
-    </colgroup>
-    <tr>
-      <td class="label_{$event.date_from.name}"><label for="{$event.date_from.id}">{translate('Date from')}</label></td>
-      <td class="value_{$event.date_from.name}"><input type="text" name="{$event.date_from.name}" id="{$event.date_from.id}" value="{$event.date_from.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.date_to.name}">{translate('Date to')}</td>
-      <td class="value_{$event.date_to.name}"><input type="text" name="{$event.date_to.name}" id="{$event.date_to.id}" value="{$event.date_to.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.time_start.name}">{translate('Time start')}</td>
-      <td class="value_{$event.time_start.name}"><input type="text" name="{$event.time_start.name}" value="{$event.time_start.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.time_end.name}">{translate('Time end')}</td>
-      <td class="value_{$event.time_end.name}"><input type="text" name="{$event.time_end.name}" value="{$event.time_end.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.publish_date_from.name}">{translate('Publish from')}</td>
-      <td class="value_{$event.publish_date_from.name}"><input type="text" name="{$event.publish_date_from.name}" id="{$event.publish_date_from.id}" value="{$event.publish_date_from.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.publish_date_to.name}">{translate('Publish to')}</td>
-      <td class="value_{$event.publish_date_to.name}"><input type="text" name="{$event.publish_date_to.name}" id="{$event.publish_date_to.id}" value="{$event.publish_date_to.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.participants_max.name}">{translate('Participants, max.')}</td>
-      <td class="value_{$event.participants_max.name}"><input type="text" name="{$event.participants_max.name}" value="{$event.participants_max.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.participants_total.name}">{translate('Participants, total')}</td>
-      <td class="value_{$event.participants_total.name}"><input type="text" name="{$event.participants_total.name}" value="{$event.participants_total.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.deadline.name}">{translate('Deadline')}</td>
-      <td class="value_{$event.deadline.name}"><input type="text" name="{$event.deadline.name}" id="{$event.deadline.id}" value="{$event.deadline.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.costs.name}">{translate('Costs')}</td>
-      <td class="value_{$event.costs.name}"><input type="text" name="{$event.costs.name}" value="{$event.costs.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.group.name}">{translate('Event group')}</td>
-      <td class="value_{$event.group.name}">
-        <select name="{$event.group.name}">
-          {foreach $event.group.value group}
-          <option value="{$group.value}"{if $group.selected == 1} selected="selected"{/if}>{$group.text}</option>
-          {/foreach}
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <td class="label_{$event.status.name}">{translate('Status')}</td>
-      <td class="value_{$event.status.name}">
+    
+    <fieldset>
+      <legend>{translate('Basic settings')}</legend>
+      
+      <div class="evt_edit_label">{translate('Event title')}<span class="must_field">*</span></div>
+      <div class="evt_edit_value"><input type="text" name="{$event.title.name}" value="{$event.title.value}" /></div>
+      <div class="evt_edit_hint">{translate('')}</div>
+      <div class="evt_edit_clear"></div>
+      
+      <div class="evt_edit_label">{translate('Status')}</div>
+      <div class="evt_edit_value">
         <select name="{$event.status.name}">
           {foreach $event.status.value status}
-          <option value="{$status.value}"{if $status.selected == 1} selected="selected"{/if}>{translate($status.text)}</option>
+            <option value="{$status.value}"{if $status.selected == 1} selected="selected"{/if}>{translate($status.text)}</option>
           {/foreach}
         </select>
-      </td>
-    </tr>
-    <tr>
-      <td class="label_{$event.title.name}">{translate('Event title')}</td>
-      <td class="value_{$event.title.name}"><input type="text" name="{$event.title.name}" value="{$event.title.value}" /></td>
-    </tr>
-    {if $option.description.short == 1}
-      <tr>
-        <td class="label_{$event.short_description.name}">{translate('Short description')}</td>
-        <td class="value_{$event.short_description.name}">
-          {show_wysiwyg_editor($event.short_description.name, $event.short_description.name, $event.short_description.value, '100%', '200px','Simple')}
-        </td>
-      </tr>
-    {/if}
-    {if $option.description.long == 1}
-      <tr>
-        <td class="label_{$event.long_description.name}">{translate('Long description')}</td>
-        <td class="value_{$event.long_description.name}">
-          {show_wysiwyg_editor($event.long_description.name, $event.long_description.name, $event.long_description.value, '100%', '200px','Simple')}
-        </td>
-      </tr>
-    {/if}
-    {foreach $event.free_field field}
-      {if $field.active == 1}
-        <tr>
-          <td class="label_{$field.name}">{translate($field.label)}</td>
-          <td class="value_{$field.name}">
-            {if $field.use_html == 1}
-              {show_wysiwyg_editor($field.name, $field.name, $field.value, '100%', '50px', 'Simple')}
-            {else}
-              <input type="text" name="{$field.name}" value="{$field.value}" />
-            {/if}
-          </td>
-        </tr>
+      </div>
+      <div class="evt_edit_hint">{translate('In status <b>locked</b> the event will not published in the frontend and status <b>delete</b> finally remove the event.')}</div>
+      <div class="evt_edit_clear"></div>
+      
+      <div class="evt_edit_label">{translate('Event group')}</div>
+      <div class="evt_edit_value">
+        <select name="{$event.group.name}">
+          {foreach $event.group.value group}
+            <option value="{$group.value}"{if $group.selected == 1} selected="selected"{/if}>{$group.text}</option>
+          {/foreach}
+        </select>
+      </div>
+      <div class="evt_edit_hint">{translate('The event group contains settings for the permanent link to the event, QR-Codes, Distribution list for the publisher and the participants. <a href="{{ link }}">Define as many event groups you need</a>.', array(link=$link_event_group))}</div>
+      <div class="evt_edit_clear"></div>
+      
+      <div class="evt_edit_label">{translate('Perma Link')}</div>
+      <div class="evt_edit_value"><input type="text" name="{$event.perma_link.name}" value="{$event.perma_link.value}" /></div>
+      <div class="evt_edit_hint">{translate('If you have defined a pattern in the <a href="{{ link }}">group definition</a>, kitEvent will create a permanet link at the first save of this event.', array(link=$link_event_group))}</div>
+      <div class="evt_edit_clear"></div>      
+    </fieldset>
+    
+    <fieldset>
+      <legend>{translate('Date, Time and Participants')}</legend>
+      
+      <div class="evt_edit_label">{translate('Date from')}<span class="must_field">*</span></div>
+      <div class="evt_edit_value_33"><input type="text" name="{$event.date_from.name}" id="{$event.date_from.id}" value="{$event.date_from.value}" /></div>
+      <div class="evt_edit_label_33">{translate('Date to')}<span class="must_field">*</span></div>
+      <div class="evt_edit_value_33"><input type="text" name="{$event.date_to.name}" id="{$event.date_to.id}" value="{$event.date_to.value}" /></div>
+      <div class="evt_edit_hint">{translate('Specify the start and end date of the event, they can be identical.')}</div>
+      <div class="evt_edit_clear"></div>
+      
+      <div class="evt_edit_label">{translate('Time start')}</div>
+      <div class="evt_edit_value_33"><input type="text" name="{$event.time_start.name}" value="{$event.time_start.value}" /></div>
+      <div class="evt_edit_label_33">{translate('Time end')}</div>
+      <div class="evt_edit_value_33"><input type="text" name="{$event.time_end.name}" value="{$event.time_end.value}" /></div>
+      <div class="evt_edit_hint">Ohne Angabe einer Uhrzeit wird eine ganztägige Veranstaltung angenommen.</div>
+      <div class="evt_edit_clear"></div>
+      
+      <div class="evt_edit_label">{translate('Publish from')}</div>
+      <div class="evt_edit_value_33"><input type="text" name="{$event.publish_date_from.name}" id="{$event.publish_date_from.id}" value="{$event.publish_date_from.value}" /></div>
+      <div class="evt_edit_label_33">{translate('Publish to')}</div>
+      <div class="evt_edit_value_33"><input type="text" name="{$event.publish_date_to.name}" id="{$event.publish_date_to.id}" value="{$event.publish_date_to.value}" /></div>
+      <div class="evt_edit_hint">Der Zeitraum, in dem die Veranstaltung auf der Website veröffentlicht wird. Lassen Sie die Felder frei, setzt kitEvent automatisch einen Zeitraum von 14 Tagen bis zum Beginn des Event.</div>
+      <div class="evt_edit_clear"></div>
+      
+      <div class="evt_edit_label">{translate('Deadline')}</div>
+      <div class="evt_edit_value"><input type="text" name="{$event.deadline.name}" id="{$event.deadline.id}" value="{$event.deadline.value}" /></div>
+      <div class="evt_edit_hint">{translate('')}</div>
+      <div class="evt_edit_clear"></div>
+      
+      <div class="evt_edit_label">{translate('Participants, max.')}<span class="must_field">*</span></div>
+      <div class="evt_edit_value_33"><input type="text" name="{$event.participants_max.name}" value="{$event.participants_max.value}" /></div>
+      <div class="evt_edit_label_33">{translate('Participants, total')}</div>
+      <div class="evt_edit_value_33"><input type="text" name="{$event.participants_total.name}" value="{$event.participants_total.value}" /></div>
+      <div class="evt_edit_hint">Die Anzahl der Teilnehmer. Mit <b>-1</b> ist die Anzahl der Teilnehmer unbegrenzt. Das Feld <i>Teilnehmer, gesamt</i> wird von kitEvent automatisch mit den Anmeldungen hochgezählt.</div>
+      <div class="evt_edit_clear"></div>
+      
+      <div class="evt_edit_label">{translate('Costs')}</div>
+      <div class="evt_edit_value_33"><input type="text" name="{$event.costs.name}" value="{$event.costs.value}" /></div>
+      <div class="evt_edit_label_33">&nbsp;</div>
+      <div class="evt_edit_value_33">&nbsp;</div>
+      <div class="evt_edit_hint">Geben Sie die Kosten pro Teilnehmer an. Mit <b>-1</b> kennzeichnen Sie eine kostenlose Veranstaltung.</div>
+      <div class="evt_edit_clear"></div>
+    </fieldset>
+    
+    <fieldset>
+      <legend>{translate('Organizer and Event Location')}</legend>
+      
+      <div class="evt_edit_label">{translate('Location')}</div>
+      <div class="evt_edit_value"><input type="text" name="{$event.location.name}" value="{$event.location.value}" /></div>
+      <div class="evt_edit_hint">{translate('')}</div>
+      <div class="evt_edit_clear"></div>
+    </fieldset>
+    
+    <fieldset>
+      <legend>{translate('Description of the event')}</legend>
+      
+      {if $option.description.short == 1}
+        <div class="evt_edit_label">{translate('Short Description')}<span class="must_field">*</span></div>
+        <div class="evt_edit_value_100">
+          {show_wysiwyg_editor($event.short_description.name, $event.short_description.name, $event.short_description.value, '100%', '100px', 'Simple')}
+        </div>
+        <div class="evt_edit_clear"></div>
+      {else}
+        <div class="evt_edit_label"><span class="inactive_field">{translate('Short Description')}</span></div>
+        <div class="evt_edit_hint">{translate('The <i>Short Description</i> is <a href="{{ link }}">not active</a>.', array(link=$link_options))}</div>
+        <div class="evt_edit_clear"></div>
       {/if}
-    {/foreach}
-    <tr>
-      <td class="label_{$event.location.name}">{translate('Location')}</td>
-      <td class="value_{$event.location.name}"><input type="text" name="{$event.location.name}" value="{$event.location.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.link.name}">{translate('Event link')}</td>
-      <td class="value_{$event.link.name}"><input type="text" name="{$event.link.name}" value="{$event.link.value}" /></td>
-    </tr>
-    <tr>
-      <td class="label_{$event.perma_link.name}">{translate('Perma Link')}</td>
-      <td class="value_{$event.perma_link.name}"><input type="text" name="{$event.perma_link.name}" value="{$event.perma_link.value}" /></td>
-    </tr>
-    <tr>
-      <td>&nbsp;</td>
-      <td class="hint_{$event.perma_link.name}">{translate('If you have defined a pattern in the group definition, kitEvent will create a permanet link at the first save of this event.')}</td>
-    </tr>
-    <tr><td colspan="2">&nbsp;</td></tr>
-    <tr>
-      <td colspan="2">
-        <input type="submit" value="{translate('OK')}" />&nbsp;
-        <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
-      </td>
-    </tr>
-  </table>
-</form>
+      
+      {if $option.description.long == 1}
+        <div class="evt_edit_label">{translate('Long Description')}</div>
+        <div class="evt_edit_value_100">
+          {show_wysiwyg_editor($event.long_description.name, $event.long_description.name, $event.long_description.value, '100%', '200px','Simple')}
+        </div>
+        <div class="evt_edit_clear"></div>
+      {else}
+        <div class="evt_edit_label"><span class="inactive_field">{translate('Long Description')}</span></div>
+        <div class="evt_edit_hint">{translate('The <i>Long Description</i> is <a href="{{ link }}">not active</a>.', array(link=$link_options))}</div>
+        <div class="evt_edit_clear"></div>
+      {/if}
+      
+      {$i=0}
+      {foreach $event.free_field field}
+        {if $field.active == 1}
+          <div class="evt_edit_label">{translate($field.label)}</div>
+          {if $field.use_html == 1}
+            <div class="evt_edit_value_100">
+              {show_wysiwyg_editor($field.name, $field.name, $field.value, '100%', '50px', 'Simple')}
+            </div>
+          {else}
+            <div class="evt_edit_value_100">
+              <input type="text" name="{$field.name}" value="{$field.value}" />
+            </div>
+          {/if}
+          <div class="evt_edit_clear"></div>
+          {$i=$i+1}
+        {/if}
+      {/foreach}
+      {if $i < 5}
+        {$x=5}{$free=$x-$i}
+        <div class="evt_edit_hint">{translate('You can activate up to <b>{{ free }}</b> <a href="{{ link }}">additional <i>free fields</i></a>.', array(link=$link_options,free=$free))}</div>
+        <div class="evt_edit_clear"></div>
+      {/if}
+      
+      <div class="evt_edit_label">{translate('Event link')}</div>
+      <div class="evt_edit_value"><input type="text" name="{$event.link.name}" value="{$event.link.value}" /></div>
+      <div class="evt_edit_hint">{translate('')}</div>
+      <div class="evt_edit_clear"></div>        
+    </fieldset>
+    
+    
+    <div class="evt_edit_label">&nbsp;</div>
+    <div class="evt_edit_value">
+      <input type="submit" value="{translate('OK')}" />&nbsp;
+      <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$form.action}'; return false;" />
+    </div>
+    <div class="evt_edit_clear"></div>    
+  </form>
+</div>
