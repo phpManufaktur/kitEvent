@@ -31,6 +31,12 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.frontend.php')) {
   $params[eventFrontend::PARAM_DEBUG] = (isset($debug) && strtolower($debug) == 'true') ? true : false;
   // inactive, not in use! $params[eventFrontend::PARAM_RESPONSE_ID] = (isset($response_id)) ? $response_id : -1;
   $params[eventFrontend::PARAM_IGNORE_TOPICS] = (isset($ignore_topics) && strtolower($ignore_topics) == 'true') ? true : false;
+  $params[eventFrontend::PARAM_COUNTRY] = (isset($country)) ? strtoupper($country) : '';
+  $params[eventFrontend::PARAM_CITY] = (isset($city)) ? $city : '';
+  $params[eventFrontend::PARAM_ZIP] = (isset($zip)) ? $zip : '';
+  $params[eventFrontend::PARAM_ORDER_BY] = (isset($order_by)) ? $order_by : '';
+  $params[eventFrontend::PARAM_SORT] = (isset($sort) && (strtoupper($sort) == 'DESC')) ? 'DESC' : 'ASC';
+  $params[eventFrontend::PARAM_CATEGORY] = (isset($category)) ? $category : '';
   $event->setParams($params);
   return $event->action();
 }
