@@ -37,6 +37,7 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.frontend.php')) {
   $params[eventFrontend::PARAM_ORDER_BY] = (isset($order_by)) ? $order_by : '';
   $params[eventFrontend::PARAM_SORT] = (isset($sort) && (strtoupper($sort) == 'DESC')) ? 'DESC' : 'ASC';
   $params[eventFrontend::PARAM_CATEGORY] = (isset($category)) ? $category : '';
+  $params[eventFrontend::PARAM_DATE] = (isset($date)) ? $date : '';
   $event->setParams($params);
   return $event->action();
 }

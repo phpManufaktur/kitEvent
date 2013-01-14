@@ -4,7 +4,7 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
-0.39 - NOT PUBLISHED
+0.39 - 2013-01-14
 
 * fixed: jQuery Datepicker missed some Icons in kitEvent backend.
 * fixed: on add-on updates the kitEvent.xml overwrites already existing settings
@@ -23,6 +23,7 @@ http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 * changed: kitEvent is now direct to KeepInTouch and uses class.interface.php
 * changed: field item_desc_link from VARCHAR to TEXT
 * complete rework and redesign of the backend - new look and feel
+* added: filter method for the droplet kit_event
 
 0.38 - 2012-12-29
 

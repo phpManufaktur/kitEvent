@@ -92,6 +92,7 @@ class eventFrontend
     const PARAM_ORDER_BY = 'order_by';
     const PARAM_SORT = 'sort';
     const PARAM_CATEGORY = 'category';
+    const PARAM_DATE = 'date';
 
     const VIEW_ID = 'id';
     const VIEW_DAY = 'day';
@@ -118,6 +119,7 @@ class eventFrontend
         self::PARAM_ORDER_BY => '',
         self::PARAM_SORT => 'ASC',
         self::PARAM_CATEGORY => '',
+        self::PARAM_DATE => ''
         );
 
     private static $template_path;
@@ -1407,6 +1409,7 @@ class eventFrontend
         return $this->getTemplate('frontend.view.active.dwoo', $data);
     } // viewEventActive
 
+
     private function viewEventFilter() {
       global $database;
 
@@ -1455,7 +1458,6 @@ class eventFrontend
         $SQL .= (count($categories) > 1) ? " AND ($add)" : " AND $add";
       }
 
-
       if (!empty($this->params[self::PARAM_ZIP])) {
         // filter the ZIPs in LIKE mode
         $zips = explode(',', $this->params[self::PARAM_ZIP]);
@@ -1467,6 +1469,17 @@ class eventFrontend
         }
         $SQL .= (count($zips) > 1) ? " AND ($add)" : " AND $add";
       }
+
+      if (!empty($this->params[self::PARAM_DATE])) {
+
+      }
+      else {
+        // set default - show only events within the publishing period
+        $today = date('Y-m-d H:i:s');
+        $SQL .= " AND `evt_publish_date_from` <= '$today' AND `evt_publish_date_to` >= '$today'";
+      }
+
+      // ORDER BY must be added at the last position of the query!
 
       if (!empty($this->params[self::PARAM_ORDER_BY])) {
         $order_by = explode(',', strtolower($this->params[self::PARAM_ORDER_BY]));
@@ -1527,15 +1540,6 @@ class eventFrontend
           )
       );
       return $this->getTemplate('frontend.view.active.dwoo', $data);
-
-
-
-      while (false !== ($event = $query->fetchRow(MYSQL_ASSOC))) {
-      echo "<pre>";
-      print_r($event);
-      echo "</pre>";
-      }
-      return __METHOD__;
     } // viewEventFilter();
 
 } // class eventFrontend
