@@ -4,6 +4,11 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+0.40 - 2013-01-15
+
+* changed: dialog to create a new event checks now if a event group exists and
+  force to create and select a event group first.
+
 0.39 - 2013-01-14
 
 * fixed: jQuery Datepicker missed some Icons in kitEvent backend.

@@ -33,7 +33,7 @@ else {
 $module_directory     = 'kit_event';
 $module_name          = 'kitEvent';
 $module_function      = 'tool';
-$module_version       = '0.39';
+$module_version       = '0.40';
 $module_status        = 'Beta';
 $module_platform      = '2.8';
 $module_author        = 'Ralf Hertsch, Berlin (Germany)';

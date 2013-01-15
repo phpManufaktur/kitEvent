@@ -41,6 +41,8 @@ $LANG = array(
       => '- neue Gruppe erstellen -',
     '- do not use data from a previous event -'
       => '- keine Daten einer früheren Veranstaltung übernehmen -',
+    '- no contacts available in this distribution list -'
+      => '- in diesem KIT Verteiler befinden sich keine Kontakte -',
     '- no distribution -'
       => '- kein Verteiler -',
     '- no group -'
@@ -70,13 +72,13 @@ $LANG = array(
     'Copy also date and time of the event'
       => 'auch Datum und Uhrzeit der ausgewählten Veranstaltung übernehmen',
     'Copy Event'
-      => 'Kerndaten übernehmen von',
-    'Copy event data'
-      => 'Daten einer Veranstaltung übernehmen',
+      => 'Veranstaltungsdaten übernehmen',
     'Costs'
       => 'Kosten, pro Teilnehmer',
     'Create files'
       => 'Dateien erzeugen',
+    'Create new event'
+      => 'Eine neue Veranstaltung erstellen',
     'Create or edit event'
       => 'Veranstaltung erstellen oder bearbeiten',
     'Create or edit group'
@@ -193,9 +195,13 @@ $LANG = array(
       => 'Geben Sie diesem freien Datenfeld eine Bezeichnung um es zu aktivieren. Freie Datenfelder können HTML Code enthalten und werden in die Suchfunktion eingebunden.',
     'If you have defined a pattern in the <a href="{{ link }}">group definition</a>, kitEvent will create a permanet link at the first save of this event.'
       => 'Wenn Sie in der <a href="{{ link }}">Gruppe für die Veranstaltung</a> ein Muster für die Erzeugung eines permanenten Link angegeben haben, wird dieser <b>beim ersten Speichern</b> des Event automatisch angelegt.',
+    'If you want also copy all the dates and times of the previous event please check this box.'
+      => 'Wenn Sie auch die Datums- und Zeitinformationen der früheren Veranstaltung übernehmen möchten, klicken Sie bitte die Checkbox an.',
     'In status <b>locked</b> the event will not published in the frontend and status <b>delete</b> finally remove the event.'
       => 'Im Status <b>Gesperrt</b> wird die Veranstaltung nicht veröffentlicht und ist nicht sichtbar. Der Status <b>Gelöscht</b> entfernt die Veranstaltung unwiederruflich.',
 
+    'KIT Distribution'
+      => 'KIT Verteiler',
     'KIT Distribution, Organizer'
       => 'KIT Verteiler, Veranstalter',
     'KIT Distribution, Participant'
@@ -273,6 +279,8 @@ $LANG = array(
       => 'Bitte helfen Sie mit, diese Open Source Software zu verbessern und melden Sie das aufgetretene Problem in der <strong><a href="{{ support }}" target="_blank">Addons Support Group</a></strong> dem Team der <strong><a href="{{ phpmanufaktur }}" target="_blank">phpManufaktur</a></strong>.',
     '<p>Please insert a event title!</p>'
       => '<p>Bitte geben Sie eine Schlagzeile für das Event an!</p>',
+    '<p>Please select the event group to which the new event will be added to.</p>'
+      => '<p>Bitte wählen Sie die Veranstaltungsgruppe aus, der die neue Veranstaltung hinzugefügt werden soll.</p>',
     '<p>Please type in the city!</p>'
       => '<p>Bitte geben Sie die <b>Stadt</b> an.</p>',
     '<p>Please type in the short description!</p>'
@@ -297,8 +305,11 @@ $LANG = array(
 
     'Register'
         => 'Anmelden',
+
     'Select'
       => 'Auswählen',
+    'Select event group'
+      => 'Veranstaltungsgruppe auswählen',
     'Set the error correction level from 0 (low) to 3 (high), default is 2'
       => 'Legen Sie den Wert für die Fehlerkorrektur von 0 (niedrig) bis 3 (hoch) fest, Vorgabe ist 2',
     'Set to YES to activate HTML usage for this field'
@@ -385,6 +396,8 @@ $LANG = array(
       => 'Uhrzeit, von',
     'Title'
       => 'Schlagzeile',
+    'To copy data from a previous event to the new event please the event to copy from. Informations about date and time will not copied.'
+      => 'Um Daten von einer früheren Veranstaltung in die neue Veranstaltung zu übernehmen, wählen Sie bitte die gewünschte Veranstaltung aus. Datums- und Zeitinformationen werden nicht übernommen.',
     '<p>To create a permaLink for this event, you must select a valid event group!</p>'
       => '<p>Damit für dieses Event ein permaLink angelegt werden kann, muss dieses Event einer Gruppe zugeordnet sein und in der Gruppendefinition eine Zielseite für die permaLinks definiert sein!</p>',
     'Use Perma Links'
@@ -398,5 +411,5 @@ $LANG = array(
     'You can activate up to <b>{{ free }}</b> <a href="{{ link }}">additional <i>free fields</i></a>.'
       => 'Sie können zusätzlich bis zu <b>{{ free }}</b> <a href="{{ link }}">Freie Datenfelder</a> aktivieren.',
     'You can copy the data from a previous event to a new event, just select an event from the list.'
-      => '<p>Sie können die Daten einer früheren Veranstaltung für die Anlage einer neuen Veranstaltung übernehmen. Wählen Sie dazu einfach die passende Veranstaltung aus.</p><p>Wenn Sie eine neue Veranstaltung ohne Vorbelegung erstellen möchten, klicken Sie einfach auf <kbd>OK</kbd>, Sie gelangen dann direkt in den Dialog zum Bearbeiten der Veranstaltung.</p>'
+      => '<p>Sie können die Daten einer früheren Veranstaltung für die Anlage einer neuen Veranstaltung übernehmen. Wählen Sie dazu einfach die passende Veranstaltung aus.</p><p>Wenn Sie eine neue Veranstaltung ohne Vorbelegung erstellen möchten, klicken Sie bitte einfach auf <kbd>OK</kbd>.</p>'
     );

@@ -112,37 +112,53 @@
     <fieldset>
       <legend>{translate('Organizer and Event Location')}</legend>
       
+      <div class="evt_edit_label">&nbsp;</div>
+      <div class="evt_edit_value"><span class="evt_remark">{translate('KIT Distribution')}: {$event.organizer.distribution}</span></div>
+      <div class="evt_edit_clear_zero"></div>
+      
       <div class="evt_edit_label">{translate('Organizer')}</div>
       <div class="evt_edit_value">
-        <select name="{$event.organizer.name}">
-          <option value="{$event.organizer.default}"{if $event.organizer.value == -1} selected="selected"{/if}>{translate('- please select -')}</option>
-          {foreach $event.organizer.list contact}
-            <option value="{$contact.kit_id}"{if $contact.kit_id == $event.organizer.value} selected="selected"{/if}>
-                    {$contact.kit_identifier}
-            </option>
-          {/foreach}
-        </select>
-        {if $event.organizer.value > 0}
-          {$contact = $event.organizer.contact}
-          {include('include/contact.summary.dwoo')}
+        {if $event.organizer.count > 0}
+          <select name="{$event.organizer.name}">
+            <option value="{$event.organizer.default}"{if $event.organizer.value == -1} selected="selected"{/if}>{translate('- please select -')}</option>
+            {foreach $event.organizer.list contact}
+              <option value="{$contact.kit_id}"{if $contact.kit_id == $event.organizer.value} selected="selected"{/if}>
+                      {$contact.kit_identifier}
+              </option>
+            {/foreach}
+          </select>
+          {if $event.organizer.value > 0}
+            {$contact = $event.organizer.contact}
+            {include('include/contact.summary.dwoo')}
+          {/if}
+        {else}
+          <div class="evt_edit_not_available">{translate('- no contacts available in this distribution list -')}</div>
         {/if}
       </div>
       <div class="evt_edit_hint">{translate('Pflegen Sie die Kontaktdaten der Veranstalter über <a href="{{ link_kit }}">KIT</a> und legen Sie über die <a href="{{ link_group }}">Veranstaltungsgruppe</a> fest, welcher Verteiler Ihnen hier zur Auswahl angezeigt wird.',array(link_kit=$link_kit_list,link_group=$link_event_group))}</div>
       <div class="evt_edit_clear"></div>
       
+      <div class="evt_edit_label">&nbsp;</div>
+      <div class="evt_edit_value"><span class="evt_remark">{translate('KIT Distribution')}: {$event.location.distribution}</span></div>
+      <div class="evt_edit_clear_zero"></div>
+      
       <div class="evt_edit_label">{translate('Location')}</div>
       <div class="evt_edit_value">
-        <select name="{$event.location.name}">
-          <option value="{$event.location.default}"{if $event.location.value == -1} selected="selected"{/if}>{translate('- please select -')}</option>
-          {foreach $event.location.list contact}
-            <option value="{$contact.kit_id}"{if $contact.kit_id == $event.location.value} selected="selected"{/if}>
-                    {$contact.kit_identifier}
-            </option>
-          {/foreach}
-        </select>
-        {if $event.location.value > 0}
-          {$contact = $event.location.contact}
-          {include('include/contact.summary.dwoo')}
+        {if $event.location.count > 0}
+          <select name="{$event.location.name}">
+            <option value="{$event.location.default}"{if $event.location.value == -1} selected="selected"{/if}>{translate('- please select -')}</option>
+            {foreach $event.location.list contact}
+              <option value="{$contact.kit_id}"{if $contact.kit_id == $event.location.value} selected="selected"{/if}>
+                      {$contact.kit_identifier}
+              </option>
+            {/foreach}
+          </select>
+          {if $event.location.value > 0}
+            {$contact = $event.location.contact}
+            {include('include/contact.summary.dwoo')}
+          {/if}
+        {else}
+          <div class="evt_edit_not_available">{translate('- no contacts available in this distribution list -')}</div>
         {/if}
       </div>
       <div class="evt_edit_hint">{translate('Pflegen Sie die Adressen der Veranstaltngsorte über <a href="{{ link_kit }}">KIT</a> und legen Sie über die <a href="{{ link_group }}">Veranstaltungsgruppe</a> fest, welcher Verteiler Ihnen hier zur Auswahl angezeigt wird.',array(link_kit=$link_kit_list,link_group=$link_event_group))}</div>

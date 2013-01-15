@@ -1,0 +1,53 @@
+{*
+ * kitEvent
+ *
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="evt_suggest">
+  <h2>{translate('Select event group')}</h2>
+  {if $event_group.count > 0}
+    <div class="evt_intro">
+      {translate('<p>Please select the event group to which the new event will be added to.</p>')}
+    </div>
+  {/if}
+  <div class="evt_suggest_spacer"></div>
+    
+  <form name="{$form.name}" action="{$form.action}" method="post">
+    <input type="hidden" name="{$action.name}" value="{$action.value}" />
+    <input type="hidden" name="{$suggest.name}" value="{$suggest.value}" />
+    {if $copy_datetime.value > 0}
+      <input type="hidden" name="{$copy_datetime.name}" value="{$copy_datetime.value}" />
+    {/if}
+    
+    <div class="evt_edit_label">{translate('Select event group')}</div>
+    <div class="evt_edit_value">
+      <select name="{$event_group.name}">
+        <option value="-1">{translate('- please select -')}</option>
+        {foreach $event_group.options option}
+          <option value="{$option.value}">{$option.text}</option>
+        {/foreach}
+      </select>  
+    </div>
+    <div class="evt_edit_hint">{translate('')}</div>
+    <div class="evt_edit_clear"></div>
+    
+    <div class="evt_edit_clear"></div>
+    <div class="evt_edit_label">&nbsp;</div>
+    <div class="evt_edit_value">
+      <input type="submit" value="{translate('OK')}" />&nbsp;
+      <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$form.action}'; return false;" />
+    </div>
+    <div class="evt_edit_hint">{translate('')}</div>
+    <div class="evt_edit_clear"></div>
+  </form>
+</div>

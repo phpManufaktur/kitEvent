@@ -232,6 +232,7 @@ td.data_ord_confirm
   height: 8px;
   clear: both;
 }
+
 #evt_edit,
 #evt_order_detail,
 #evt_suggest,
@@ -265,6 +266,10 @@ td.data_ord_confirm
   background-image: url(templates/backend/DE/images/edit.png);
 }
 
+.evt_remark {
+  font-size: 9px;
+  font-style: italic;
+}
 .evt_suggest_spacer,
 .evt_group_spacer,
 .evt_order_list_spacer {
@@ -318,6 +323,11 @@ td.data_ord_confirm
   margin: 0;
   padding: 4px 1% 0 0;
 }
+.evt_edit_not_available {
+  color: #992826;
+  padding: 4px 0 0 0;
+  font-style: italic;
+}
 .evt_edit_value_100,
 .evt_edit_value_33,
 .evt_edit_value {
@@ -342,6 +352,10 @@ td.data_ord_confirm
 .evt_edit_clear {
   clear: both;
   height: 5px;
+}
+.evt_edit_clear_zero {
+  clear: both;
+  height: 0;
 }
 .contact_summary {
   width: 98%;

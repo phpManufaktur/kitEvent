@@ -14,46 +14,41 @@
  * Use {dump()} to get a list of all in this template available variables!
  *}
 <div id="evt_suggest">
-  <form name="{$form_name}" action="{$form_action}" method="post">
-    <input type="hidden" name="{$action_name}" value="{$action_value}" />
-    <h2>{translate('Copy event data')}</h2>
+  <form name="{$form.name}" action="{$form.action}" method="post">
+    <input type="hidden" name="{$action.name}" value="{$action.value}" />
+    <h2>{translate('Create new event')}</h2>
     <div class="evt_intro">
       {translate('You can copy the data from a previous event to a new event, just select an event from the list.')}
     </div>
     <div class="evt_suggest_spacer"></div>
-    <table width="100%">
-      <colgroup>
-        <col width="30%" />
-        <col width="55%" />
-        <col width="15%" />
-      </colgroup>
-      <tr><td colspan="2">&nbsp;</td></tr>
-      <tr>
-        <td class="label_{$suggest_request}">{translate('Copy Event')}</td>
-        <td class="value_{$suggest_request}">
-          <select name="{$suggest_request}">
-          {foreach $suggest_options option}
+    
+    <div class="evt_edit_label">{translate('Copy Event')}</div>
+    <div class="evt_edit_value">
+      <select name="{$suggest.name}">
+        <option value="-1">{translate('- do not use data from a previous event -')}</option>
+        {foreach $suggest.options option}
           <option value="{$option.value}">{$option.text}</option>
-          {/foreach}
-          </select>
-        </td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td class="label_{$suggest_request}">&nbsp;</td>
-        <td>
-          <input type="checkbox" name="{$copy_all_request}" value="1" />&nbsp;{translate('Copy also date and time of the event')}
-        </td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr><td colspan="3">&nbsp;</td></tr>
-      <tr>
-        <td>&nbsp;</td>
-        <td colspan="2">
-          <input type="submit" value="{translate('OK')}" />&nbsp;
-          <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
-        </td>
-      </tr>
-    </table>
+        {/foreach}
+      </select>  
+    </div>
+    <div class="evt_edit_hint">{translate('To copy data from a previous event to the new event please the event to copy from. Informations about date and time will not copied.')}</div>
+    <div class="evt_edit_clear"></div>
+    
+    <div class="evt_edit_label">&nbsp;</div>
+    <div class="evt_edit_value">
+      <input type="checkbox" name="{$copy_datetime.name}" value="{$copy_datetime.value}" />&nbsp;
+      {translate('Copy also date and time of the event')}
+    </div>
+    <div class="evt_edit_hint">{translate('If you want also copy all the dates and times of the previous event please check this box.')}</div>
+    <div class="evt_edit_clear"></div>
+    
+    <div class="evt_edit_clear"></div>
+    <div class="evt_edit_label">&nbsp;</div>
+    <div class="evt_edit_value">
+      <input type="submit" value="{translate('OK')}" />&nbsp;
+      <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$form.action}'; return false;" />
+    </div>
+    <div class="evt_edit_hint">{translate('')}</div>
+    <div class="evt_edit_clear"></div>
   </form>
 </div>

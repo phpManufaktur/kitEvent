@@ -55,6 +55,7 @@ class eventBackend {
   const REQUEST_SUGGESTION = 'sgg';
   const REQUEST_SHOW_ALL = 'sa';
   const REQUEST_COPY_ALL = 'ca';
+  const REQUEST_EVENT_GROUP = 'egrp';
 
   const ACTION_ABOUT = 'abt';
   const ACTION_CONFIG = 'cfg';
@@ -69,6 +70,7 @@ class eventBackend {
   const ACTION_MESSAGES_DETAIL = 'msgd';
   const ACTION_SETTINGS = 'set';
   const ACTION_KIT = 'kit';
+  const ACTION_CHECK_SUGGEST = 'sugc';
 
   // needed for permaLink - must be similiar to the const in class.frontend.php!
   const REQUEST_EVENT = 'evt';
@@ -316,28 +318,18 @@ class eventBackend {
       case self::ACTION_ABOUT :
         $this->show(self::ACTION_ABOUT, $this->dlgAbout());
         break;
-      /*
-      case self::ACTION_CONFIG :
-        $this->show(self::ACTION_CONFIG, $this->dlgConfig());
-        break;
-        */
       case self::ACTION_DELETE:
         $this->show(self::ACTION_MESSAGES, $this->actionDelete());
         break;
       case self::ACTION_EDIT :
         $this->show(self::ACTION_EDIT, $this->dlgEditEvent());
         break;
+      case self::ACTION_CHECK_SUGGEST:
+        $this->show(self::ACTION_EDIT, $this->checkSuggestEvent());
+        break;
       case self::ACTION_EDIT_CHECK :
         $this->show(self::ACTION_EDIT, $this->checkEditEvent());
         break;
-      /*
-      case self::ACTION_GROUP :
-        $this->show(self::ACTION_GROUP, $this->dlgEditGroup());
-        break;
-      case self::ACTION_GROUP_CHECK :
-        $this->show(self::ACTION_GROUP, $this->checkEditGroup());
-        break;
-      */
       case self::ACTION_MESSAGES :
         $this->show(self::ACTION_MESSAGES, $this->dlgMessages());
         break;
@@ -517,18 +509,13 @@ class eventBackend {
     $tkei = TABLE_PREFIX.'mod_kit_event_item';
 
     $SQL = "SELECT $tkei.item_id, evt_event_date_from, item_title FROM `$tke`, `$tkei` ".
-        "WHERE $tke.item_id=$tkei.item_id AND `evt_status`!='-1' ORDER BY `evt_event_date_from`";
+        "WHERE $tke.item_id=$tkei.item_id AND `evt_status`!='-1' ORDER BY `evt_event_date_from` LIMIT 20";
     if (null === ($query = $database->query($SQL))) {
       $this->setError($database->get_error());
       return false;
     }
 
     $suggest_options = array();
-    $suggest_options[] = array(
-      'value' => -1,
-      'text' => $this->lang->translate('- do not use data from a previous event -')
-    );
-
     while (false !== ($event = $query->fetchRow(MYSQL_ASSOC))) {
       $suggest_options[] = array(
         'value' => $event['item_id'],
@@ -536,18 +523,115 @@ class eventBackend {
       );
     }
 
+    // gather the available event groups
+    $SQL = "SELECT `group_id`, `group_name` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_status`='1'";
+
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->get_error());
+      return false;
+    }
+    $event_groups = array();
+    while (false !== ($group = $query->fetchRow(MYSQL_ASSOC))) {
+      $event_groups[] = array(
+          'value' => $group['group_id'],
+          'text' => $group['group_name']
+          );
+    }
+
     $data = array(
-      'form_name' => 'event_suggest',
-      'form_action' => self::$page_link,
-      'action_name' => self::REQUEST_ACTION,
-      'action_value' => self::ACTION_EDIT,
-      'suggest_request' => self::REQUEST_SUGGESTION,
-      'suggest_options' => $suggest_options,
-      'abort_location' => self::$page_link,
-      'copy_all_request' => self::REQUEST_COPY_ALL
+        'form' => array(
+            'name' => 'event_suggest',
+            'action' => self::$page_link
+            ),
+        'action' => array(
+            'name' => self::REQUEST_ACTION,
+            'value' => self::ACTION_CHECK_SUGGEST
+            ),
+        'suggest' => array(
+            'name' => self::REQUEST_SUGGESTION,
+            'value' => -1,
+            'options' => $suggest_options
+            ),
+        'copy_datetime' => array(
+            'name' => self::REQUEST_COPY_ALL,
+            'value' => 1
+            ),
+        'event_group' => array(
+            'name' => self::REQUEST_EVENT_GROUP,
+            'value' => -1,
+            'options' => $event_groups
+            )
     );
     return $this->getTemplate('event.suggest.dwoo', $data);
-  } // dlgEventSuggestion()
+  } // dlgSuggestEvent()
+
+  private function checkSuggestEvent() {
+    global $database;
+
+    // get the suggested event
+    $suggest_id = (isset($_REQUEST[self::REQUEST_SUGGESTION])) ? (int) $_REQUEST[self::REQUEST_SUGGESTION] : -1;
+
+    if ($suggest_id > 0)
+      return $this->dlgEditEvent();
+
+    // check if already isset a event group
+    $event_group = (isset($_REQUEST[self::REQUEST_EVENT_GROUP])) ? (int) $_REQUEST[self::REQUEST_EVENT_GROUP] : -1;
+
+    if ($event_group > 0)
+      return $this->dlgEditEvent();
+
+    // the user must specify a event group
+
+    $copy_datetime = (int) isset($_REQUEST[self::REQUEST_COPY_ALL]);
+
+    // gather the available event groups
+    $SQL = "SELECT `group_id`, `group_name` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_status`='1'";
+
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError($database->get_error());
+      return false;
+    }
+    $event_groups = array();
+    while (false !== ($group = $query->fetchRow(MYSQL_ASSOC))) {
+      $event_groups[] = array(
+          'value' => $group['group_id'],
+          'text' => $group['group_name']
+      );
+    }
+
+    $data = array(
+        'form' => array(
+            'name' => 'event_suggest',
+            'action' => self::$page_link
+            ),
+        'action' => array(
+            'name' => self::REQUEST_ACTION,
+            'value' => self::ACTION_CHECK_SUGGEST
+            ),
+        'suggest' => array(
+            'name' => self::REQUEST_SUGGESTION,
+            'value' => $suggest_id,
+            ),
+        'copy_datetime' => array(
+            'name' => self::REQUEST_COPY_ALL,
+            'value' => $copy_datetime
+            ),
+        'event_group' => array(
+            'name' => self::REQUEST_EVENT_GROUP,
+            'value' => -1,
+            'options' => $event_groups,
+            'count' => count($event_group)
+            )
+        );
+    return $this->getTemplate('event.group.dwoo', $data);
+  } // checkSuggestEvent()
+
+  protected function getDistributionValue($identifier) {
+    global $database;
+
+    $SQL = "SELECT `array_value` FROM `".TABLE_PREFIX."mod_kit_contact_array_cfg` WHERE `array_identifier`='$identifier'";
+    return $database->get_one($SQL, MYSQL_ASSOC);
+  } // getDistributionValue()
 
   public function dlgEditEvent() {
     global $database;
@@ -586,6 +670,19 @@ class eventBackend {
     }
     elseif (!isset($_REQUEST[self::REQUEST_SUGGESTION])) {
       // erster Aufruf - Datenuebernahme von bestehenden Events anbieten
+      $SQL = "SELECT `group_id` FROM `".TABLE_PREFIX."mod_kit_event_group` WHERE `group_status`='1'";
+      if (null === ($query = $database->query($SQL))) {
+        $this->setError($database->get_error());
+        return false;
+      }
+      if ($query->numRows() < 1) {
+        // there is no event group available, user must first create a event group
+        $this->setMessage($this->lang->translate('<p>Before you can create the first event you must define a event group at least.</p>'));
+        $_REQUEST[self::REQUEST_ACTION] = self::ACTION_SETTINGS;
+        $_REQUEST[self::REQUEST_SUB_ACTION] = self::ACTION_GROUP;
+        $this->action();
+        return true;
+      }
       return $this->dlgSuggestEvent();
     }
     elseif (isset($_REQUEST[self::REQUEST_SUGGESTION]) && ($_REQUEST[self::REQUEST_SUGGESTION] != -1)) {
@@ -658,8 +755,13 @@ class eventBackend {
       $event = array();
       while (false !== ($field = $query->fetchRow(MYSQL_ASSOC)))
         $event[$field['Field']] = '';
+
       // set status to active
       $event['evt_status'] = 1;
+
+      // set the event group
+      $event['group_id'] = (isset($_REQUEST[self::REQUEST_EVENT_GROUP])) ? (int) $_REQUEST[self::REQUEST_EVENT_GROUP] : -1;
+
       // get the field names from mod_kit_event_item
       $SQL = "SHOW FIELDS FROM `".TABLE_PREFIX."mod_kit_event_item`";
       if (null === ($query = $database->query($SQL))) {
@@ -674,6 +776,7 @@ class eventBackend {
       $time_start = '';
       $time_end = '';
     }
+
     foreach ($event as $key => $value) {
       if (isset($_REQUEST[$key])) {
         switch ($key) :
@@ -708,11 +811,6 @@ class eventBackend {
     while (false !== ($grp = $query->fetchRow(MYSQL_ASSOC)))
       $grps[] = $grp;
     $group = array();
-    $group[] = array(
-      'selected' => ($event['group_id'] == -1) ? 1 : 0,
-      'value' => -1,
-      'text' => $this->lang->translate('- no group -')
-    );
     foreach ($grps as $grp) {
       $group[] = array(
         'selected' => ($grp['group_id'] == $event['group_id']) ? 1 : 0,
@@ -757,7 +855,6 @@ class eventBackend {
         if ($query->numRows() == 1) {
             // get the group settings
             $event_group = $query->fetchRow(MYSQL_ASSOC);
-
             if (!empty($event_group['kit_distribution_organizer'])) {
               // get all organizer ID's
               $ids = array();
@@ -806,13 +903,12 @@ class eventBackend {
       $organizer_default = $event['organizer_id'];
     }
     if (empty($location_contact) && ($event['location_id'] > 0)) {
-      if (!$kitContactInterface->getContact($event['location_id'], $organizer_contact)) {
+      if (!$kitContactInterface->getContact($event['location_id'], $location_contact)) {
         $this->setError($kitContactInterface->getError());
         return false;
       }
       $location_default = $event['location_id'];
     }
-
 
     $fields = array(
         'id' => array(
@@ -934,7 +1030,9 @@ class eventBackend {
           'value' => $event['organizer_id'],
           'default' => $organizer_default,
           'contact' => $organizer_contact,
-          'list' => $organizer_ids
+          'list' => $organizer_ids,
+          'distribution' => $this->getDistributionValue($event_group['kit_distribution_organizer']),
+          'count' => count($organizer_ids),
           ),
       'location' => array(
           'name' => 'location_id',
@@ -942,6 +1040,8 @@ class eventBackend {
           'default' => $location_default,
           'contact' => $location_contact,
           'list' => $location_ids,
+          'distribution' => $this->getDistributionValue($event_group['kit_distribution_location']),
+          'count' => count($location_ids),
           'alias' => array(
               'name' => 'item_location',
               'value' => $event['item_location']
@@ -955,10 +1055,7 @@ class eventBackend {
               'value' => $event['item_location_link']
               )
           )
-
     );
-
-
 
     // check if libraryAdmin exists
     if (file_exists(WB_PATH.'/modules/libraryadmin/inc/class.LABackend.php')) {
@@ -1014,8 +1111,7 @@ class eventBackend {
             self::REQUEST_SUB_ACTION => self::ACTION_CONFIG
             ))),
         'link_kit_id' => ADMIN_URL.'/admintools/tool.php?tool=kit&act=con&contact_id=',
-        'link_kit_list' => ADMIN_URL.'/admintools/tool.php?tool=kit&act=list',
-
+        'link_kit_list' => ADMIN_URL.'/admintools/tool.php?tool=kit&act=list'
     );
     return $this->getTemplate('event.edit.dwoo', $data);
   } // dlgEditEvent()
