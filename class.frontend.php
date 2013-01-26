@@ -93,6 +93,9 @@ class eventFrontend
     const PARAM_SORT = 'sort';
     const PARAM_CATEGORY = 'category';
     const PARAM_DATE = 'date';
+    const PARAM_MONTH = 'month';
+    const PARAM_YEAR = 'year';
+    const PARAM_REGION = 'region';
 
     const VIEW_ID = 'id';
     const VIEW_DAY = 'day';
@@ -119,7 +122,10 @@ class eventFrontend
         self::PARAM_ORDER_BY => '',
         self::PARAM_SORT => 'ASC',
         self::PARAM_CATEGORY => '',
-        self::PARAM_DATE => ''
+        self::PARAM_DATE => '',
+        self::PARAM_MONTH => '',
+        self::PARAM_YEAR => '',
+        self::PARAM_REGION => ''
         );
 
     private static $template_path;
@@ -1446,6 +1452,18 @@ class eventFrontend
         $SQL .= (count($cities) > 1) ? " AND ($add)" : " AND $add";
       }
 
+      if (!empty($this->params[self::PARAM_REGION])) {
+        // filter the region
+        $regions = explode(',', $this->params[self::PARAM_REGION]);
+        $add = '';
+        foreach ($regions as $region) {
+          $region = trim($region);
+          if (!empty($add)) $add .= " OR ";
+          $add .= "`address_region`='$region'";
+        }
+        $SQL .= (count($regions) > 1) ? " AND ($add)" : " AND $add";
+      }
+
       if (!empty($this->params[self::PARAM_CATEGORY])) {
         // filter the category
         $categories = explode(',', $this->params[self::PARAM_CATEGORY]);
@@ -1460,7 +1478,11 @@ class eventFrontend
 
       if (!empty($this->params[self::PARAM_ZIP])) {
         // filter the ZIPs in LIKE mode
-        $zips = explode(',', $this->params[self::PARAM_ZIP]);
+        $zips = explode(',', strtolower($this->params[self::PARAM_ZIP]));
+        if (in_array('zero', $zips)) {
+          unset($zips[array_search('zero', $zips)]);
+          $zips[] = '0';
+        }
         $add = '';
         foreach ($zips as $zip) {
           $zip = trim($zip);
@@ -1471,12 +1493,43 @@ class eventFrontend
       }
 
       if (!empty($this->params[self::PARAM_DATE])) {
-
+        // filter dates
+        $dates = explode(',', $this->params[self::PARAM_DATE]);
+        if (count($dates) == 1) {
+          // filter a specific day
+          $start = date('Y-m-d 00:00:00', strtotime($dates[0]));
+          $end = date('Y-m-d 23:59:59', strtotime($dates[0]));
+        }
+        else {
+          // filter between two dates
+          $start = date('Y-m-d 00:00:00', strtotime($dates[0]));
+          $end = date('Y-m-d 23:59:59', strtotime($dates[1]));
+        }
+        $SQL .= " AND `evt_event_date_from` >= '$start' AND `evt_event_date_to` <= '$end'";
       }
-      else {
+      elseif (empty($this->params[self::PARAM_MONTH]) && empty($this->params[self::PARAM_YEAR])) {
         // set default - show only events within the publishing period
         $today = date('Y-m-d H:i:s');
         $SQL .= " AND `evt_publish_date_from` <= '$today' AND `evt_publish_date_to` >= '$today'";
+      }
+
+      if (!empty($this->params[self::PARAM_YEAR]) && empty($this->params[self::PARAM_MONTH])) {
+        // filter the year (only if no month is specified)
+        $year = (int) $this->params[self::PARAM_YEAR];
+        if ($year < 1000) $year += 2000;
+        $start = date('Y-m-d H:i:s', mktime(0, 0, 0, 1, 1, $year));
+        $end = date('Y-m-d H:i:s', mktime(23, 59, 59, 12, 31, $year));
+        $SQL .= " AND `evt_event_date_from` >= '$start' AND `evt_event_date_to` <= '$end'";
+      }
+
+      if (!empty($this->params[self::PARAM_MONTH])) {
+        // filter the month and the year
+        $month = (int) $this->params[self::PARAM_MONTH];
+        // use the actual year if not specified
+        $year = (!empty($this->params[self::PARAM_YEAR])) ? (int) $this->params[self::PARAM_YEAR] : date('Y');
+        $start = date('Y-m-d H:i:s', mktime(0, 0, 0, $month, 1, $year));
+        $end = date('Y-m-d H:i:s', mktime(23,59,59, $month+1, 0, $year));
+        $SQL .= " AND `evt_event_date_from` >= '$start' AND `evt_event_date_to` <= '$end'";
       }
 
       // ORDER BY must be added at the last position of the query!
