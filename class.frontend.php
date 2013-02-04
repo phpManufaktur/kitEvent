@@ -42,6 +42,8 @@ global $manufakturConfig;
 if (!is_object($manufakturConfig))
     $manufakturConfig = new manufakturConfig('kit_event');
 
+require_once WB_PATH.'/framework/functions-utf8.php';
+
 class eventFrontend
 {
     const REQUEST_ACTION = 'kea';
@@ -76,26 +78,27 @@ class eventFrontend
     const ACTION_ORDER = 'ord';
     const ACTION_ORDER_CHECK = 'chk';
 
-    const PARAM_VIEW = 'view';
-    const PARAM_PRESET = 'preset';
-    const PARAM_DETAIL = 'detail';
-    const PARAM_GROUP = 'group';
-    const PARAM_EVENT_ID = 'event_id';
-    const PARAM_IGNORE_TOPICS = 'ignore_topics';
-    const PARAM_SEARCH = 'search';
-    const PARAM_HEADER = 'header';
-    const PARAM_CSS = 'css';
-    const PARAM_DEBUG = 'debug';
-    const PARAM_COUNTRY = 'country';
-    const PARAM_CITY = 'city';
-    const PARAM_ZIP = 'zip';
-    const PARAM_ORDER_BY = 'order_by';
-    const PARAM_SORT = 'sort';
     const PARAM_CATEGORY = 'category';
+    const PARAM_CITY = 'city';
+    const PARAM_COUNTRY = 'country';
+    const PARAM_CSS = 'css';
     const PARAM_DATE = 'date';
+    const PARAM_DEBUG = 'debug';
+    const PARAM_DETAIL = 'detail';
+    const PARAM_EVENT_ID = 'event_id';
+    const PARAM_GROUP = 'group';
+    const PARAM_HEADER = 'header';
+    const PARAM_IGNORE_TOPICS = 'ignore_topics';
+    const PARAM_LIMIT = 'limit';
     const PARAM_MONTH = 'month';
-    const PARAM_YEAR = 'year';
+    const PARAM_ORDER_BY = 'order_by';
+    const PARAM_PRESET = 'preset';
     const PARAM_REGION = 'region';
+    const PARAM_SEARCH = 'search';
+    const PARAM_SORT = 'sort';
+    const PARAM_VIEW = 'view';
+    const PARAM_YEAR = 'year';
+    const PARAM_ZIP = 'zip';
 
     const VIEW_ID = 'id';
     const VIEW_DAY = 'day';
@@ -125,7 +128,8 @@ class eventFrontend
         self::PARAM_DATE => '',
         self::PARAM_MONTH => '',
         self::PARAM_YEAR => '',
-        self::PARAM_REGION => ''
+        self::PARAM_REGION => '',
+        self::PARAM_LIMIT => ''
         );
 
     private static $template_path;
@@ -1434,6 +1438,7 @@ class eventFrontend
         $add = '';
         foreach ($countries as $country) {
           $country = trim($country);
+          $country = entities_to_umlauts2($country);
           if (!empty($add)) $add .= " OR ";
           $add .= "`address_country`='$country'";
         }
@@ -1446,6 +1451,7 @@ class eventFrontend
         $add = '';
         foreach ($cities as $city) {
           $city = trim($city);
+          $city = entities_to_umlauts2($city);
           if (!empty($add)) $add .= " OR ";
           $add .= "`address_city`='$city'";
         }
@@ -1458,6 +1464,7 @@ class eventFrontend
         $add = '';
         foreach ($regions as $region) {
           $region = trim($region);
+          $region = entities_to_umlauts2($region);
           if (!empty($add)) $add .= " OR ";
           $add .= "`address_region`='$region'";
         }
@@ -1470,6 +1477,7 @@ class eventFrontend
         $add = '';
         foreach ($categories as $category) {
           $category = trim($category);
+          $category = entities_to_umlauts2($category);
           if (!empty($add)) $add .= " OR ";
           $add .= "`item_category`='$category'";
         }
@@ -1496,16 +1504,43 @@ class eventFrontend
         // filter dates
         $dates = explode(',', $this->params[self::PARAM_DATE]);
         if (count($dates) == 1) {
-          // filter a specific day
-          $start = date('Y-m-d 00:00:00', strtotime($dates[0]));
-          $end = date('Y-m-d 23:59:59', strtotime($dates[0]));
+          // filter a day
+          if (strtoupper($dates[0]) == 'TODAY') {
+            // filter today
+            $start = date('Y-m-d 00:00:00');
+            $end = date('Y-m-d 23:59:59');
+            $SQL .= " AND `evt_event_date_from` >= '$start' AND `evt_event_date_to` <= '$end'";
+          }
+          else {
+            // filter a specific day
+            $start = date('Y-m-d 00:00:00', strtotime($dates[0]));
+            $end = date('Y-m-d 23:59:59', strtotime($dates[0]));
+            $SQL .= " AND `evt_event_date_from` >= '$start' AND `evt_event_date_to` <= '$end'";
+          }
         }
         else {
           // filter between two dates
-          $start = date('Y-m-d 00:00:00', strtotime($dates[0]));
-          $end = date('Y-m-d 23:59:59', strtotime($dates[1]));
+          if (strtoupper($dates[0]) == 'TODAY') {
+            // filter starts TODAY!
+            if (strtoupper($dates[1]) == 'ALL') {
+              // all events from today on
+              $start = date('Y-m-d 00:00:00');
+              $SQL .= " AND `evt_event_date_from` >= '$start'";
+            }
+            else {
+              // we assume the second parameter tells how many days!
+              $days = (int) $dates[1];
+              $start = date('Y-m-d 00:00:00');
+              $end = date('Y-m-d H:i:s', mktime(23, 59, 59, date('n'), date('j')+$days, date('Y')));
+              $SQL .= " AND `evt_event_date_from` >= '$start' AND `evt_event_date_from` <= '$end'";
+            }
+          }
+          else {
+            $start = date('Y-m-d 00:00:00', strtotime($dates[0]));
+            $end = date('Y-m-d 23:59:59', strtotime($dates[1]));
+            $SQL .= " AND `evt_event_date_from` >= '$start' AND `evt_event_date_to` <= '$end'";
+          }
         }
-        $SQL .= " AND `evt_event_date_from` >= '$start' AND `evt_event_date_to` <= '$end'";
       }
       elseif (empty($this->params[self::PARAM_MONTH]) && empty($this->params[self::PARAM_YEAR])) {
         // set default - show only events within the publishing period
@@ -1529,7 +1564,7 @@ class eventFrontend
         $year = (!empty($this->params[self::PARAM_YEAR])) ? (int) $this->params[self::PARAM_YEAR] : date('Y');
         $start = date('Y-m-d H:i:s', mktime(0, 0, 0, $month, 1, $year));
         $end = date('Y-m-d H:i:s', mktime(23,59,59, $month+1, 0, $year));
-        $SQL .= " AND `evt_event_date_from` >= '$start' AND `evt_event_date_to` <= '$end'";
+        $SQL .= " AND `evt_event_date_from` >= '$start' AND `evt_event_date_from` <= '$end'";
       }
 
       // ORDER BY must be added at the last position of the query!
@@ -1563,6 +1598,12 @@ class eventFrontend
       else {
         // set the default order and sort mode
         $SQL .= " ORDER BY `evt_event_date_from` ".$this->params[self::PARAM_SORT];
+      }
+
+      // but... it's possible that we have a limit!
+      if (!empty($this->params[self::PARAM_LIMIT])) {
+        $limit = (int) $this->params[self::PARAM_LIMIT];
+        $SQL .= " LIMIT $limit";
       }
 
       if (null === ($query = $database->query($SQL))) {
