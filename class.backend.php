@@ -509,7 +509,7 @@ class eventBackend {
     $tkei = TABLE_PREFIX.'mod_kit_event_item';
 
     $SQL = "SELECT $tkei.item_id, evt_event_date_from, item_title FROM `$tke`, `$tkei` ".
-        "WHERE $tke.item_id=$tkei.item_id AND `evt_status`!='-1' ORDER BY `evt_event_date_from` LIMIT 20";
+        "WHERE $tke.item_id=$tkei.item_id AND `evt_status`!='-1' ORDER BY `evt_event_date_from` DESC";
     if (null === ($query = $database->query($SQL))) {
       $this->setError($database->get_error());
       return false;
