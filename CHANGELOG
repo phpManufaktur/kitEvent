@@ -4,6 +4,13 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+0.41 - 2013-02-08
+
+* added paramter "limit" to the droplet kit_event
+* removed limit from select previous event at create a new one
+* extended filter functions: date, zip, region, month, year
+* updated droplet kit_event *.zip for installation
+
 0.40 - 2013-01-15
 
 * changed: dialog to create a new event checks now if a event group exists and
