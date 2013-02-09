@@ -599,14 +599,14 @@ class eventFrontend
         // KIT contact record for the Location
         $location_contact = array();
         if (!$kitContactInterface->getContact($event_data['location_id'], $location_contact)) {
-          $this->setError($kitContactInterface->getError());
-          return false;
+//          $this->setError($kitContactInterface->getError());
+//          return false;
         }
         // KIT contact record for the organizer
         $organizer_contact = array();
         if (!$kitContactInterface->getContact($event_data['organizer_id'], $organizer_contact)) {
-          $this->setError($kitContactInterface->getError());
-          return false;
+//          $this->setError($kitContactInterface->getError());
+//          return false;
         }
 
         $event_parser = array(
