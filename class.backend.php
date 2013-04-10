@@ -571,14 +571,16 @@ class eventBackend {
     // get the suggested event
     $suggest_id = (isset($_REQUEST[self::REQUEST_SUGGESTION])) ? (int) $_REQUEST[self::REQUEST_SUGGESTION] : -1;
 
-    if ($suggest_id > 0)
+    if ($suggest_id > 0) {
       return $this->dlgEditEvent();
+    }
 
     // check if already isset a event group
     $event_group = (isset($_REQUEST[self::REQUEST_EVENT_GROUP])) ? (int) $_REQUEST[self::REQUEST_EVENT_GROUP] : -1;
 
-    if ($event_group > 0)
+    if ($event_group > 0) {
       return $this->dlgEditEvent();
+    }
 
     // the user must specify a event group
 
@@ -740,6 +742,18 @@ class eventBackend {
         else {
           $time_end = '';
         }
+      }
+      else {
+          // we need the event group
+          $suggest_id = (int) $_REQUEST[self::REQUEST_SUGGESTION];
+          $SQL = "SELECT `group_id` FROM `".TABLE_PREFIX."mod_kit_event` WHERE `evt_id`='$suggest_id'";
+          if (null === ($query = $database->query($SQL))) {
+              $this->setError($database->get_error());
+              return false;
+          }
+          $evt = $query->fetchRow(MYSQL_ASSOC);
+          $evt['evt_status'] = 1;
+          $event = array_merge($event, $evt);
       }
       $this->setMessage($this->lang->translate('<p>This event was taken from the previous event with the ID {{ id }}</p>',
           array('id' => $_REQUEST[self::REQUEST_SUGGESTION])));
@@ -1133,7 +1147,9 @@ class eventBackend {
       'evt_deadline',
       'item_costs',
       'item_title',
-      'item_desc_short'
+      'item_desc_short',
+        'organizer_id',
+        'location_id'
     );
     // check request
     $checked = true;
@@ -1313,6 +1329,13 @@ class eventBackend {
               $checked = false;
             }
             break;
+          case 'organizer_id':
+          case 'location_id':
+              if ($_REQUEST[$request] < 1) {
+                  $message .= $this->lang->translate('<p>Please select an organizer and a location for this event!</p>');
+                  $checked = false;
+              }
+              break;
         endswitch
         ;
       }

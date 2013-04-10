@@ -42,6 +42,7 @@ if (file_exists(WB_PATH.'/modules/kit_event/class.frontend.php')) {
   $params[eventFrontend::PARAM_YEAR] = (isset($year)) ? $year : '';
   $params[eventFrontend::PARAM_REGION] = (isset($region)) ? $region : '';
   $params[eventFrontend::PARAM_LIMIT] = (isset($limit)) ? $limit : '';
+  $params[eventFrontend::PARAM_MODE] = (isset($mode)) ? $mode : eventFrontend::MODE_MONTH;
   $event->setParams($params);
   return $event->action();
 }

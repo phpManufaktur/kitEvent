@@ -1,0 +1,46 @@
+{*
+ * kitEvent
+ *
+ * @author Team phpManufaktur <team@phpmanufaktur.de>
+ * @link https://addons.phpmanufaktur.de/kitEvent
+ * @copyright 2011 Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+ 
+{foreach $events month}
+  <!--<div class="sheet_container">-->
+    <h2>{translate($month.name)}</h2>
+    <div class="date_container">
+      {foreach $month.days day}    
+        <div class="day_container">
+          <div class="day_digit_day{if ($day.0.weekday.id == 0) or ($day.0.weekday.id == 6)} weekend{/if}">{$day.0.day}</div>
+          <div class="day_digit_name{if ($day.0.weekday.id == 0) or ($day.0.weekday.id == 6)} weekend{/if}">{translate($day.0.weekday.name_2)}</div>
+        </div>
+      {/foreach}
+    </div>
+    {for evt 0 $max_events_per_day-1}
+      <div class="event_container_{$max_events_per_day}">
+        {foreach $month.days day} 
+          {if $day.$evt.id > 0}
+            {if $day.$evt.event.day_actual == 1}
+              <div class="event_days_{$day.$evt.event.days_total}">
+                {$day.$evt.title}
+              </div>
+            {/if}
+          {else}
+            <div class="event_none">&nbsp;</div>
+          {/if}
+        {/foreach}
+      </div>
+    {/for}
+    <div class="clear"></div>
+ <!-- </div>-->
+{/foreach}
+<div class="clear"></div>

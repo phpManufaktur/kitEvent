@@ -4,9 +4,14 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
+0.42 - 2013-04-09
+
+* added the view "sheet" (view=sheet) to show a month sheet with all events
+* create or edit events missed validation for organizer and location
+
 0.41 - 2013-02-08
 
-* added paramter "limit" to the droplet kit_event
+* added parameter "limit" to the droplet kit_event
 * removed limit from select previous event at create a new one
 * extended filter functions: date, zip, region, month, year
 * updated droplet kit_event *.zip for installation

@@ -85,6 +85,7 @@ $LANG = array(
       => 'Gruppe erstellen oder bearbeiten',
     'Create QR-Codes'
       => 'QR-Codes erstellen',
+
     'Date'
       => 'Datum',
     'Date/time'
@@ -97,6 +98,8 @@ $LANG = array(
       => 'Datum, bis',
     'Deadline'
       => 'Anmeldeschluß',
+    'December'
+        => 'Dezember',
     'Declared'
       => 'Angemeldet',
     'Delete'
@@ -167,6 +170,9 @@ $LANG = array(
       => 'Beginn',
     'Event title'
       => '<b>Schlagzeile</b> für die Veranstaltung',
+
+    'February'
+        => 'Februar',
     'Field 1 uses HTML'
       => 'Feld 1 verwendet HTML',
     'Field 2 uses HTML'
@@ -179,6 +185,8 @@ $LANG = array(
       => 'Feld 5 verwendet HTML',
     'Free Fields'
       => 'Freie Datenfelder',
+    'Friday'
+        => 'Freitag',
 
     'General'
       => 'Allgemein',
@@ -200,6 +208,13 @@ $LANG = array(
     'In status <b>locked</b> the event will not published in the frontend and status <b>delete</b> finally remove the event.'
       => 'Im Status <b>Gesperrt</b> wird die Veranstaltung nicht veröffentlicht und ist nicht sichtbar. Der Status <b>Gelöscht</b> entfernt die Veranstaltung unwiederruflich.',
 
+    'January'
+        => 'Januar',
+    'June'
+        => 'Juni',
+    'July'
+        => 'Juli',
+
     'KIT Distribution'
       => 'KIT Verteiler',
     'KIT Distribution, Organizer'
@@ -219,14 +234,20 @@ $LANG = array(
       => 'Gesperrt',
     'Long Description'
       => 'Ausführliche Beschreibung',
+
     'Margin'
       => 'Randabstand',
     'Margin of the QR-Code, default is 2'
       => 'Randabstand des QR Code in Pixel, Vorgabe ist 2',
+    'May'
+        => 'Mai',
     'Message'
       => 'Mitteilung',
     'Mister'
         => 'Herr',
+    'Monday'
+        => 'Montag',
+
     'Name of Field 1'
       => 'Bezeichnung Feld 1',
     'Name of Field 2'
@@ -238,6 +259,8 @@ $LANG = array(
     'Name of Field 5'
       => 'Bezeichnung Feld 5',
 
+    'October'
+        => 'Oktober',
     'Order details'
       => 'Details zu der Anmeldung',
     'Orders and messages'
@@ -306,6 +329,8 @@ $LANG = array(
     'Register'
         => 'Anmelden',
 
+    'Saturday'
+        => 'Samstag',
     'Select'
       => 'Auswählen',
     'Select event group'
@@ -326,6 +351,11 @@ $LANG = array(
         => 'Beginn',
     'Status'
       => 'Status',
+    'Su'
+        => 'So',
+    'Sunday'
+        => 'Sonntag',
+
     'TAB_ABOUT'
       => '?',
     'TAB_EDIT'
@@ -334,6 +364,8 @@ $LANG = array(
       => 'Aktuelle Veranstaltungen',
     'TAB_MESSAGES'
       => 'Anmeldungen',
+    'Th'
+        => 'Do',
     '<p>The CAPTCHA is invalid!</p>'
       => '<p>Der übermittelte Wert stimmt nicht mit dem Captcha überein.</p>',
     'The content of the QR-Code ()1=Perma Link, 2=iCal information), default is 2'
@@ -390,6 +422,8 @@ $LANG = array(
       => '<p>In dieser Liste sehen Sie alle aktuell anstehenden Veranstaltungen.</p>',
     '<p>This list shows you all registrations for your events.</p>'
       => '<p>Diese Liste zeigt Ihnen alle Anmeldungen sowie Anfragen zu Ihren Veranstaltungen.</p>',
+    'Thursday'
+        => 'Donnerstag',
     'Time end'
       => 'Uhrzeit, bis',
     'Time start'
@@ -400,14 +434,26 @@ $LANG = array(
       => 'Um Daten von einer früheren Veranstaltung in die neue Veranstaltung zu übernehmen, wählen Sie bitte die gewünschte Veranstaltung aus. Datums- und Zeitinformationen werden nicht übernommen.',
     '<p>To create a permaLink for this event, you must select a valid event group!</p>'
       => '<p>Damit für dieses Event ein permaLink angelegt werden kann, muss dieses Event einer Gruppe zugeordnet sein und in der Gruppendefinition eine Zielseite für die permaLinks definiert sein!</p>',
+    'Tu'
+        => 'Di',
+    'Tuesday'
+        => 'Dienstag',
+
     'Use Perma Links'
       => 'Perma Links verwenden',
     '<p>Use this dialog to create or edit a group.</p><p>The name of the group should be a single word, it will be used as parameter for the droplet [[kit_event]]</p>'
       => '<p>Mit diesem Dialog können Sie eine neue Gruppe für Veranstaltungen (Event, Konzert etc.) anlegen oder eine bestehende Gruppe bearbeiten.</p><p>Die <i>Bezeichner</i> für die Gruppen sollten möglichst aus einem einzelnen Wort bestehen und keine Leerzeichen, Sonderzeichen enthalten. Sie verwenden den Bezeichner als Parameter beim Aufruf des Droplets [[kit_event]].</p>',
+
     'Vacancies'
         => 'Freie Plätze',
+
+    'We'
+        => 'Mi',
+    'Wednesday'
+        => 'Mittwoch',
     'With this dialog you can create a new event or edit an existing event.'
-      => '<p>Mit diesem Dialog können Sie ein neues Event (Ereignis) anlegen oder ein bestehendes bearbeiten.</p>',
+        => '<p>Mit diesem Dialog können Sie ein neues Event (Ereignis) anlegen oder ein bestehendes bearbeiten.</p>',
+
     'You can activate up to <b>{{ free }}</b> <a href="{{ link }}">additional <i>free fields</i></a>.'
       => 'Sie können zusätzlich bis zu <b>{{ free }}</b> <a href="{{ link }}">Freie Datenfelder</a> aktivieren.',
     'You can copy the data from a previous event to a new event, just select an event from the list.'

@@ -119,3 +119,91 @@ td.cms_day_event a:active {
   background-color: #000;
   color: #fff;
 }
+
+.clear {
+  clear: both;
+  width: 1px;
+  height: 1px;
+}
+.sheet_container {
+  clear: both;
+  width: 500px;
+  height: auto;
+  margin: 0 0 30px 0;
+  padding: 5px;
+  border: 1px solid #cccccc;
+}
+.date_container {
+  float: left;
+  width: 50px;
+  height: auto;
+  margin: 0 10px 0 0;
+  padding: 0;
+}
+.day_container {
+  width: 50px;
+  height: 25px;
+  margin: 0;
+  padding: 0;
+}
+.day_digit_name,
+.day_digit_day {
+  float: left;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  padding: 5px;
+}
+.weekend {
+  color: #fff;
+  background-color: #cd0a0a;
+}
+.event_container_3,
+.event_container_2,
+.event_container_1 {
+  float: left;
+  width: 170px;
+  height: auto;
+  margin: 0;
+  padding: 0;
+}
+.event_container_1 {
+  width: 340px;
+}
+.event_container_3 {
+  width: 113px;
+}
+.event_width_1 {
+  width: 300px;
+}
+.event_width_2 {
+  width: 150px;
+}
+.event_none,
+.event_days_1,
+.event_days_2,
+.event_days_3,
+.event_days_4,
+.event_days_5 {
+  height: 13px;
+  width: 87%;
+  margin: 0;
+  padding: 5px;
+  border: 1px solid #fff;
+  overflow: hidden;
+}
+.event_days_1 {
+  border: 1px solid #3366FF;
+}
+.event_days_2 {
+  height: 38px;
+  border: 1px solid #cd0a0a;
+}
+.event_days_3 {
+  height: 63px;
+  border: 1px solid #00FF00;
+}
+.event_days_4 {
+  height: 88px;
+  border: 1px solid #3366FF;
+}

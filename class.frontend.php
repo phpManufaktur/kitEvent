@@ -90,6 +90,7 @@ class eventFrontend
     const PARAM_HEADER = 'header';
     const PARAM_IGNORE_TOPICS = 'ignore_topics';
     const PARAM_LIMIT = 'limit';
+    const PARAM_MODE = 'mode';
     const PARAM_MONTH = 'month';
     const PARAM_ORDER_BY = 'order_by';
     const PARAM_PRESET = 'preset';
@@ -106,6 +107,10 @@ class eventFrontend
     const VIEW_MONTH = 'month';
     const VIEW_ACTIVE = 'active';
     const VIEW_FILTER = 'filter';
+    const VIEW_SHEET = 'sheet';
+
+    const MODE_MONTH = 'month';
+    const MODE_WEEK = 'week';
 
     private $params = array(
         self::PARAM_VIEW => self::VIEW_ACTIVE,
@@ -129,7 +134,8 @@ class eventFrontend
         self::PARAM_MONTH => '',
         self::PARAM_YEAR => '',
         self::PARAM_REGION => '',
-        self::PARAM_LIMIT => ''
+        self::PARAM_LIMIT => '',
+        self::PARAM_MODE => '',
         );
 
     private static $template_path;
@@ -1041,6 +1047,9 @@ class eventFrontend
             case self::VIEW_FILTER:
               $result = $this->viewEventFilter();
               break;
+            case self::VIEW_SHEET:
+                $result = $this->viewSheet();
+                break;
             default:
                 // nicht spezifiziertes Event
                 $this->setError($this->lang->translate('Error: The event view <b>{{ view }}</b> is not specified!', array(
@@ -1635,6 +1644,153 @@ class eventFrontend
       );
       return $this->getTemplate('frontend.view.active.dwoo', $data);
     } // viewEventFilter();
+
+
+    /**
+     * Count the days between to dates and return the result
+     *
+     * @param datetime $from
+     * @param datetime $to
+     * @return number
+     */
+    protected function countDays($from, $to)
+    {
+        $first_date = strtotime($from);
+        $second_date = strtotime($to);
+        $offset = $second_date-$first_date;
+        return floor($offset/60/60/24)+1;
+    }
+
+    /**
+     * Use view=sheet to display event data for a calendar sheet
+     *
+     * @return string parsed sheet
+     */
+    protected function viewSheet()
+    {
+        global $database;
+
+        $check = (!empty($this->params[self::PARAM_MONTH])) ? explode(',', $this->params[self::PARAM_MONTH]) : array(0,1);
+        if (isset($check[0]) && isset($check[1])) {
+            $start = (int) $check[0];
+            $count = (int) $check[1];
+            $first_month = date('n')+$start;
+        }
+        else {
+            $this->setError('<p>Parameter "month" must be empty for the actual month or used as "month=start,count", example: month=0,1 show the actual month, month=0,2 show the actual month and the next, month=-1,3 show the last, the actual and the next month.</p>');
+            return false;
+        }
+
+        $result = array();
+        $months = array();
+        for ($month=$first_month; $month < ($first_month+$count); $month++) {
+            // get the days of the month
+            $days_in_month = date('t', mktime(0, 0, 0, $month, 1, date('Y')));
+            // get the actual month
+            $actual_month = date('n', mktime(0, 0, 0, $month, 1, date('Y')));
+            // get the actual year
+            $actual_year = date('Y', mktime(0, 0, 0, $month, 1, date('Y')));
+            // loop through the days of the month
+            $table_event = TABLE_PREFIX.'mod_kit_event';
+            $table_event_item = TABLE_PREFIX.'mod_kit_event_item';
+            $last_ids = array(-1);
+            $days = array();
+            for ($day=1; $day < ($days_in_month+1); $day++) {
+                $day_start = date('Y-m-d H:i:s', mktime(0, 0, 0, $actual_month, $day, $actual_year));
+                $day_end =   date('Y-m-d H:i:s', mktime(23, 59, 59, $actual_month, $day, $actual_year));
+
+                $id_check = '';
+                foreach ($last_ids as $last_id) {
+                    if (!empty($id_check))
+                        $id_check .= ' OR ';
+                    $id_check .= "$table_event.item_id = '$last_id'";
+                }
+                $SQL = "SELECT `evt_event_date_from`, `evt_event_date_to`, `item_title`, `item_desc_short`, $table_event.item_id FROM `$table_event`, `$table_event_item` WHERE ($table_event.item_id = $table_event_item.item_id) ".
+                    "AND ((`evt_event_date_from`>='$day_start' AND `evt_event_date_from`<='$day_end') OR (($id_check) AND `evt_event_date_to` >= '$day_start')) AND `evt_status`='1' ORDER BY `evt_event_date_from` ASC";
+                if (null === ($query = $database->query($SQL))) {
+                    $this->setError($database->get_error());
+                    return false;
+                }
+                $day_array = array();
+                $last_ids = array(-1);
+                if ($query->numRows() > 0) {
+                    while (false !== ($record = $query->fetchRow(MYSQL_ASSOC))) {
+                        $last_ids[] = $record['item_id'];
+                        $day_array[] = array(
+                            'id' => $record['item_id'],
+                            'day' => $day,
+                            'month' => $actual_month,
+                            'year' => $actual_year,
+                            'weekday' => array(
+                                'id' => date('w', mktime(0, 0, 0, $actual_month, $day, $actual_year)),
+                                'name' => date('l', mktime(0, 0, 0, $actual_month, $day, $actual_year)),
+                                'name_2' => substr(date('l', mktime(0, 0, 0, $actual_month, $day, $actual_year)), 0, 2),
+                            ),
+                            'event' => array(
+                                'days_total' => $this->countDays($record['evt_event_date_from'], $record['evt_event_date_to']),
+                                'day_actual' => ($day - date('j', strtotime($record['evt_event_date_from'])))+1
+                            ),
+                            'title' => $record['item_title'],
+                            'description' => array(
+                                'html' => $record['item_desc_short'],
+                                'text' => strip_tags($record['item_desc_short'])
+                            ),
+                            'link' => array(
+                                'register' => sprintf('%s%s%s',
+                                    self::$page_link,
+                                    (strpos(self::$page_link, '?') === false) ? '?' : '&',
+                                    http_build_query(array(
+                                        self::REQUEST_ACTION => self::ACTION_ORDER,
+                                        self::REQUEST_EVENT_ID => $record['item_id']
+                                    ))
+                                ),
+                                'detail' => sprintf('%s%s%s',
+                                    self::$page_link,
+                                    (strpos(self::$page_link, '?') === false) ? '?' : '&',
+                                    http_build_query(array(
+                                        self::REQUEST_ACTION => self::ACTION_EVENT,
+                                        self::REQUEST_EVENT_ID => $record['item_id'],
+                                        self::REQUEST_EVENT => self::VIEW_ID,
+                                        self::REQUEST_EVENT_DETAIL => 1
+                                    ))
+                                )
+                            )
+
+                        );
+                    }
+                }
+                else {
+                    // no hit, add empty record
+                    $day_array[] = array(
+                        'id' => -1,
+                        'day' => $day,
+                        'month' => $actual_month,
+                        'year' => $actual_year,
+                        'weekday' => array(
+                            'id' => date('w', mktime(0, 0, 0, $actual_month, $day, $actual_year)),
+                            'name' => date('l', mktime(0, 0, 0, $actual_month, $day, $actual_year)),
+                            'name_2' => substr(date('l', mktime(0, 0, 0, $actual_month, $day, $actual_year)), 0, 2),
+                        ),
+                        'title' => ''
+                    );
+                }
+
+                $days[$day] = $day_array;
+            }
+            $months[] = array(
+                'number' => $actual_month,
+                'name' => date('F', mktime(0, 0, 0, $actual_month, 1, $actual_year)),
+                'days' => $days
+                );
+        }
+        $result = $months;
+        $data = array(
+            'events' => $months,
+            'max_events_per_day' => (!empty($this->params[self::PARAM_LIMIT])) ? (int) $this->params[self::PARAM_LIMIT] : 2
+        );
+        echo $this->params[self::PARAM_LIMIT];
+        return $this->getTemplate('event.sheet.dwoo', $data);
+    } // viewSheet()
 
 } // class eventFrontend
 
