@@ -326,7 +326,7 @@ class kitEventToolsLibrary {
     }
     else {
       // keine Daten
-      $this->error = sprintf('[%s - %s] %s', __METHOD__, __LINE__, sprintf(tool_error_link_row_empty, $pageID));
+      //$this->error = sprintf('[%s - %s] %s', __METHOD__, __LINE__, sprintf(tool_error_link_row_empty, $pageID));
       return false;
     }
   } // getFileNameByPageID
