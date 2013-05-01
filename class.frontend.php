@@ -1529,19 +1529,25 @@ class eventFrontend
         }
         else {
           // filter between two dates
-          if (strtoupper($dates[0]) == 'TODAY') {
+          if ((strtoupper($dates[0]) == 'TODAY') || (strtoupper($dates[0]) == 'TODAY_PERSISTS')) {
             // filter starts TODAY!
             if (strtoupper($dates[1]) == 'ALL') {
               // all events from today on
               $start = date('Y-m-d 00:00:00');
-              $SQL .= " AND `evt_event_date_from` >= '$start'";
+              $SQL .= " AND (`evt_event_date_from` >= '$start'";
             }
             else {
               // we assume the second parameter tells how many days!
               $days = (int) $dates[1];
               $start = date('Y-m-d 00:00:00');
               $end = date('Y-m-d H:i:s', mktime(23, 59, 59, date('n'), date('j')+$days, date('Y')));
-              $SQL .= " AND `evt_event_date_from` >= '$start' AND `evt_event_date_from` <= '$end'";
+              $SQL .= " AND (`evt_event_date_from` >= '$start' AND `evt_event_date_from` <= '$end'";
+            }
+            if (strtoupper($dates[0]) == 'TODAY_PERSISTS') {
+                $SQL .= " OR `evt_event_date_to` >= '$start')";
+            }
+            else {
+                $SQL .= ')';
             }
           }
           else {

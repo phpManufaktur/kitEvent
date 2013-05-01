@@ -13,7 +13,10 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
- 
+{if $DEBUG == 1}
+  {$template_path}
+  {dump()}
+{/if} 
 {foreach $events month}
   <!--<div class="sheet_container">-->
     <h2>{translate($month.name)}</h2>
@@ -31,7 +34,8 @@
           {if $day.$evt.id > 0}
             {if $day.$evt.event.day_actual == 1}
               <div class="event_days_{$day.$evt.event.days_total}">
-                {$day.$evt.title}
+                
+                     <a href="{$day.$evt.link.detail}"> {$day.$evt.title}</a>
               </div>
             {/if}
           {else}
