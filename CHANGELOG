@@ -4,10 +4,12 @@
 Ralf Hertsch, Stockholmer Str. 31, 13359 Berlin (Germany)
 http://phpManufaktur.de - ralf.hertsch@phpManufaktur.de
 
-0.43 - JUST IN PROGRESS
+0.43 - 2013-05-06
 
 * added TODAY_PERSISTS for the filter DATE - show also events which started in
   the past and are also running TODAY.
+* filters now additional sort the result by the `evt_event_date_to` field in
+  ascending order (important at multiple hits with the same start date)
 
 0.42 - 2013-04-09
 

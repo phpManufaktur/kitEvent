@@ -1607,13 +1607,18 @@ class eventFrontend
             break;
           endswitch;
         }
-        if (!empty($add))
-          $SQL .= " ORDER BY $add ".$this->params[self::PARAM_SORT];
+        if (!empty($add)) {
+
+            $SQL .= " ORDER BY $add ".$this->params[self::PARAM_SORT];
+        }
       }
       else {
         // set the default order and sort mode
         $SQL .= " ORDER BY `evt_event_date_from` ".$this->params[self::PARAM_SORT];
       }
+
+      // the second parameter is always `evt_event_date_to` in ascending order
+      $SQL .= ", `evt_event_date_to` ASC";
 
       // but... it's possible that we have a limit!
       if (!empty($this->params[self::PARAM_LIMIT])) {
