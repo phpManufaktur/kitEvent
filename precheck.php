@@ -43,20 +43,10 @@ $PRECHECK['PHP_VERSION'] = array(
 
 // modified precheck array
 $check = array(
-    'Dwoo' => array(
-        'directory' => 'dwoo',
-        'version' => '0.17',
-        'problem' => 'Dwoo => <b><a href="https://addons.phpmanufaktur.de/download.php?file=Dwoo" target="_blank">Download actual version</a></b>'
-        ),
     'KeepInTouch' => array(
         'directory' => 'kit',
         'version' => '0.68',
         'problem' => 'KeepInTouch => <b><a href="https://addons.phpmanufaktur.de/download.php?file=KeepInTouch" target="_blank">Download actual version</a></b>'
-        ),
-    'dropletsExtension' => array(
-        'directory' => 'droplets_extension',
-        'version' => '0.24',
-        'problem' => 'dropletsExtension => <b><a href="https://addons.phpmanufaktur.de/download.php?file=dropletsExtension" target="_blank">Download actual version</a></b>'
         ),
     'manufakturConfig' => array(
         'directory' => 'manufaktur_config',
@@ -84,6 +74,19 @@ $check = array(
         'problem' => 'libJQuery => <b><a href="http://jquery.lepton-cms.org/modules/download_gallery/dlc.php?file=76&id=1320743410" target="_blank">Download actual version</a></b>'
         ),
     );
+
+if (!defined('CAT_VERSION')) {
+    $check['Dwoo'] = array(
+        'directory' => 'dwoo',
+        'version' => '0.17',
+        'problem' => 'Dwoo => <b><a href="https://addons.phpmanufaktur.de/download.php?file=Dwoo" target="_blank">Download actual version</a></b>'
+    );
+    $check['dropletsExtension'] = array(
+        'directory' => 'droplets_extension',
+        'version' => '0.27',
+        'problem' => 'dropletsExtension => <b><a href="https://addons.phpmanufaktur.de/download.php?file=dropletsExtension" target="_blank">Download actual version</a></b>'
+    );
+}
 
 $versionSQL = "SELECT `version` FROM `".TABLE_PREFIX."addons` WHERE `directory`='%s'";
 
